@@ -14,7 +14,7 @@ __copyright__ = "Copyright 2018, CTTC"
 nt = node_topology()
 
 # Set a node-id for the node
-nt.node.node_id = "10.1.7.65"
+nt.node.node_id = "10.1.7.64"
 
 # Add an entry to the port list
 pl = nt.node.port.add("01")

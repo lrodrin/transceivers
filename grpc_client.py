@@ -22,7 +22,7 @@ def main():
 
     nt = node_topology()
 
-    nt.node.node_id = "10.1.7.65"
+    nt.node.node_id = "10.1.7.64"
     pl = nt.node.port.add("01")
     for core in [("00", "Core0"), ("01", "Core1")]:
         ac = pl.available_core.add(core[0])
