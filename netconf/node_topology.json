@@ -1,0 +1,15 @@
+{
+    "node-topology:node": {
+        "node-id": "10.1.7.64", 
+        "port": [
+            {
+                "available-core": [
+                    {
+                        "core-id": "Core1"
+                    }
+                ], 
+                "port-id": "1"
+            }
+        ]
+    }
+}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import pyangbind.lib.pybindJSON as pybindJSON
-from netconf.binding import node_topology
-from netconf.defaults import *
-from  netconf.helpers import *
+from binding import node_topology
+from defaults import *
+from helpers import *
 import argparse
 import yaml
 import sys
@@ -11,14 +11,16 @@ import sys
 
 def make_json(yml):
     model = node_topology()
-    for intf, conf in yml['interface'].iteritems():
-        print("Instantiating model for {}".format(intf))
-        intf_model = model.interfaces.interface.add(intf)
-        intf_model.description = conf['description']
-        ip_model = intf_model.ipv4.address.add(conf['address']['prefix'])
-        ip_model.netmask = conf['address']['netmask']
-        print("Done")
-
+    model.node.node_id = yml['node']['node-id']
+    new_port = model.node.port.add(yml['node']['port']['port-id'])
+    new_port.available_core.add(yml['node']['port']['available-core']['core-id'])
+    # for intf, conf in yml['interface'].iteritems():
+    #     print("Instantiating model for {}".format(intf))
+    #     intf_model = model.interfaces.interface.add(intf)
+    #     intf_model.description = conf['description']
+    #     ip_model = intf_model.ipv4.address.add(conf['address']['prefix'])
+    #     ip_model.netmask = conf['address']['netmask']
+    print("Done")
     return pybindJSON.dumps(model, mode='ietf')
 
 
