@@ -8,6 +8,9 @@ import argparse
 import yaml
 import sys
 
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
+
 
 def make_json(yml):
     model = node_topology()
