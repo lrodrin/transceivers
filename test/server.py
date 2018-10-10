@@ -1,28 +1,19 @@
-from flask import (
-    Flask,
-    render_template
-)
+from flask import Flask
+import pyangbind.lib.pybindJSON as pybindJSON
+from binding import sliceable_transceiver_sdm
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
+app = Flask(__name__)
 
 
-# Create the application instance
-app = Flask(__name__, template_folder="templates")
+@app.route('/hello')
+def helloWorldHandler():
+    return 'Hello World from Flask!'
 
+@app.route('/slice')
+def make_json():
+    model = sliceable_transceiver_sdm()
+    model.transceiver.slice.add("1")
+    print("Done")
+    return pybindJSON.dumps(model, mode='ietf')
 
-# Create a URL route in our application for "/"
-@app.route('/')
-def home():
-    """
-    This function just responds to the browser URL
-    localhost:5000/
-
-    :return:        the rendered template 'home.html'
-    """
-    return render_template('home.html')
-
-
-# If we're running in stand alone mode, run the application
-if __name__ == '__main__':
-    app.run(debug=True)
+app.run(host='10.1.7.64', port=5000)
