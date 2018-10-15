@@ -8,23 +8,29 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 app = Flask(__name__)
 
 model = sliceable_transceiver_sdm()
-new_slice = model.transceiver.slice.add("1")
 
 @app.route('/api/transceiver', methods=['GET'])
-def read():
-	# return pybindJSON.dumps(new_slice)
+def get_transceiver():
 	return pybindJSON.dumps(model, mode='ietf')
 
-@app.route('/api/slice/1', methods=['POST'])
-def create():
+@app.route('/api/transceiver/slice', methods=['POST'])
+def create_slice():
 	payload = request.json
-	new_slice.optical_channel.add(payload['id'])
+	model.transceiver.slice.add(payload['sliceid'])
 	return "Created: {} \n".format(payload)
 
-@app.route('/api/slice/1', methods=['PUT'])
-def update():
+@app.route('/api/transceiver/slice', methods=['DELETE'])
+def delete_slice():
 	payload = request.json
-	new_slice.optical_channel.set_opticalchannelid = [payload['id']]
-	return "Updated: {} \n".format(payload)
+	model.transceiver.slice.delete(payload['sliceid'])
+	return "Deleted: {} \n".format(payload)
+
+@app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
+def create_opticalchannel(_id):
+	payload = request.json
+	for sliceid in model.transceiver.slice.iteritems():
+		# if _id == sliceid:	
+		sliceid.optical_channel.add(payload['opticalchannelid'])
+	return "Created: {} \n".format(payload)
 
 app.run(host='10.1.7.64', port=5000)
