@@ -1,9 +1,4 @@
-from netconf.client import NetconfSSHSession
+from netconf.client import connect_ssh
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
-
-session = NetconfSSHSession('10.1.7.64', 830, 'test', 'test')
-config = session.get_config()
-
-print(config)
+with connect_ssh('127.0.0.1', 830, 'admin', 'admin') as session:
+    config = session.get_config()
