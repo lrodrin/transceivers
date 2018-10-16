@@ -5,8 +5,8 @@ import sys
 
 from ncclient import manager
 
-from netconf.defaults import *
-from netconf.helpers import *
+from defaults import *
+from helpers import *
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--password', '-p', default=PASS, help="password")
     args = parser.parse_args()
 
-    xml = read_file(args.interface)
+    xml = read_file(args.topology)
     reply = edit_config(xml, args.host, args.port, args.user, args.password)
     print('Command sent: {}'.format(reply.ok))
 

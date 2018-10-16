@@ -1,9 +1,11 @@
 import argparse
 import sys
 import time
+import socket
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
+from binding import node_topology
 
 nsmap_add("node-topology", "urn:node-topology")
 
@@ -22,9 +24,10 @@ class MyServer(object):
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
         """Passed the source element"""
+
         data = util.elm("nc:data")
         sysc = util.subelm(data, "node-topology:node")
-        sysc.append(util.leaf_elm("node-topology:node-id", '10.1.7.64'))
+        sysc.append(util.leaf_elm("node-topology:node-id", "10.1.7.64"))
 
         # Clock
         # clockc = util.subelm(sysc, "sys:clock")
@@ -32,7 +35,6 @@ class MyServer(object):
         # clockc.append(util.leaf_elm("sys:timezone-utc-offset", int(time.timezone / 100)))
 
         return util.filter_results(rpc, data, filter_or_none)
-
 
 def main(*margs):
     parser = argparse.ArgumentParser("Example Netconf Server")
