@@ -1,4 +1,4 @@
-HOST = '10.1.7.64'
+HOST = '127.0.0.1'
 PORT = 830
 USER = 'admin'
 PASS = 'admin'

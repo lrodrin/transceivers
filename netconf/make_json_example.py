@@ -4,7 +4,7 @@ from __future__ import print_function, unicode_literals
 
 import pyangbind.lib.pybindJSON as pybindJSON
 
-from netconf.binding import node_topology
+from binding import node_topology
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"

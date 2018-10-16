@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 
 from netconf.client import NetconfSSHSession
 
-host = '10.1.7.64'
+host = '127.0.0.1'
 port = 830
 username = "admin"
 password = "admin"

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import pyangbind.lib.pybindJSON as pybindJSON
-from test.binding import sliceable_transceiver_sdm
-from test.helpers import *
+from binding import sliceable_transceiver_sdm
+from helpers import *
 import sys
 
 
