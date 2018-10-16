@@ -25,9 +25,13 @@ class MyServer(object):
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
         """Passed the source element"""
 
+        model = node_topology()
+        model.node.node_id = "10.1.7.64"
+        print(model.node.node_id)
+
         data = util.elm("nc:data")
         sysc = util.subelm(data, "node-topology:node")
-        sysc.append(util.leaf_elm("node-topology:node-id", "10.1.7.64"))
+        sysc.append(util.leaf_elm("node-topology:node-id", model.node.node_id))
 
         # Clock
         # clockc = util.subelm(sysc, "sys:clock")
