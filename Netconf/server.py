@@ -6,7 +6,7 @@ from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder
 
-from netconf.binding import node_topology
+from binding import node_topology
 
 nsmap_add("node-topology", "urn:node-topology")
 
@@ -20,7 +20,7 @@ class MyServer(object):
         self.server.close()
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
-        util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
+        util.subelm(capabilities, "capability").text = "urn:ietf:params:Netconf:capability:xpath:1.0"
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
