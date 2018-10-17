@@ -7,6 +7,6 @@ from binding import node_topology
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
-model = node_topology()
-model.node.node_id = "10.1.7.64"
-print(pybindIETFXMLEncoder.serialise(model))
+nt = node_topology()
+nt.node.add("127.0.0.1")
+print(pybindIETFXMLEncoder.serialise(nt))

@@ -6,7 +6,7 @@ import sys
 import pyangbind.lib.pybindJSON as pybindJSON
 import yaml
 
-from binding import node_topology
+from netconf.binding import node_topology
 from defaults import *
 from helpers import *
 

@@ -6,7 +6,7 @@ from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder
 
-from binding import node_topology
+from netconf.binding import node_topology
 
 nsmap_add("node-topology", "urn:node-topology")
 
