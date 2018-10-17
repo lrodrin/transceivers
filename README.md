@@ -19,7 +19,7 @@ $ export PYBINDPLUGIN=`/usr/bin/env python -c \
 $ echo $PYBINDPLUGIN
 ```
 
-Once this path is known, it can be provided to the `--plugin-dir` argument to Pyang. In the simplest form the command used is:
+Once this path is known, it can be provided to the `--plugin-dir` argument to Pyang.
 
 ```
 $ pyang --plugindir $PYBINDPLUGIN -f pybind -o binding.py node-topology.yang
@@ -49,8 +49,8 @@ At this point, the `nt` object can be used to manipulate the YANG data tree that
 A subset of `node-topology` looks like the following tree:
 ```
 module: node-topology
-    +--rw node
-       +--rw node-id?   string
+    +--rw node* [node-id]
+       +--rw node-id    string
        +--rw port* [port-id]
           +--rw port-id                  string
           +--rw layer-protocol-name?     string
