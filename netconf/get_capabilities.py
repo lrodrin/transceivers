@@ -22,7 +22,7 @@ def get_capabilities(host, port, user, pwd):
 
 def print_capabilities(c, pattern):
     print(
-        "Search pattern:" + pattern)
+            "Search pattern:" + pattern)
     filtered_c = [x for x in c if re.search(pattern, x, re.IGNORECASE)]
     for one in filtered_c:
         print(one)

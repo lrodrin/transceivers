@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
+import argparse
+import sys
+
 import pyangbind.lib.pybindJSON as pybindJSON
+import yaml
+
 from binding import node_topology
 from defaults import *
 from helpers import *
-import argparse
-import yaml
-import sys
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"

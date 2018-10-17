@@ -1,10 +1,11 @@
 import argparse
 import sys
 import time
-import socket
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
+from pyangbind.lib.serialise import pybindIETFXMLEncoder
+
 from binding import node_topology
 
 nsmap_add("node-topology", "urn:node-topology")
@@ -23,11 +24,10 @@ class MyServer(object):
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
-        """Passed the source element"""
 
         model = node_topology()
         model.node.node_id = "10.1.7.64"
-        print(model.node.node_id)
+        print(pybindIETFXMLEncoder.serialise(model))
 
         data = util.elm("nc:data")
         sysc = util.subelm(data, "node-topology:node")
@@ -39,6 +39,7 @@ class MyServer(object):
         # clockc.append(util.leaf_elm("sys:timezone-utc-offset", int(time.timezone / 100)))
 
         return util.filter_results(rpc, data, filter_or_none)
+
 
 def main(*margs):
     parser = argparse.ArgumentParser("Example Netconf Server")
