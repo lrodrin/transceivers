@@ -26,19 +26,16 @@ class MyServer(object):
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
 
         model = node_topology()
-        model.node.node_id = "10.1.7.64"
-        print(pybindIETFXMLEncoder.serialise(model))
+        model.node.add("10.1.7.64")
+
 
         data = util.elm("nc:data")
         sysc = util.subelm(data, "node-topology:node")
         sysc.append(util.leaf_elm("node-topology:node-id", model.node.node_id))
 
-        # Clock
-        # clockc = util.subelm(sysc, "sys:clock")
-        # tzname = time.tzname[time.localtime().tm_isdst]
-        # clockc.append(util.leaf_elm("sys:timezone-utc-offset", int(time.timezone / 100)))
+        data2 = pybindIETFXMLEncoder.serialise(model)
 
-        return util.filter_results(rpc, data, filter_or_none)
+        return util.filter_results(rpc, data2, filter_or_none)
 
 
 def main(*margs):
