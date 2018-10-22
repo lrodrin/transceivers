@@ -19,4 +19,4 @@ print(sid)
 
 config = session.get_config()
 xmlstr = ElementTree.tostring(config, encoding='utf8', method='xml')
-print(xmlstr)
+print(config)

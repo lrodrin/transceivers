@@ -31,11 +31,11 @@ class MyServer(object):
 
         data = util.elm("nc:data")
         sysc = util.subelm(data, "node-topology:node")
-        sysc.append(util.leaf_elm("node-topology:node-id", model.node.node_id))
+        sysc.append(util.leaf_elm("node-topology:node", model.node))
 
         data2 = pybindIETFXMLEncoder.serialise(model)
 
-        return util.filter_results(rpc, data2, filter_or_none)
+        return util.filter_results(rpc, data, filter_or_none)
 
 
 def main(*margs):
