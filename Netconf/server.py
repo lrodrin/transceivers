@@ -8,6 +8,9 @@ from pyangbind.lib.serialise import pybindIETFXMLEncoder
 
 from binding import node_topology
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 nsmap_add("node-topology", "urn:node-topology")
 
 
