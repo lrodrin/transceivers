@@ -16,6 +16,14 @@ nt.node.add("10.1.7.65")
 for i, n in nt.node.iteritems():
     n.port.add("1")
     for j, p in n.port.iteritems():
-        p.available_core.add("Core19")
+        p.available_core.add("01")
 
-print(pybindIETFXMLEncoder.serialise(nt))
+# print(pybindIETFXMLEncoder.serialise(nt))
+
+from xml.etree import ElementTree
+
+data = ElementTree.Element('data', xmlns="urn:ietf:params:xml:ns:netconf:base:1.0")
+node = ElementTree.SubElement(data, 'node', xmlns="urn:node-topology")
+nodeid = ElementTree.SubElement(node, 'node-id')
+nodeid.text = '10.1.7.64'
+print(data)

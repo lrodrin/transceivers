@@ -11,6 +11,9 @@ from binding import node_topology
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
+
 nsmap_add("node-topology", "urn:node-topology")
 
 
@@ -23,7 +26,7 @@ class MyServer(object):
         self.server.close()
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
-        util.subelm(capabilities, "capability").text = "urn:ietf:params:Netconf:capability:xpath:1.0"
+        util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
@@ -34,9 +37,15 @@ class MyServer(object):
 
         data = util.elm("nc:data")
         sysc = util.subelm(data, "node-topology:node")
-        sysc.append(util.leaf_elm("node-topology:node", model.node))
+        sysc.append(util.leaf_elm("node-topology:node-id", '10.1.7.64'))
+        nose = util.subelm(sysc, "node-topology:port")
+        nose.append(util.leaf_elm("node-topology:port-id", '01'))
+
 
         data2 = pybindIETFXMLEncoder.serialise(model)
+        print(data2)
+
+        # return data2
 
         return util.filter_results(rpc, data, filter_or_none)
 
