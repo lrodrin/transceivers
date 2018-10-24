@@ -41,9 +41,9 @@ class MyServer(object):
         nose = util.subelm(sysc, "node-topology:port")
         nose.append(util.leaf_elm("node-topology:port-id", '01'))
 
-
         data2 = pybindIETFXMLEncoder.serialise(model)
         print(data2)
+        print(data)
 
         # return data2
 

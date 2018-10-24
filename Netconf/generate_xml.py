@@ -20,10 +20,4 @@ for i, n in nt.node.iteritems():
 
 # print(pybindIETFXMLEncoder.serialise(nt))
 
-from xml.etree import ElementTree
-
-data = ElementTree.Element('data', xmlns="urn:ietf:params:xml:ns:netconf:base:1.0")
-node = ElementTree.SubElement(data, 'node', xmlns="urn:node-topology")
-nodeid = ElementTree.SubElement(node, 'node-id')
-nodeid.text = '10.1.7.64'
-print(data)
+print(nt.node.get())
