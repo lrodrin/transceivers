@@ -5,7 +5,7 @@ import time
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder
-
+from xml.etree import ElementTree
 from binding import node_topology
 
 import logging
@@ -31,19 +31,35 @@ class MyServer(object):
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
 
-        model = node_topology()
-        model.node.add("10.1.7.64")
+        # model = node_topology()
+        # model.node.add("10.1.7.64")
+        #
+        #
+        # data = util.elm("nc:data")
+        # sysc = util.subelm(data, "node-topology:node")
+        # sysc.append(util.leaf_elm("node-topology:node-id", '10.1.7.64'))
+        # nose = util.subelm(sysc, "node-topology:port")
+        # nose.append(util.leaf_elm("node-topology:port-id", '01'))
+        #
+        # data2 = pybindIETFXMLEncoder.serialise(model)
+        # print(data2)
+        # print(data)
 
+        nt = node_topology()
+        nt.node.add("10.1.7.64")
+        nt.node.add("10.1.7.65")
 
-        data = util.elm("nc:data")
-        sysc = util.subelm(data, "node-topology:node")
-        sysc.append(util.leaf_elm("node-topology:node-id", '10.1.7.64'))
-        nose = util.subelm(sysc, "node-topology:port")
-        nose.append(util.leaf_elm("node-topology:port-id", '01'))
+        for i, n in nt.node.iteritems():
+            n.port.add("1")
+            for j, p in n.port.iteritems():
+                p.available_core.add("01")
 
-        data2 = pybindIETFXMLEncoder.serialise(model)
-        print(data2)
-        print(data)
+        b = pybindIETFXMLEncoder.serialise(nt)
+        # print(b)  # xml
+
+        data = ElementTree.Element("nc:data")
+        data.append(ElementTree.Element(b))
+        print(ElementTree.tostring(data))
 
         # return data2
 
