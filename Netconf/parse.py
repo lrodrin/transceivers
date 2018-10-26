@@ -22,10 +22,7 @@ for i, n in nt.node.iteritems():
 b = pybindIETFXMLEncoder.serialise(nt)
 # print(b) # xml
 
-st = ElementTree.Element("data")
-co = ElementTree.Element("county")
-st.append()
-print(ElementTree.tostring(st))
-
-
+data = util.elm("nc:data")
+data.append(util.leaf_elm("node-topology:node", b))
+print(ElementTree.fromstring(data))
 

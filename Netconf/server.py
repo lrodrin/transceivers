@@ -57,13 +57,37 @@ class MyServer(object):
         b = pybindIETFXMLEncoder.serialise(nt)
         # print(b)  # xml
 
-        data = ElementTree.Element("nc:data")
-        data.append(ElementTree.Element(b))
-        print(ElementTree.tostring(data))
+        # data = ElementTree.Element("nc:data")
+        # data.append(ElementTree.Element(b))
+        # print(ElementTree.tostring(data))
+
+        data = util.elm("nc:data")
+        data.append(util.leaf_elm("node-topology:node", b))
+        print(ElementTree.fromstring(data))
 
         # return data2
 
         return util.filter_results(rpc, data, filter_or_none)
+
+    def rpc_get(self, session, rpc, filter_or_none):  # pylint: disable=W0613
+        """Passed the filter element or None if not present"""
+
+        nt = node_topology()
+        nt.node.add("10.1.7.64")
+        nt.node.add("10.1.7.65")
+
+        for i, n in nt.node.iteritems():
+            n.port.add("1")
+            for j, p in n.port.iteritems():
+                p.available_core.add("01")
+
+        b = pybindIETFXMLEncoder.serialise(nt)
+
+        data = util.elm("nc:data")
+        sysc = util.subelm(data, "node-topology:node")
+        x = util.subelm(sysc, b)
+
+        return util.filter_results(rpc, data, filter_or_none, self.server.debug)
 
 
 def main(*margs):
