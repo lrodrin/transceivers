@@ -56,25 +56,30 @@ class MyServer(object):
 
         return util.filter_results(rpc, data, filter_or_none)
 
+    def rpc_edit_config(self, session, rpc, source_elm, filter_or_none):
+        return rpc
+
     def rpc_get(self, session, rpc, filter_or_none):  # pylint: disable=W0613
-        """Passed the filter element or None if not present"""
 
-        nt = node_topology()
-        nt.node.add("10.1.7.64")
-        nt.node.add("10.1.7.65")
+        print("-"*30)
+        #json_root = open('test.json', 'r').read()
+        #nodeTopo = pbJ.loads(json_root, binding, "node_topology")
+        
+        xml_root= open('test.xml', 'r').read()
+        nodeTopo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
+        print ("JI")
+        xml = pybindIETFXMLEncoder.serialise(nodeTopo)
+        print ("JI")
 
-        for i, n in nt.node.iteritems():
-            n.port.add("1")
-            for j, p in n.port.iteritems():
-                p.available_core.add("01")
-
-        b = pybindIETFXMLEncoder.serialise(nt)
-
+        tree = etree.XML(xml)
+        print(etree.tostring(tree))
         data = util.elm("nc:data")
-        sysc = util.subelm(data, "node-topology:node")
-        x = util.subelm(sysc, b)
+        data.append(tree)
+        subdata=util.subelm(data, "node-topology:node", tree )
+        print("-"*30)
+        print(etree.tostring(data))
 
-        return util.filter_results(rpc, data, filter_or_none, self.server.debug)
+        return util.filter_results(rpc, data, filter_or_none)
 
 
 def main(*margs):
@@ -84,7 +89,7 @@ def main(*margs):
     parser.add_argument('--port', type=int, default=830, help='Netconf server port')
     args = parser.parse_args(*margs)
 
-    nt = node_topology()
+    nt = node_topology() # create server configuration
     nt.node.add("10.1.7.64")
     nt.node.add("10.1.7.65")
 
