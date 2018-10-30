@@ -26,13 +26,25 @@ write_file('test.xml', data)
 
 xml_element_tree = ElementTree.parse('test.xml')
 
-print(xml_element_tree)
-
 tree = ElementTree.parse('test.xml')
 root = tree.getroot()
-newroot = ElementTree.Element("data")
+# print(ElementTree.tostring(root))
+newroot = ElementTree.Element("nc:data")
+# print(ElementTree.tostring(newroot))
+# newroot.append(root)
 newroot.insert(0, root)
 print(ElementTree.tostring(newroot))
+
+# with open('test.xml', 'rb') as f:
+#     print('<data>{}</data>'.format(f.read()))
+
+# with open('test.xml', 'rb') as f:
+#     result = f.read()
+#     # print('<data>{}</data>'.format(result))
+#     t = '<data>{}</data>'.format(result)
+#     print(t)
+
+#print(ElementTree.tostring(newroot))
 
 # print(ElementTree.tostring(data2, encoding='utf8', method='xml'))
 # data.append(util.leaf_elm("node-topology:node", b))
@@ -43,3 +55,12 @@ print(ElementTree.tostring(newroot))
 # xml_element_tree = data2
 # xml_element_tree.extend(ElementTree.tostring(data))
 # print(ElementTree.tostring(xml_element_tree, encoding="utf-8", method="xml").decode('utf-8'))
+
+print("-"*30)
+tree = ElementTree.parse('test.xml')
+root = tree.getroot()
+print(ElementTree.tostring(root))
+data = util.elm("nc:data")
+data.append(util.subelm(data, "node-topology:node", ElementTree.tostring(root)))
+
+print(ElementTree.tostring(data))
