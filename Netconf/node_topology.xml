@@ -1,12 +1,20 @@
-<?xml version='1.0' encoding='utf-8'?>
-<nc:config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:node-topology="urn:node-topology">
-    <node-topology:node>
-        <node-topology:node-id>10.1.7.65</node-topology:node-id>
-        <node-topology:port>
-            <node-topology:port-id>1</node-topology:port-id>
-            <node-topology:available-core>
-                <node-topology:core-id>Core1</node-topology:core-id>
-            </node-topology:available-core>
-        </node-topology:port>
-    </node-topology:node>
-</nc:config>
+<node-topology xmlns="urn:node-topology">
+  <node>
+    <node-id>10.1.7.64</node-id>
+    <port>
+      <available-core>
+        <core-id>01</core-id>
+      </available-core>
+      <port-id>1</port-id>
+    </port>
+  </node>
+  <node>
+    <node-id>10.1.7.65</node-id>
+    <port>
+      <available-core>
+        <core-id>01</core-id>
+      </available-core>
+      <port-id>1</port-id>
+    </port>
+  </node>
+</node-topology>
