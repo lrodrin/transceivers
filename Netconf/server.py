@@ -23,97 +23,98 @@ nsmap_add("node-topology", "urn:node-topology")
 
 
 class MyServer(object):
-    def __init__(self, username, password, port):
-        auth = server.SSHUserPassController(username=username, password=password)
-        self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
 
-    def close(self):
-        self.server.close()
+  def __init__(self, username, password, port):
+      auth = server.SSHUserPassController(username=username, password=password)
+      self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
+      self.node_topology = None
+      
+  def load_file(self):
+      xml_root= open('test.xml', 'r').read()
+      nodeTopo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
+      xml = pybindIETFXMLEncoder.serialise(nodeTopo)
+      tree = etree.XML(xml)
+      print(etree.tostring(tree))
+      data = util.elm("nc:data")
+      data.append(tree)
+      subdata=util.subelm(data, "node-topology:node", tree )
+      self.node_topology = data
+      
+  def close(self):
+      self.server.close()
 
-    def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
-        util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
-        util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
+  def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
+      util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
+      util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
 
-    def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
+  def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
+      print(etree.tostring(rpc))
+      print("-"*30)
+      print(etree.tostring(self.node_topology))
+      return util.filter_results(rpc, self.node_topology, filter_or_none)
 
-        print("-"*30)
-        #json_root = open('test.json', 'r').read()
-        #nodeTopo = pbJ.loads(json_root, binding, "node_topology")
-        
-        xml_root= open('test.xml', 'r').read()
-        nodeTopo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
-        print ("JI")
-        xml = pybindIETFXMLEncoder.serialise(nodeTopo)
-        print ("JI")
-
-        tree = etree.XML(xml)
-        print(etree.tostring(tree))
-        data = util.elm("nc:data")
-        data.append(tree)
-        subdata=util.subelm(data, "node-topology:node", tree )
-        print("-"*30)
-        print(etree.tostring(data))
-
-        return util.filter_results(rpc, data, filter_or_none)
-
-    def rpc_edit_config(self, session, rpc, source_elm, filter_or_none):
-        return rpc
-
-    def rpc_get(self, session, rpc, filter_or_none):  # pylint: disable=W0613
-
-        print("-"*30)
-        #json_root = open('test.json', 'r').read()
-        #nodeTopo = pbJ.loads(json_root, binding, "node_topology")
-        
-        xml_root= open('test.xml', 'r').read()
-        nodeTopo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
-        print ("JI")
-        xml = pybindIETFXMLEncoder.serialise(nodeTopo)
-        print ("JI")
-
-        tree = etree.XML(xml)
-        print(etree.tostring(tree))
-        data = util.elm("nc:data")
-        data.append(tree)
-        subdata=util.subelm(data, "node-topology:node", tree )
-        print("-"*30)
-        print(etree.tostring(data))
-
-        return util.filter_results(rpc, data, filter_or_none)
-
+  def rpc_edit_config(self, session, rpc, target, data):
+  
+      print(etree.tostring(rpc))
+      print(etree.tostring(target))
+      print(etree.tostring(data))
+      print "JI"
+      #print node-id
+      # result = util.xpath_filter_result(data, ".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+      root = etree.XML(etree.tostring(data))
+      print(root.find(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}).text)
+      # print(etree.tostring(result))
+      #check if node-id is in node_topology
+      
+      #if yes ==> Check params to modify
+         
+      #self.node_topology
+      
+      #if no ==> Add it to node_topology
+      
+      
+      return util.filter_results(rpc, self.node_topology, None)
+  
+#  def rpc_get(self, ):
+#      return util.filter_results(rpc, self.node_topology, filter_or_none)
+      
+  #create an xml example
+  def write_xml(self):
+      nt = node_topology() # create server configuration
+      nt.node.add("10.1.7.64")
+      nt.node.add("10.1.7.65")
+  
+      for i, n in nt.node.iteritems():
+          n.port.add("1")
+          for j, p in n.port.iteritems():
+              p.available_core.add("01")
+  
+      result_xml = pybindIETFXMLEncoder.serialise(nt)
+      write_file('node_topology.xml', result_xml)
 
 def main(*margs):
-    parser = argparse.ArgumentParser("Example Netconf Server")
-    parser.add_argument("--username", default="admin", help='Netconf username')
-    parser.add_argument("--password", default="admin", help='Netconf password')
-    parser.add_argument('--port', type=int, default=830, help='Netconf server port')
-    args = parser.parse_args(*margs)
-
-    nt = node_topology() # create server configuration
-    nt.node.add("10.1.7.64")
-    nt.node.add("10.1.7.65")
-
-    for i, n in nt.node.iteritems():
-        n.port.add("1")
-        for j, p in n.port.iteritems():
-            p.available_core.add("01")
-
-    result_xml = pybindIETFXMLEncoder.serialise(nt)
-    write_file('node_topology.xml', result_xml)
-
-    s = MyServer(args.username, args.password, args.port)
-
-    if sys.stdout.isatty():
-        print("^C to quit server")
-    # noinspection PyBroadException
-    try:
-        while True:
-            time.sleep(1)
-    except Exception:
-        print("quitting server")
-
-    s.close()
+  parser = argparse.ArgumentParser("Example Netconf Server")
+  parser.add_argument("--username", default="admin", help='Netconf username')
+  parser.add_argument("--password", default="admin", help='Netconf password')
+  parser.add_argument('--port', type=int, default=830, help='Netconf server port')
+  args = parser.parse_args(*margs)
+  
+  
+  
+  s = MyServer(args.username, args.password, args.port)
+  s.load_file()
+  
+  if sys.stdout.isatty():
+      print("^C to quit server")
+  # noinspection PyBroadException
+  try:
+      while True:
+          time.sleep(1)
+  except Exception:
+      print("quitting server")
+  
+  s.close()
 
 
 if __name__ == "__main__":
-    main()
+  main()
