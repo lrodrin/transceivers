@@ -4,15 +4,15 @@ from lxml import etree
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
-tree = etree.parse("test.xml")
-print(tree.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}))
 
-topo = tree.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+# print(tree.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}))
 
-for elem in topo:
-    print(elem.text)
+# topo = tree.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
 
-print("-"*10)
+# for elem in topo:
+#     print(elem.text)
+#
+# print("-"*10)
 
 # for elem in topo:
 #     for element in tree.iter('{urn:node-topology}node-id'):
@@ -30,11 +30,28 @@ print("-"*10)
 #     else:
 #         print("NO")
 
-node_list = tree.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-for element in tree.iter('{urn:node-topology}node-id'):
-    if element in topo:
-        # merge
-        print("YES")
+# server configuration
+server = etree.parse('test.xml').getroot()
+#print(etree.tostring(server, encoding='utf8', xml_declaration=True))
+
+# client configuration
+client = etree.parse('test2.xml').getroot()
+#print(etree.tostring(client, encoding='utf8', xml_declaration=True))
+
+output = open('merge.xml','w')
+xml_element_tree = None
+for node in client.iter('node-id'):
+    if xml_element_tree is None:
+        xml_element_tree = client
+        insertion_point = xml_element_tree.findall(".//node-id/*")
     else:
-        # append
-        print("NO")
+        insertion_point.extend(node)
+    # node_list = client.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+if xml_element_tree is not None:
+    print(etree.tostring(xml_element_tree))
+#
+# ns = {'merda': 'urn:node-topology'}
+#
+# for node in client.findall('.//merda:node-id', ns):
+#     id = server.find('.//merda:node-id', ns)
+#     print(id.text)
