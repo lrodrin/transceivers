@@ -1,10 +1,7 @@
-#!/usr/bin/env python
-
 import argparse
 import sys
 
 from ncclient import manager
-
 from defaults import *
 from helpers import *
 

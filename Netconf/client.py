@@ -1,5 +1,4 @@
 from lxml import etree
-from netconf import util
 from netconf.client import NetconfSSHSession
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
