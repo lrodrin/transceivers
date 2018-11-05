@@ -36,6 +36,15 @@ new_config = '''
                 <port-id>2</port-id>
             </port>
         </node>
+        <node>
+            <node-id>10.1.7.66</node-id>
+            <port>
+                <available-core>
+                    <core-id>02</core-id>
+                </available-core>
+                <port-id>2</port-id>
+            </port>
+        </node>
     </node-topology>
 </config>
 '''
