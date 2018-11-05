@@ -1,4 +1,5 @@
 import argparse
+import re
 import sys
 import time
 import binding
@@ -54,6 +55,17 @@ class MyServer(object):
 
         root = etree.XML(etree.tostring(data))
         print(root.find(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}).text)
+
+        root = etree.XML(etree.tostring(self.node_topology))
+        rows = root.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+
+        all_data = []
+        field_dict = {}
+
+        for row in rows:
+            field_dict['node-id'] = row.text
+
+        print(field_dict)
 
         # check if node-id is in node_topology
 

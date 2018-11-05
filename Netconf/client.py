@@ -5,7 +5,7 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
 # connexion parameters
-host = '10.1.7.64'
+host = '127.0.0.1'
 port = 830
 username = "admin"
 password = "admin"
