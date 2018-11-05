@@ -1,7 +1,7 @@
 ---
 node:
-  node-id: 10.1.7.65
+  node-id: 10.1.7.64
   port:
     port-id: 1
     available-core:
-      core-id: Core1
+    core-id: 01
