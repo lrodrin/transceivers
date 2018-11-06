@@ -1,32 +1,39 @@
 from __future__ import print_function
 
 from lxml import etree
-
-# tree = etree.parse('test.xml ')
-# tree = ET.parse('items.xml')
-# root = tree.getroot()
-
-# for elem in root:
-#     for subelem in elem.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}):
-#
-#         # if we don't need to know the name of the attribute(s), get the dict
-#         print(subelem.text)
-#
-#         # if we know the name of the attribute, access it directly
-#         print(subelem.get('node-id'))
-#
-# for k, v in root.items():
-#     print(k, v)
-# find all "item" objects and print their "name" attribute
-
-root_topo = etree.parse("test.xml").getroot()
-root_data = etree.parse("test2.xml").getroot()
-topo_list = root_topo.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-data_list = root_data.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-
+from netconf import util
+root_data = etree.parse("test2.xml")
+data_list = root_data.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
 for data in data_list:
-    for topo in topo_list:
-        if data.text == topo.text:
-            print("MATCH")
-        else:
-            print("NO MATCH")
+    # print(data)
+    for node_id in data.iter("{urn:node-topology}node-id"):
+        # print(node_id.text)
+        allowed_names = []
+        root_topo = etree.parse("test.xml")
+        topo_list = root_topo.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+
+        for topo in topo_list:
+            # print(topo)
+            for node_id2 in topo.iter("{urn:node-topology}node-id"):
+                allowed_names.append(node_id2.text)
+                print("%s - %s" % (node_id.text, node_id2.text))
+                if node_id.text == node_id2.text:
+                    print("MATCH")
+                    print(etree.tostring(node_id))
+                    print(etree.tostring(topo))
+                    print("MATCH")
+                else:
+                    print("NO MATCH")
+                    # print(etree.tostring(data))
+print(allowed_names)
+
+
+# root_topo = etree.parse("test.xml")
+# root_data = etree.parse("test2.xml")
+#
+# parent = root_topo.find(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+# print(parent.tag)
+#
+# new_condition = root_data.getroot()
+# parent.append(new_condition)
+# print(etree.tostring(root_topo))
