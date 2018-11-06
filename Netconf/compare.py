@@ -21,9 +21,9 @@ from lxml import etree
 
 data = []
 
-tree = etree.parse("test.xml")
+tree = etree.XML(etree.tostring("test.xml"))
 root = tree.getroot()
-tree_2 = etree.parse("test2.xml")
+tree_2 = etree.XML(etree.tostring("test2.xml"))
 root_2 = tree_2.getroot()
 
 server_list = root.xpath(".//node-id")

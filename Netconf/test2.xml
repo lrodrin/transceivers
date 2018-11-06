@@ -1,5 +1,5 @@
 <config>
-    <node-topology>
+    <node-topology xmlns="urn:node-topology">
         <node>
             <node-id>10.1.7.64</node-id>
             <port>
