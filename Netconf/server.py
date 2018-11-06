@@ -72,15 +72,6 @@ class MyServer(object):
                 if node_id.text == node_id2.text:
                   print "MATCH"
         
-        
-        
-        # for he in data_list:
-          # for ha in root_topo.iter('{urn:node-topology}node-id'):
-            # if he.text == ha.text:
-              # print("yes")
-            # else:
-              #print("fuck the system")   
-        
         # check if node-id is in node_topology
 
         # if yes ==> Check params to modify
@@ -88,6 +79,19 @@ class MyServer(object):
         # self.node_topology
 
         # if no ==> Add it to node_topology
+
+        # eficient macht
+        # root_topo = etree.parse("test.xml").getroot()
+        # root_data = etree.parse("test2.xml").getroot()
+        # topo_list = root_topo.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+        # data_list = root_data.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+        #
+        # for data in data_list:
+        #     for topo in topo_list:
+        #         if data.text == topo.text:
+        #             print("MATCH")
+        #         else:
+        #             print("NO MATCH")
 
         return util.filter_results(rpc, self.node_topology, None)
 

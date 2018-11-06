@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET
+from __future__ import print_function
 
 from lxml import etree
 
@@ -19,20 +19,14 @@ from lxml import etree
 #     print(k, v)
 # find all "item" objects and print their "name" attribute
 
-data = []
+root_topo = etree.parse("test.xml").getroot()
+root_data = etree.parse("test2.xml").getroot()
+topo_list = root_topo.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+data_list = root_data.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
 
-tree = etree.parse("test.xml")
-root = tree.getroot()
-tree_2 = etree.parse("test2.xml")
-root_2 = tree_2.getroot()
-
-server_list = root.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-client_list = root_2.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-
-for nodeS in server_list:
-    print(nodeS.text)
-
-print('-'*10)
-
-for nodeC in client_list:
-    print(nodeC.text)
+for data in data_list:
+    for topo in topo_list:
+        if data.text == topo.text:
+            print("MATCH")
+        else:
+            print("NO MATCH")
