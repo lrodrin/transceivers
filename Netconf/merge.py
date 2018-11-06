@@ -40,7 +40,7 @@ client = etree.parse('test2.xml').getroot()
 
 output = open('merge.xml','w')
 xml_element_tree = None
-for node in client.iter('node-id'):
+for node in client.iter('{urn:node-topology}node-id'):
     if xml_element_tree is None:
         xml_element_tree = client
         insertion_point = xml_element_tree.findall(".//node-id/*")
@@ -55,3 +55,21 @@ if xml_element_tree is not None:
 # for node in client.findall('.//merda:node-id', ns):
 #     id = server.find('.//merda:node-id', ns)
 #     print(id.text)
+
+root = etree.parse('test.xml')
+rows = root.findall("./xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+
+all_data = []
+
+for row in rows:
+    field_dict = {}
+    fields = row.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+
+    for field in fields:
+        field_dict[field.get('node-id')] = field.text
+
+    # print(field_dict)
+
+    all_data.append(field_dict)
+
+print(all_data)
