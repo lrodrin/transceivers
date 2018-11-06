@@ -30,7 +30,7 @@ class MyServer(object):
         node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
         xml = pybindIETFXMLEncoder.serialise(node_topo)
         tree = etree.XML(xml)
-        print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
+        # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
         data = util.elm("nc:data")
         data.append(tree)
         util.subelm(data, "node-topology:node", tree)
@@ -47,16 +47,15 @@ class MyServer(object):
         print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
 
-    def rpc_edit_config(self, session, rpc, target, data):
-        print(etree.tostring(rpc))
-        print(etree.tostring(target))
-        print(etree.tostring(data))
+    def rpc_edit_config(self, session, rpc, target, new_config):
+        # print(etree.tostring(rpc))
+        # print(etree.tostring(target))
+        # print(etree.tostring(data))
 
        
-        root_data = etree.XML(etree.tostring(data))
+        root_data = etree.XML(etree.tostring(new_config))
         data_list = root_data.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
-          print "HIHI"
           print(data)
           for node_id in data.iter("{urn:node-topology}node-id"):
             print node_id.text
@@ -65,13 +64,33 @@ class MyServer(object):
             topo_list = root_topo.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
             
             for topo in topo_list:
-              print "HI"
-              print(topo)
+              # print(topo)
               for node_id2 in topo.iter("{urn:node-topology}node-id"):
                 print node_id2.text
                 if node_id.text == node_id2.text:
                   print "MATCH"
+                else: 
+                  print("NO MATCH")
         
+        
+        print("TESTING OPTIMITZATION :D")
+        t = etree.XML(etree.tostring(self.node_topology))
+        # d = etree.XML(etree.tostring(new_config))
+        t_list = t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
+        print(t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
+        # print(d.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
+        
+        for data in data_list:
+          print(etree.tostring(data))
+          for node_id in data.iter("{urn:node-topology}node-id"):
+            print("%s - %s" % (node_id.text, t_list))
+            if node_id.text in t_list:
+              print("MATCH")
+            else:
+              print("NO MATCH")
+              parent = t.find(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+              parent.append(data)
+              self.node_topology = t
         # check if node-id is in node_topology
 
         # if yes ==> Check params to modify
@@ -79,20 +98,8 @@ class MyServer(object):
         # self.node_topology
 
         # if no ==> Add it to node_topology
-
-        # eficient macht
-        # root_topo = etree.parse("test.xml").getroot()
-        # root_data = etree.parse("test2.xml").getroot()
-        # topo_list = root_topo.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-        # data_list = root_data.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-        #
-        # for data in data_list:
-        #     for topo in topo_list:
-        #         if data.text == topo.text:
-        #             print("MATCH")
-        #         else:
-        #             print("NO MATCH")
-
+        
+        print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
     #  def rpc_get(self, ):
