@@ -21,16 +21,13 @@ from lxml import etree
 
 data = []
 
-tree = etree.XML(etree.tostring("test.xml"))
+tree = etree.parse("test.xml")
 root = tree.getroot()
-tree_2 = etree.XML(etree.tostring("test2.xml"))
+tree_2 = etree.parse("test2.xml")
 root_2 = tree_2.getroot()
 
-server_list = root.xpath(".//node-id")
-client_list = root_2.xpath(".//node-id")
-
-xyz = [p.attrib["node-id"] for p in server_list]
-print(xyz)
+server_list = root.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
+client_list = root_2.xpath(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
 
 for nodeS in server_list:
     print(nodeS.text)

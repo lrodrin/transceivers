@@ -1,5 +1,4 @@
 import argparse
-import re
 import sys
 import time
 import binding
@@ -53,20 +52,35 @@ class MyServer(object):
         print(etree.tostring(target))
         print(etree.tostring(data))
 
-        root = etree.XML(etree.tostring(data))
-        print(root.find(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}).text)
+       
+        root_data = etree.XML(etree.tostring(data))
+        data_list = root_data.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+        for data in data_list:
+          print "HIHI"
+          print(data)
+          for node_id in data.iter("{urn:node-topology}node-id"):
+            print node_id.text
 
-        root = etree.XML(etree.tostring(self.node_topology))
-        rows = root.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
-
-        all_data = []
-        field_dict = {}
-
-        for row in rows:
-            field_dict['node-id'] = row.text
-
-        print(field_dict)
-
+            root_topo = etree.XML(etree.tostring(self.node_topology))
+            topo_list = root_topo.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+            
+            for topo in topo_list:
+              print "HI"
+              print(topo)
+              for node_id2 in topo.iter("{urn:node-topology}node-id"):
+                print node_id2.text
+                if node_id.text == node_id2.text:
+                  print "MATCH"
+        
+        
+        
+        # for he in data_list:
+          # for ha in root_topo.iter('{urn:node-topology}node-id'):
+            # if he.text == ha.text:
+              # print("yes")
+            # else:
+              #print("fuck the system")   
+        
         # check if node-id is in node_topology
 
         # if yes ==> Check params to modify

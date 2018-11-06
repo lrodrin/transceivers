@@ -66,7 +66,7 @@ for row in rows:
     fields = row.findall(".//xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'})
 
     for field in fields:
-        field_dict[field.get('node-id')] = field.text
+        field_dict['node-id'] = field.text
 
     # print(field_dict)
 
