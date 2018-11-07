@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import sys
 import time
@@ -33,7 +34,6 @@ class MyServer(object):
         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
         data = util.elm("nc:data")
         data.append(tree)
-        util.subelm(data, "node-topology:node", tree)
         self.node_topology = data
 
     def close(self):
@@ -50,55 +50,43 @@ class MyServer(object):
     def rpc_edit_config(self, session, rpc, target, new_config):
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
-        # print(etree.tostring(data))
+        # print(etree.tostring(new_config))
 
-       
-        root_data = etree.XML(etree.tostring(new_config))
-        data_list = root_data.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+        # print(new_config)
+        data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
-          print(data)
-          for node_id in data.iter("{urn:node-topology}node-id"):
-            print node_id.text
+            found = False
+            # print(data)
+            for node_id in data.iter("{urn:node-topology}node-id"):
 
-            root_topo = etree.XML(etree.tostring(self.node_topology))
-            topo_list = root_topo.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-            
-            for topo in topo_list:
-              # print(topo)
-              for node_id2 in topo.iter("{urn:node-topology}node-id"):
-                print node_id2.text
-                if node_id.text == node_id2.text:
-                  print "MATCH"
-                else: 
-                  print("NO MATCH")
-        
-        
-        print("TESTING OPTIMITZATION :D")
-        t = etree.XML(etree.tostring(self.node_topology))
-        # d = etree.XML(etree.tostring(new_config))
-        t_list = t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
-        print(t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
-        # print(d.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
-        
-        for data in data_list:
-          print(etree.tostring(data))
-          for node_id in data.iter("{urn:node-topology}node-id"):
-            print("%s - %s" % (node_id.text, t_list))
-            if node_id.text in t_list:
-              print("MATCH")
-            else:
-              print("NO MATCH")
-              parent = t.find(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-              parent.append(data)
-              self.node_topology = t
-        # check if node-id is in node_topology
+                topo_list = self.node_topology.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
 
-        # if yes ==> Check params to modify
+                for topo in topo_list:
+                    # print(topo)
+                    for node_id2 in topo.iter("{urn:node-topology}node-id"):
+                        print("%s - %s" % (node_id.text, node_id2.text))
+                        if node_id.text == node_id2.text:
+                            print("MATCH")
+                            found = True
+                        else:
+                            print("NO MATCH")
 
-        # self.node_topology
+                if not found:
+                    print("NOT FOUND. APPENDING " + node_id.text)
+                    self.node_topology[0].append(data)
 
-        # if no ==> Add it to node_topology
-        
+        #        print("OPTIMITZATION")
+        #        t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
+
+        #        for data in data_list:
+        #          for node_id in data.iter("{urn:node-topology}node-id"):
+        #            print("%s - %s" % (node_id.text, t_list))
+        #            if node_id.text in t_list:
+        #              print("MATCH")
+        #            else:
+        #              print("NO MATCH")
+        #              self.node_topology[0].append(data)
+
         print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
