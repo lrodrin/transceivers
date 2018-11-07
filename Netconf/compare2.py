@@ -1,5 +1,6 @@
 from lxml import etree
 
+
 class XMLCombiner(object):
     def __init__(self, filenames):
         assert len(filenames) > 0, 'No filenames!'
@@ -43,7 +44,41 @@ class XMLCombiner(object):
                     one.append(el)
 
 
+def comb(one, other):
+    """
+    This function recursively updates either the text or the children
+    of an element if another element is found in `one`, or adds it
+    from `other` if not found.
+    """
+    # Create a mapping from tag name to element, as that's what we are fltering with
+    mapping = {el.tag: el for el in one}
+    for el in other:
+        if len(el) == 0:
+            # Not nested
+            try:
+                # Update the text
+                mapping[el.tag].text = el.text
+            except KeyError:
+                # An element with this name is not in the mapping
+                mapping[el.tag] = el
+                # Add it
+                one.append(el)
+        else:
+            try:
+                # Recursively process the element, and update it in the same way
+                comb(mapping[el.tag], el)
+            except KeyError:
+                # Not in the mapping
+                mapping[el.tag] = el
+                # Just add it
+                one.append(el)
+
+    return etree.tostring(one)
+
+
 if __name__ == '__main__':
     r = XMLCombiner(('node1.xml', 'node2.xml')).combine()
-    print('-' * 20)
+    root_1 = etree.parse('node1.xml').getroot()
+    root_2 = etree.parse('node1.xml').getroot()
+    print(comb(root_1, root_2))
     print(r)
