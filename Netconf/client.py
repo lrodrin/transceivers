@@ -31,13 +31,22 @@ new_config = '''
             <node-id>10.1.7.64</node-id>
             <port>
                 <available-core>
-                    <core-id>01</core-id>
+                    <core-id>02</core-id>
                 </available-core>
-                <port-id>1</port-id>
+                <port-id>2</port-id>
             </port>
         </node>
         <node>
             <node-id>10.1.7.66</node-id>
+            <port>
+                <available-core>
+                    <core-id>02</core-id>
+                </available-core>
+                <port-id>2</port-id>
+            </port>
+        </node>
+        <node>
+            <node-id>10.1.7.67</node-id>
             <port>
                 <available-core>
                     <core-id>02</core-id>

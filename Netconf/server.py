@@ -10,6 +10,8 @@ from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
 from lxml import etree
 from helpers import *
 
+import compare2
+
 logging.basicConfig(level=logging.DEBUG)
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
@@ -68,6 +70,7 @@ class MyServer(object):
                         if node_id.text == node_id2.text:
                             print "MATCH"
                             found = True
+                            aux = topo
                         else:
                             print("NO MATCH")
                 print(found)
@@ -75,7 +78,10 @@ class MyServer(object):
                     print("NOT FOUND. APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
                 elif found:
-                    pass
+                    print("FOUND. MERGE " + node_id.text)
+                    print("OLD" + etree.tostring(aux))
+                    print("NEW" + etree.tostring(data))
+                    print(compare2.comb(aux, data))
 
         #        print("OPTIMITZATION")
         #        t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
