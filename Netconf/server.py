@@ -1,4 +1,3 @@
-from __future__ import print_function
 import argparse
 import sys
 import time
@@ -65,15 +64,18 @@ class MyServer(object):
                     # print(topo)
                     for node_id2 in topo.iter("{urn:node-topology}node-id"):
                         print("%s - %s" % (node_id.text, node_id2.text))
+                        # print("%s %s" % (etree.tostring(topo), etree.tostring(data)))
                         if node_id.text == node_id2.text:
-                            print("MATCH")
+                            print "MATCH"
                             found = True
                         else:
                             print("NO MATCH")
-
+                print(found)
                 if not found:
                     print("NOT FOUND. APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
+                elif found:
+                    pass
 
         #        print("OPTIMITZATION")
         #        t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})

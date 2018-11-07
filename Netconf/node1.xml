@@ -1,0 +1,9 @@
+<node xmlns="urn:node-topology">
+    <node-id>10.1.7.64</node-id>
+    <port>
+        <available-core>
+            <core-id>04</core-id>
+        </available-core>
+        <port-id>1</port-id>
+    </port>
+</node>
