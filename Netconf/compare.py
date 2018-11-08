@@ -1,39 +1,84 @@
-from __future__ import print_function
-
 from lxml import etree
-from netconf import util
-root_data = etree.parse("test2.xml")
-data_list = root_data.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-for data in data_list:
-    # print(data)
-    for node_id in data.iter("{urn:node-topology}node-id"):
-        # print(node_id.text)
-        allowed_names = []
-        root_topo = etree.parse("test.xml")
-        topo_list = root_topo.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-
-        for topo in topo_list:
-            # print(topo)
-            for node_id2 in topo.iter("{urn:node-topology}node-id"):
-                allowed_names.append(node_id2.text)
-                print("%s - %s" % (node_id.text, node_id2.text))
-                if node_id.text == node_id2.text:
-                    print("MATCH")
-                    print(etree.tostring(node_id))
-                    print(etree.tostring(topo))
-                    print("MATCH")
-                else:
-                    print("NO MATCH")
-                    # print(etree.tostring(data))
-print(allowed_names)
 
 
-# root_topo = etree.parse("test.xml")
-# root_data = etree.parse("test2.xml")
-#
-# parent = root_topo.find(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-# print(parent.tag)
-#
-# new_condition = root_data.getroot()
-# parent.append(new_condition)
-# print(etree.tostring(root_topo))
+class XMLCombiner(object):
+    def __init__(self, filenames):
+        assert len(filenames) > 0, 'No filenames!'
+        # save all the roots, in order, to be processed later
+        self.roots = [etree.parse(f).getroot() for f in filenames]
+
+    def combine(self):
+        for r in self.roots[1:]:
+            # combine each element with the first one, and update that
+            self.combine_element(self.roots[0], r)
+        # return the string representation
+        return etree.tostring(self.roots[0])
+
+    def combine_element(self, one, other):
+        """
+        This function recursively updates either the text or the children
+        of an element if another element is found in `one`, or adds it
+        from `other` if not found.
+        """
+        # Create a mapping from tag name to element, as that's what we are fltering with
+        mapping = {el.tag: el for el in one}
+        for el in other:
+            if len(el) == 0:
+                # Not nested
+                try:
+                    # Update the text
+                    mapping[el.tag].text = el.text
+                except KeyError:
+                    # An element with this name is not in the mapping
+                    mapping[el.tag] = el
+                    # Add it
+                    one.append(el)
+            else:
+                try:
+                    # Recursively process the element, and update it in the same way
+                    self.combine_element(mapping[el.tag], el)
+                except KeyError:
+                    # Not in the mapping
+                    mapping[el.tag] = el
+                    # Just add it
+                    one.append(el)
+
+
+def comb(one, other):
+    """
+    This function recursively updates either the text or the children
+    of an element if another element is found in `one`, or adds it
+    from `other` if not found.
+    """
+    # Create a mapping from tag name to element, as that's what we are fltering with
+    mapping = {el.tag: el for el in one}
+    for el in other:
+        if len(el) == 0:
+            # Not nested
+            try:
+                # Update the text
+                mapping[el.tag].text = el.text
+            except KeyError:
+                # An element with this name is not in the mapping
+                mapping[el.tag] = el
+                # Add it
+                one.append(el)
+        else:
+            try:
+                # Recursively process the element, and update it in the same way
+                comb(mapping[el.tag], el)
+            except KeyError:
+                # Not in the mapping
+                mapping[el.tag] = el
+                # Just add it
+                one.append(el)
+
+    return etree.tostring(one)
+
+
+if __name__ == '__main__':
+    r = XMLCombiner(('node1.xml', 'node2.xml')).combine()
+    root_1 = etree.parse('node1.xml').getroot()
+    root_2 = etree.parse('node1.xml').getroot()
+    print(comb(root_1, root_2))
+    print(r)

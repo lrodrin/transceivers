@@ -10,7 +10,7 @@ from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
 from lxml import etree
 from helpers import *
 
-import compare2
+import compare
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -81,7 +81,7 @@ class MyServer(object):
                     print("FOUND. MERGE " + node_id.text)
                     print("OLD" + etree.tostring(aux))
                     print("NEW" + etree.tostring(data))
-                    print(compare2.comb(aux, data))
+                    print(compare.comb(aux, data))
 
         #        print("OPTIMITZATION")
         #        t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
