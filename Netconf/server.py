@@ -100,7 +100,7 @@ class MyServer(object):
         return util.filter_results(rpc, self.node_topology, None)
 
     def rpc_get(self, session, rpc, filter_or_none):
-        caller(session, my_callback)
+        caller(etree.tostring(self.node_topology), my_callback)
         return util.filter_results(rpc, self.node_topology, filter_or_none)
 
     # create an xml example
