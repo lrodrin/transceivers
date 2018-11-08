@@ -6,5 +6,5 @@ def caller(val, func):
     func(val)
 
 
-for i in range(5):
-    caller(i, my_callback)
+# for i in range(5):
+    # caller(i, my_callback)

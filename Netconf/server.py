@@ -11,6 +11,7 @@ from lxml import etree
 from helpers import *
 
 import compare
+from callback import my_callback, caller
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -98,8 +99,9 @@ class MyServer(object):
         print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
-    #  def rpc_get(self, ):
-    #      return util.filter_results(rpc, self.node_topology, filter_or_none)
+    def rpc_get(self, session, rpc, filter_or_none):
+        caller(session, my_callback)
+        return util.filter_results(rpc, self.node_topology, filter_or_none)
 
     # create an xml example
     def write_xml(self):
