@@ -6,7 +6,7 @@ __copyright__ = "Copyright 2018, CTTC"
 
 # connexion parameters
 host = '10.1.7.64'
-port = 830
+port = 2022
 username = "admin"
 password = "admin"
 
@@ -26,35 +26,14 @@ print(xmlstr)
 # edit config
 new_config = '''
 <config>
-    <node-topology xmlns="urn:node-topology">
-        <node>
+    <topology xmlns="urn:topology">
+        <node operation="merge"> <!-- modify with delete -->
             <node-id>10.1.7.64</node-id>
             <port>
-                <available-core>
-                    <core-id>02</core-id>
-                </available-core>
-                <port-id>2</port-id>
+                <port-id>3</port-id>
             </port>
         </node>
-        <node>
-            <node-id>10.1.7.66</node-id>
-            <port>
-                <available-core>
-                    <core-id>02</core-id>
-                </available-core>
-                <port-id>2</port-id>
-            </port>
-        </node>
-        <node>
-            <node-id>10.1.7.67</node-id>
-            <port>
-                <available-core>
-                    <core-id>02</core-id>
-                </available-core>
-                <port-id>2</port-id>
-            </port>
-        </node>
-    </node-topology>
+    </topology>
 </config>
 '''
 print("---EDIT CONFIG---")

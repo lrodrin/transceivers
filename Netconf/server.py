@@ -11,7 +11,7 @@ from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
 from lxml import etree
 from helpers import *
 
-from callback import my_callback, caller
+from callback import *
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -48,13 +48,14 @@ class MyServer(object):
         logging.debug("--GET CONFIG--")
         logging.debug(session)
         # print(etree.tostring(rpc))
-        # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        return util.filter_results(rpc, self.node_topology, filter_or_none)
+        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        config = caller(self.node_topology, print_current_config)
+        return util.filter_results(rpc, config, filter_or_none)
         # TODO filter_or_none options
 
     def rpc_edit_config(self, session, rpc, target, new_config):
         logging.debug("--EDIT CONFIG--")
+        logging.debug(session)
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
         # print(etree.tostring(new_config))
@@ -96,42 +97,46 @@ class MyServer(object):
                 #     # print("NEW", etree.tostring(data))
                 #     compare.comb(aux, data)
 
-        #        print("OPTIMITZATION")
-        #        t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
+        # print("OPTIMITZATION")
+        # t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
 
-        #        for data in data_list:
-        #          for node_id in data.iter("{urn:node-topology}node-id"):
-        #            print("%s - %s" % (node_id.text, t_list))
-        #            if node_id.text in t_list:
-        #              print("MATCH")
-        #            else:
-        #              print("NO MATCH")
-        #              self.node_topology[0].append(data)
+        # for data in data_list:
+        #     for node_id in data.iter("{urn:node-topology}node-id"):
+        #         print("%s - %s" % (node_id.text, t_list))
+        #         if node_id.text in t_list:
+        #             print("MATCH")
+        #         else:
+        #             print("NO MATCH")
+        #             self.node_topology[0].append(data)
 
-        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
     def rpc_get(self, session, rpc, filter_or_none):
-        logging.debug("GET")
-        current_config = caller(self.node_topology, my_callback)
-        return util.filter_results(rpc, current_config, filter_or_none)
+        logging.debug("--GET--")
+        logging.debug(session)
+
+        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        config = caller(self.node_topology, print_current_config)
+        return util.filter_results(rpc, config, filter_or_none)
+        # TODO filter_or_none options
 
     def close(self):
         self.server.close()
 
     # create an xml example
-    def write_xml(self):
-        nt = binding.node_topology()  # create server configuration
-        nt.node.add("10.1.7.64")
-        nt.node.add("10.1.7.65")
+    # def write_xml(self):
+    #     nt = binding.node_topology()
+    #     nt.node.add("10.1.7.64")
+    #     nt.node.add("10.1.7.65")
 
-        for i, n in nt.node.iteritems():
-            n.port.add("1")
-            for j, p in n.port.iteritems():
-                p.available_core.add("01")
+    #     for i, n in nt.node.iteritems():
+    #         n.port.add("1")
+    #         for j, p in n.port.iteritems():
+    #             p.available_core.add("01")
 
-        result_xml = pybindIETFXMLEncoder.serialise(nt)
-        write_file('node_topology.xml', result_xml)
+    #     result_xml = pybindIETFXMLEncoder.serialise(nt)
+    #     write_file('node_topology.xml', result_xml)
 
 
 def main(*margs):
@@ -151,6 +156,7 @@ def main(*margs):
     try:
         while True:
             time.sleep(1)
+    
     except Exception:
         print("quitting server")
 

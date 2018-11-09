@@ -1,10 +1,12 @@
-def my_callback(val):
-    print("CURRENT RUNNING CONFIG {0}".format(val))
-    return val
+def print_current_config(config):
+    print("\n========== CURRENT RUNNING CONFIG: ==========\n")
+    return config
+    # return value
 
-def caller(val, func):
-    return func(val)
+def module_changes(config):
+    print("\n========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n")
+    print_current_config(config)
 
 
-# for i in range(5):
-    # caller(i, my_callback)
+def caller(config, funtion):
+    return funtion(config)
