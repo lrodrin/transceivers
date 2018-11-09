@@ -48,9 +48,10 @@ class MyServer(object):
         logging.debug("--GET CONFIG--")
         logging.debug(session)
         # print(etree.tostring(rpc))
-        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        config = caller(self.node_topology, print_current_config)
-        return util.filter_results(rpc, config, filter_or_none)
+
+        print_current_config(etree.tostring(self.node_topology))
+        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
 
     def rpc_edit_config(self, session, rpc, target, new_config):
@@ -109,18 +110,18 @@ class MyServer(object):
         #             print("NO MATCH")
         #             self.node_topology[0].append(data)
 
-        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        config = caller(self.node_topology, print_current_config)
-        return util.filter_results(rpc, config, None)
+        caller(etree.tostring(self.node_topology), module_changes)
+        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        return util.filter_results(rpc, self.node_topology, None)
 
-    def rpc_get(self, session, rpc, filter_or_none):
-        logging.debug("--GET--")
-        logging.debug(session)
+    # def rpc_get(self, session, rpc, filter_or_none):
+    #     logging.debug("--GET--")
+    #     logging.debug(session)
 
-        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        config = caller(self.node_topology, print_current_config)
-        return util.filter_results(rpc, config, filter_or_none)
-        # TODO filter_or_none options
+    #     print_current_config(etree.tostring(self.node_topology))
+    #     logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+    #     return util.filter_results(rpc, self.node_topology, filter_or_none)
+    #     TODO filter_or_none options
 
     def close(self):
         self.server.close()
