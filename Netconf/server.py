@@ -3,6 +3,7 @@ import sys
 import time
 import binding
 import logging
+import compare
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
@@ -10,7 +11,6 @@ from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
 from lxml import etree
 from helpers import *
 
-import compare
 from callback import my_callback, caller
 
 logging.basicConfig(level=logging.DEBUG)
@@ -20,7 +20,6 @@ __copyright__ = "Copyright 2018, CTTC"
 
 nsmap_add("node-topology", "urn:node-topology")
 
-
 class MyServer(object):
 
     def __init__(self, username, password, port):
@@ -28,7 +27,8 @@ class MyServer(object):
         self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
         self.node_topology = None
 
-    def load_file(self):
+    def load_file(self):    
+        # create configuration
         xml_root = open('test.xml', 'r').read()
         node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
         xml = pybindIETFXMLEncoder.serialise(node_topo)
@@ -36,53 +36,65 @@ class MyServer(object):
         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
         data = util.elm("nc:data")
         data.append(tree)
+        # print(etree.tostring(data, encoding='utf8', xml_declaration=True))
         self.node_topology = data
-
-    def close(self):
-        self.server.close()
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
         util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
+        # TODO generalize
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
-        print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        logging.debug("--GET CONFIG--")
+        logging.debug(session)
+        # print(etree.tostring(rpc))
+        # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
+        # TODO filter_or_none options
 
     def rpc_edit_config(self, session, rpc, target, new_config):
+        logging.debug("--EDIT CONFIG--")
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
         # print(etree.tostring(new_config))
 
-        # print(new_config)
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
             found = False
-            # print(data)
+            # print(etree.tostring(data))
             for node_id in data.iter("{urn:node-topology}node-id"):
-
                 topo_list = self.node_topology.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-
                 for topo in topo_list:
-                    # print(topo)
+                    # print(etree.tostring(topo))
                     for node_id2 in topo.iter("{urn:node-topology}node-id"):
-                        print("%s - %s" % (node_id.text, node_id2.text))
-                        # print("%s %s" % (etree.tostring(topo), etree.tostring(data)))
+                        logging.debug("%s - %s" % (node_id.text, node_id2.text))
+                        # print("%s - %s" % (node_id.text, node_id2.text))
+                        # print(etree.tostring(topo))
+                        # print(etree.tostring(data))
                         if node_id.text == node_id2.text:
-                            print "MATCH"
+                            logging.debug("MATCH")
                             found = True
                             aux = topo
+
+                            # MERGE
+                            logging.debug("MERGING "  + node_id.text)
+                            # print("OLD", etree.tostring(aux))
+                            # print("NEW", etree.tostring(data))
+                            compare.comb(aux, data)
+                        
                         else:
-                            print("NO MATCH")
-                print(found)
+                            logging.debug("NOT MATCH")                
+
                 if not found:
-                    print("NOT FOUND. APPENDING " + node_id.text)
+                    logging.debug("APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
-                elif found:
-                    print("FOUND. MERGE " + node_id.text)
-                    print("OLD" + etree.tostring(aux))
-                    print("NEW" + etree.tostring(data))
-                    print(compare.comb(aux, data))
+
+                # elif found:
+                #     logging.debug("MERGING "  + node_id.text)
+                #     # print("OLD", etree.tostring(aux))
+                #     # print("NEW", etree.tostring(data))
+                #     compare.comb(aux, data)
 
         #        print("OPTIMITZATION")
         #        t_list = self.node_topology.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
@@ -96,12 +108,16 @@ class MyServer(object):
         #              print("NO MATCH")
         #              self.node_topology[0].append(data)
 
-        print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
     def rpc_get(self, session, rpc, filter_or_none):
-        caller(etree.tostring(self.node_topology), my_callback)
-        return util.filter_results(rpc, self.node_topology, filter_or_none)
+        logging.debug("GET")
+        current_config = caller(self.node_topology, my_callback)
+        return util.filter_results(rpc, current_config, filter_or_none)
+
+    def close(self):
+        self.server.close()
 
     # create an xml example
     def write_xml(self):

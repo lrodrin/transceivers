@@ -6,7 +6,7 @@ __copyright__ = "Copyright 2018, CTTC"
 
 # connexion parameters
 host = '10.1.7.64'
-port = 830
+port = 2022
 username = "admin"
 password = "admin"
 
