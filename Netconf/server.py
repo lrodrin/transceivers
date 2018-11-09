@@ -110,7 +110,8 @@ class MyServer(object):
         #             self.node_topology[0].append(data)
 
         # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        return util.filter_results(rpc, self.node_topology, None)
+        config = caller(self.node_topology, print_current_config)
+        return util.filter_results(rpc, config, None)
 
     def rpc_get(self, session, rpc, filter_or_none):
         logging.debug("--GET--")
