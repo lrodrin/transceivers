@@ -62,5 +62,10 @@ config = session.edit_config(newconf=new_config)
 xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)
 
+# print("---GET---")
+# config = session.get()
+# xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
+# print(xmlstr)
+
 # close connexion
 session.close()

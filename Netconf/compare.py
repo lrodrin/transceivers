@@ -1,5 +1,7 @@
 from lxml import etree
 
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
 
 class XMLCombiner(object):
     def __init__(self, filenames):
