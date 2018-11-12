@@ -80,7 +80,7 @@ class MyServer(object):
                             logging.debug("MATCH")
                             found = True
                             aux = topo  # current node topology
-
+                            # call(etree.tostring(aux), nse)
                             # MERGE
                             logging.debug("MERGING " + node_id.text)
                             # print("OLD", etree.tostring(aux))
