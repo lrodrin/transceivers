@@ -1,16 +1,21 @@
+import logging
+
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
+
 def print_current_config(config):
-    print("\n========== CURRENT RUNNING CONFIG: ==========\n")
-    print(config)
+    logging.debug("\n========== CURRENT RUNNING CONFIG: ==========\n")
+    logging.debug(config)
+
 
 def module_changes(config):
-    print("\n========== CONFIG HAS CHANGED================\n")
+    logging.debug("\n========== CONFIG HAS CHANGED================\n")
     print_current_config(config)
-    print("\n========== CHANGES: =============================================\n")
+    logging.debug("\n========== CHANGES: =============================================\n")
     # iterfind()
-    print("\n========== END OF CHANGES ====================================\n")
+    logging.debug("\n========== END OF CHANGES ====================================\n")
+
 
 def caller(config, funtion):
     funtion(config)
