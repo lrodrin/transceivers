@@ -1,16 +1,13 @@
 import argparse
 import sys
 import time
-import binding
-import logging
-import compare
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
-from lxml import etree
-from helpers import *
 
+import binding
+import combine
 from callback import *
 
 logging.basicConfig(level=logging.DEBUG)
@@ -20,6 +17,7 @@ __copyright__ = "Copyright 2018, CTTC"
 
 nsmap_add("node-topology", "urn:node-topology")
 
+
 class MyServer(object):
 
     def __init__(self, username, password, port):
@@ -27,7 +25,7 @@ class MyServer(object):
         self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
         self.node_topology = None
 
-    def load_file(self):    
+    def load_file(self):
         # create configuration
         xml_root = open('test.xml', 'r').read()
         node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
@@ -60,6 +58,7 @@ class MyServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
         # print(etree.tostring(new_config))
+        old_topology = self.node_topology
 
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
@@ -67,6 +66,7 @@ class MyServer(object):
             # print(etree.tostring(data))
             for node_id in data.iter("{urn:node-topology}node-id"):
                 topo_list = self.node_topology.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
+
                 for topo in topo_list:
                     # print(etree.tostring(topo))
                     for node_id2 in topo.iter("{urn:node-topology}node-id"):
@@ -77,16 +77,16 @@ class MyServer(object):
                         if node_id.text == node_id2.text:
                             logging.debug("MATCH")
                             found = True
-                            aux = topo
+                            aux = topo  # current node topology
 
                             # MERGE
-                            logging.debug("MERGING "  + node_id.text)
+                            logging.debug("MERGING " + node_id.text)
                             # print("OLD", etree.tostring(aux))
                             # print("NEW", etree.tostring(data))
-                            compare.comb(aux, data)
-                        
+                            combine.comb(aux, data)
+
                         else:
-                            logging.debug("NOT MATCH")                
+                            logging.debug("NOT MATCH")
 
                 if not found:
                     logging.debug("APPENDING " + node_id.text)
@@ -110,7 +110,7 @@ class MyServer(object):
         #             print("NO MATCH")
         #             self.node_topology[0].append(data)
 
-        caller(etree.tostring(self.node_topology), module_changes)
+        caller(etree.tostring(self.node_topology), get_changes)
         logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
@@ -158,7 +158,7 @@ def main(*margs):
     try:
         while True:
             time.sleep(1)
-    
+
     except Exception:
         print("quitting server")
 
