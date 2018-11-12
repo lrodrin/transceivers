@@ -1,6 +1,7 @@
 import argparse
 import sys
 import time
+import copy
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
@@ -58,7 +59,8 @@ class MyServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
         # print(etree.tostring(new_config))
-        old_topology = self.node_topology
+        old_topology = copy.deepcopy(self.node_topology)
+        print("HOLA" + etree.tostring(old_topology))
 
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
@@ -109,8 +111,8 @@ class MyServer(object):
         #         else:
         #             print("NO MATCH")
         #             self.node_topology[0].append(data)
-
-        caller(etree.tostring(self.node_topology), get_changes)
+        
+        caller(etree.tostring(old_topology), etree.tostring(self.node_topology), get_changes)
         logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 

@@ -13,13 +13,14 @@ def print_current_config(config):
     logging.debug(config)
 
 
-def get_changes(config, old_topology, new_topology):
-    print("\n========== CONFIG HAS CHANGED================\n")
-    print_current_config(config)
+def get_changes(old_topology, new_topology):
+    print("\n========== CONFIG HAS CHANGED ================\n")
+    print_current_config(new_topology)
     print("\n========== CHANGES: ==========================================\n")
-    logging.debug(old_topology, new_topology)
+    logging.debug(old_topology)
+    logging.debug(new_topology)
     print("\n========== END OF CHANGES ====================================\n")
 
 
-def caller(config, funtion):
-    funtion(config)
+def caller(old_topology, new_topology, funtion):
+    funtion(old_topology, new_topology)
