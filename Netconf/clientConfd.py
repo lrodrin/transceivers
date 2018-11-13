@@ -1,6 +1,9 @@
 from lxml import etree
 from netconf.client import NetconfSSHSession
 
+__author__ = "Ricard Vilalta <ricard.vilalta@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
+
 # connexion parameters
 host = 'localhost'
 port = 2022

@@ -49,5 +49,8 @@ for node in new_topo:
             print("NOT MODIFIED")
 
 print("HOLA")
+aux = etree.parse('node1.xml').getroot()
+data = etree.parse('node2.xml').getroot()
+
 # recorrer els dos nodes i veure les diferencies + parsejar
 # recorrer un node i parsejar
