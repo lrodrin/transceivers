@@ -86,6 +86,10 @@ class MyServer(object):
                             # print("OLD", etree.tostring(aux))
                             # print("NEW", etree.tostring(data))
                             combine.comb(aux, data)
+                            # print("HOLA")
+                            # print(etree.tostring(aux))
+                            # print(etree.tostring(data))
+                            # call(etree.tostring(aux), nse)
 
                         else:
                             logging.debug("NOT MATCH")
