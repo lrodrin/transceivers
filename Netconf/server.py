@@ -3,6 +3,7 @@ import sys
 import time
 import copy
 import binding
+import subprocess
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
@@ -48,8 +49,11 @@ class MyServer(object):
         logging.debug(session)
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
+        
+        print("RUN MONITORING")
+        subprocess.call(['python', 'application_changes.py'])
 
-        print_current_config(etree.tostring(self.node_topology))
+        print_current_config(self.node_topology)
         logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
@@ -60,7 +64,7 @@ class MyServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
         # print(etree.tostring(new_config))
-        # old_topology = copy.deepcopy(self.node_topology)
+        old_topology = copy.deepcopy(self.node_topology)
         # print(etree.tostring(old_topology))
 
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
@@ -83,19 +87,21 @@ class MyServer(object):
                             # print("OLD", etree.tostring(aux))
                             # print("NEW", etree.tostring(data))
                             comb(aux, data)
+                            get_changes(self.node_topology, aux, data)
                             # print("HOLA")
                             # print(etree.tostring(aux))
                             # print(etree.tostring(data))
                             # call(etree.tostring(aux), nse)
-
                         else:
                             logging.debug("NOT MATCH")
 
                 if not found:
                     logging.debug("APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
+                    get_changes(self.node_topology, None, data)
 
         # caller(etree.tostring(old_topology), etree.tostring(self.node_topology), get_changes)
+        # run monitoring
         logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
@@ -105,7 +111,7 @@ class MyServer(object):
     #     print(etree.tostring(rpc))
     #     print(etree.tostring(source_elm))
 
-    #     print_current_config(etree.tostring(self.node_topology))
+    #     print_current_config(self.node_topology)
     #     logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
     #     return util.filter_results(rpc, self.node_topology, filter_or_none)
     #     TODO filter_or_none options
@@ -137,6 +143,10 @@ def main(*margs):
 
     s = MyServer(args.username, args.password, args.port)
     s.load_file('test.xml')
+    
+    # run monitoring
+    print("RUN MONITORING")
+    subprocess.call(['python', 'application_changes.py'])
 
     if sys.stdout.isatty():
         print("^C to quit server")
