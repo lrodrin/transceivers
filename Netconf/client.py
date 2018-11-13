@@ -24,41 +24,9 @@ xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)
 
 # edit config
-new_config = '''
-<config>
-    <node-topology xmlns="urn:node-topology">
-        <node>
-            <node-id>10.1.7.64</node-id>
-            <port>
-                <available-core>
-                    <core-id>02</core-id>
-                </available-core>
-                <port-id>2</port-id>
-            </port>
-        </node>
-        <node>
-            <node-id>10.1.7.66</node-id>
-            <port>
-                <available-core>
-                    <core-id>02</core-id>
-                </available-core>
-                <port-id>2</port-id>
-            </port>
-        </node>
-        <node>
-            <node-id>10.1.7.67</node-id>
-            <port>
-                <available-core>
-                    <core-id>02</core-id>
-                </available-core>
-                <port-id>2</port-id>
-            </port>
-        </node>
-    </node-topology>
-</config>
-'''
 print("---EDIT CONFIG---")
-config = session.edit_config(newconf=new_config)
+xml = etree.parse('test2.xml')
+config = session.edit_config(newconf=etree.tostring(xml))
 xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)
 

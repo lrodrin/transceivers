@@ -11,9 +11,9 @@ class XMLCombiner(object):
         self.roots = [etree.parse(f).getroot() for f in filenames]
 
     def combine(self):
-        for r in self.roots[1:]:
+        for root in self.roots[1:]:
             # combine each element with the first one, and update that
-            self.combine_element(self.roots[0], r)
+            self.combine_element(self.roots[0], root)
         # return the string representation
         return etree.tostring(self.roots[0])
 

@@ -8,8 +8,8 @@ root_2 = etree.parse('test3.xml').getroot()
 
 old = root_1.findall('node')
 
-l = root_1.xpath("///node-id/text()")
-print(l)
+node_list = root_1.xpath("///node-id/text()")
+print(node_list)
 
 all_data = []
 
@@ -43,4 +43,3 @@ for node in new_topo:
         else:
             print("MODIFIED")
             print("NOT MODIFIED")
-

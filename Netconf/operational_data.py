@@ -24,19 +24,27 @@ xml = '''
 '''
 
 xml2 = '''
-<data>
-    <node-topology>
-  <node>
-    <node-id>10.1.7.64</node-id>
+<node>
+    <node-id>10.1.7.67</node-id>
     <port>
-      <port-id>1</port-id>
       <available-core>
-        <core-id>1</core-id>
+        <core-id>02</core-id>
       </available-core>
+      <port-id>2</port-id>
     </port>
   </node>
-  </node-topology>
-</data>
+'''
+
+xml3 = '''
+<node xmlns="urn:node-topology">
+    <node-id>10.1.7.67</node-id>
+    <port>
+      <available-core>
+        <core-id>02</core-id>
+      </available-core>
+      <port-id>2</port-id>
+    </port>
+  </node>
 '''
 
 data = etree.fromstring(xml.replace(' ', '').replace('\n', ''))
@@ -47,8 +55,9 @@ print(etree.tounicode(result))
 def nse(xml):
     data = etree.fromstring(xml.replace(' ', '').replace('\n', ''))
     print(etree.tostring(data))
-    result = util.xpath_filter_result(data, "//node/*")
+    result = util.xpath_filter_result(data, "node")
     print(etree.tounicode(result))
 
 
+print("HOLA")
 nse(xml2)
