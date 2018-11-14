@@ -4,6 +4,6 @@
         <available-core>
             <core-id>02</core-id>
         </available-core>
-        <port-id>3</port-id>
+        <port-id>1</port-id>
     </port>
 </node>
