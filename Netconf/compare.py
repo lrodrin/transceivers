@@ -85,3 +85,9 @@ if __name__ == '__main__':
     old_ist = parse(rows_1)
     new_list = parse(rows_2)
     print("CHANGES", new_change(old_ist, new_list))
+
+    find_text = etree.XPath("//text()")
+    for text in find_text(root_1):
+        if '\n' not in text:
+            print(root_1.getpath(text.getparent()))
+
