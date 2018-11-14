@@ -2,7 +2,7 @@
     <node-id>10.1.7.64</node-id>
     <port>
         <available-core>
-            <core-id>02</core-id>
+            <core-id>2</core-id>
         </available-core>
         <port-id>1</port-id>
     </port>

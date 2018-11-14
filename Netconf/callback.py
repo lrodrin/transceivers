@@ -2,6 +2,7 @@ import logging
 
 from lxml import etree
 from netconf import util
+from compare import *
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -19,11 +20,17 @@ def get_changes(config, old_value, new_value):
     
     if old_value is not None:
         print("\n========== CHANGES: ==========================================\n")
-        logging.debug(etree.tostring(old_value))
-        logging.debug(etree.tostring(new_value))
+        rows_1 = old_value.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+        rows_2 = new_value.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+        print("OLD_values", parse(rows_1))
+        print("NEW_values", parse(rows_2))
+        old_list = parse(rows_1)
+        new_list = parse(rows_2)
+        print("CHANGES", new_change(old_list, new_list))
     elif old_value is None:
         print("\n========== CHANGES: ==========================================\n")
-        logging.debug(etree.tostring(new_value))
+        rows_2 = new_value.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+        print("NEW_values", parse(rows_2))
     
     print("\n========== END OF CHANGES ====================================\n")
 

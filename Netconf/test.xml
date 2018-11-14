@@ -3,7 +3,7 @@
         <node-id>10.1.7.64</node-id>
         <port>
             <available-core>
-                <core-id>01</core-id>
+                <core-id>1</core-id>
             </available-core>
             <port-id>1</port-id>
         </port>
@@ -12,7 +12,7 @@
         <node-id>10.1.7.65</node-id>
         <port>
             <available-core>
-                <core-id>01</core-id>
+                <core-id>1</core-id>
             </available-core>
             <port-id>1</port-id>
         </port>
@@ -21,7 +21,7 @@
         <node-id>10.1.7.67</node-id>
         <port>
             <available-core>
-                <core-id>01</core-id>
+                <core-id>1</core-id>
             </available-core>
             <port-id>1</port-id>
         </port>

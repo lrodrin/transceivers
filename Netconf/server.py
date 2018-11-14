@@ -81,16 +81,17 @@ class MyServer(object):
                         if node_id.text == node_id2.text:
                             logging.debug("MATCH")
                             found = True
-                            aux = topo  # current node topology
+                            aux = copy.deepcopy(topo)  # current node topology
                             # call(etree.tostring(aux), nse)
                             logging.debug("MERGING " + node_id.text)
                             # print("OLD", etree.tostring(aux))
                             # print("NEW", etree.tostring(data))
-                            comb(aux, data)
+                            print("HOLA")
+                            print(etree.tostring(aux)) # 1
+                            comb(topo, data)
                             get_changes(self.node_topology, aux, data)
-                            # print("HOLA")
-                            # print(etree.tostring(aux))
-                            # print(etree.tostring(data))
+                            print("HOLA")
+                            print(etree.tostring(aux))  # 2
                             # call(etree.tostring(aux), nse)
                         else:
                             logging.debug("NOT MATCH")
