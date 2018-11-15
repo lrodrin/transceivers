@@ -87,11 +87,11 @@ class MyServer(object):
                             # print("OLD", etree.tostring(aux))
                             # print("NEW", etree.tostring(data))
                             print("HOLA")
-                            print(etree.tostring(aux)) # 1
+                            # print(etree.tostring(aux)) # 1
                             comb(topo, data)
-                            get_changes(self.node_topology, aux, data)
-                            print("HOLA")
-                            print(etree.tostring(aux))  # 2
+                            get_changes(self.node_topology, topo, data, 'modify')
+                            # print("HOLA")
+                            # print(etree.tostring(aux))  # 2
                             # call(etree.tostring(aux), nse)
                         else:
                             logging.debug("NOT MATCH")
@@ -99,7 +99,7 @@ class MyServer(object):
                 if not found:
                     logging.debug("APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
-                    get_changes(self.node_topology, None, data)
+                    get_changes(self.node_topology, None, data, 'create')
 
         # caller(etree.tostring(old_topology), etree.tostring(self.node_topology), get_changes)
         # run monitoring

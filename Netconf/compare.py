@@ -53,7 +53,7 @@ __copyright__ = "Copyright 2018, CTTC"
 # recorrer els dos nodes i veure les diferencies + parsejar
 # recorrer un node i parsejar
 
-def parse(ports):
+def parse(ports, operation):
     all_data = []
     for port in ports:
         d = {}
@@ -63,11 +63,14 @@ def parse(ports):
                 # aux = elem.tag
                 d[aux] = elem.text
                 # print(elem.getroottree().getpath(elem) + " = " + elem.text)
-                print("HOOOOOOOOOOOOOOOOLAAAAAAAAAAAAAAAAAA")
-                print(aux)
-                print(elem)
                 tag_list = get_ancestors(aux, elem)
-                print("/".join(tag_list), end=' ')
+                print(tag_list)
+                if operation == 'create':
+                    print("/".join(tag_list[2:]), end=' ')
+                elif operation == 'modify':
+                    print("/".join(tag_list[3:]), end=' ')
+                
+                # print(tag_list)
                 print("=", elem.text)
 
 
@@ -96,19 +99,19 @@ def new_change(old_list, new_list):
     return change_list
 
 
-if __name__ == '__main__':
-    root_1 = etree.parse('node1.xml').getroot()
-    root_2 = etree.parse('node2.xml').getroot()
-    rows_1 = root_1.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})  # ports list
-    rows_2 = root_2.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
-    # rows_1 = root_1.xpath("port")
-    # rows_2 = root_2.xpath("port")
-    print("OLD", parse(rows_1))
-    print("NEW", parse(rows_2))
+# if __name__ == '__main__':
+#     root_1 = etree.parse('node1.xml').getroot()
+#     root_2 = etree.parse('node2.xml').getroot()
+#     rows_1 = root_1.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})  # ports list
+#     rows_2 = root_2.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+#     # rows_1 = root_1.xpath("port")
+#     # rows_2 = root_2.xpath("port")
+#     print("OLD", parse(rows_1))
+#     print("NEW", parse(rows_2))
 
-    old_ist = parse(rows_1)
-    new_list = parse(rows_2)
-    print("CHANGES", new_change(old_ist, new_list))
+#     old_ist = parse(rows_1)
+#     new_list = parse(rows_2)
+#     print("CHANGES", new_change(old_ist, new_list))
 
 
 

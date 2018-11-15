@@ -13,25 +13,26 @@ def print_current_config(config):
     print("\n========== CURRENT RUNNING CONFIG: ==========\n")
     logging.debug(etree.tostring(config))
 
-
-def get_changes(config, old_value, new_value):
+    
+def get_changes(config, old_value, new_value, operation):
     print("\n========== CONFIG HAS CHANGED ================\n")
     print_current_config(config)
-    
+        
     if old_value is not None:
         print("\n========== CHANGES: ==========================================\n")
         rows_1 = old_value.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
         rows_2 = new_value.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
-        print("OLD_values", parse(rows_1))
-        print("NEW_values", parse(rows_2))
-        old_list = parse(rows_1)
-        new_list = parse(rows_2)
+        old_list = parse(rows_1, operation)
+        print("OLD_values", old_list)
+        
+        new_list = parse(rows_2, operation)
+        print("NEW_values", new_list)
         print("CHANGES", new_change(old_list, new_list))
     elif old_value is None:
         print("\n========== CHANGES: ==========================================\n")
         rows_2 = new_value.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
-        print("NEW_values", parse(rows_2))
-    
+        print("NEW_values", parse(rows_2, operation))
+
     print("\n========== END OF CHANGES ====================================\n")
 
 # CREATED:  /node-topology:node[node-id='10.1.7.65']/port[port-id='65792']/available-core[core-id='01']/occupied-frequency-slot[slot-id='604045311'] (list instance)
