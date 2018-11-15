@@ -63,7 +63,9 @@ def parse(ports):
                 # aux = elem.tag
                 d[aux] = elem.text
                 # print(elem.getroottree().getpath(elem) + " = " + elem.text)
-
+                print("HOOOOOOOOOOOOOOOOLAAAAAAAAAAAAAAAAAA")
+                print(aux)
+                print(elem)
                 tag_list = get_ancestors(aux, elem)
                 print("/".join(tag_list), end=' ')
                 print("=", elem.text)
