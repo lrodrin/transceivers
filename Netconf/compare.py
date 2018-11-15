@@ -64,18 +64,25 @@ def parse(ports):
                 d[aux] = elem.text
                 # print(elem.getroottree().getpath(elem) + " = " + elem.text)
 
-                ancestors_list = list()
-                # print(elem.text, aux, end=" ")
-                ancestors_list.append(aux)
-                for ancestor in elem.iterancestors():
-                    ancestors_list.append(ancestor.tag.replace('{urn:node-topology}', ''))
-                    # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
-                # print()
-                print(ancestors_list[::-1], end=' ')
-                print(" = ", elem.text)
+                tag_list = get_ancestors(aux, elem)
+                print("/".join(tag_list), end=' ')
+                print("=", elem.text)
+
 
         all_data.append(d)
     return all_data
+
+
+def get_ancestors(aux, elem):
+    ancestors_list = list()
+    # print(elem.text, aux, end=" ")
+    ancestors_list.append(aux)
+    for ancestor in elem.iterancestors():
+        ancestors_list.append(ancestor.tag.replace('{urn:node-topology}', ''))
+        # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
+    # print()
+    # print(ancestors_list[::-1], end=' ')
+    return ancestors_list[::-1]
 
 
 def new_change(old_list, new_list):
