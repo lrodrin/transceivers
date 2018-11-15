@@ -1,9 +1,10 @@
-import io
+from __future__ import print_function
 
 from lxml import etree
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
+
 
 # root_1 = etree.parse('test.xml').getroot()
 # root_2 = etree.parse('test3.xml').getroot()
@@ -59,7 +60,20 @@ def parse(ports):
         for elem in port.iter():
             if '\n' not in elem.text:
                 aux = elem.tag.replace('{urn:node-topology}', '')
+                # aux = elem.tag
                 d[aux] = elem.text
+                # print(elem.getroottree().getpath(elem) + " = " + elem.text)
+
+                ancestors_list = list()
+                # print(elem.text, aux, end=" ")
+                ancestors_list.append(aux)
+                for ancestor in elem.iterancestors():
+                    ancestors_list.append(ancestor.tag.replace('{urn:node-topology}', ''))
+                    # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
+                # print()
+                print(ancestors_list[::-1], end=' ')
+                print(" = ", elem.text)
+
         all_data.append(d)
     return all_data
 
@@ -74,11 +88,12 @@ def new_change(old_list, new_list):
 
 
 if __name__ == '__main__':
-    root_1 = etree.parse('node1.xml')
-    # rows_1 = root_1.xpath('port')
-    rows_1 = root_1.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
-    root_2 = etree.parse('node2.xml')
+    root_1 = etree.parse('node1.xml').getroot()
+    root_2 = etree.parse('node2.xml').getroot()
+    rows_1 = root_1.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})  # ports list
     rows_2 = root_2.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+    # rows_1 = root_1.xpath("port")
+    # rows_2 = root_2.xpath("port")
     print("OLD", parse(rows_1))
     print("NEW", parse(rows_2))
 
@@ -86,8 +101,5 @@ if __name__ == '__main__':
     new_list = parse(rows_2)
     print("CHANGES", new_change(old_ist, new_list))
 
-    find_text = etree.XPath("//text()")
-    for text in find_text(root_1):
-        if '\n' not in text:
-            print(root_1.getpath(text.getparent()))
+
 
