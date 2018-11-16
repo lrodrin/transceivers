@@ -17,30 +17,28 @@ def get_ancestors(aux, elem):
     return ancestors_list[::-1]
 
 
-def pretty_print(aux, elem, operation):
-    tag_list = get_ancestors(aux, elem)
-    # print(tag_list)
-    if operation == 'create':
-        print("CREATED: ", end=' ')
-        print("/".join(tag_list), end=' ')
-    elif operation == 'modify':
-        print("MODIFIED: ", end=' ')
-        print("/".join(tag_list), end=' ')
-    print("=", elem.text)
-
-
-def parse(rows, operation):
-    all_data = []
+def parse(rows, op):
+    # all_data = []
     for row in rows:
         d = {}
         for elem in row.iter():
             if '\n' not in elem.text:
                 aux = elem.tag.replace('{urn:node-topology}', '')
                 d[aux] = elem.text
-                pretty_print(aux, elem, operation)
-        all_data.append(d)
 
-    return all_data
+                tag_list = get_ancestors(aux, elem)
+                # print(tag_list)
+                if op == 'create':
+                    print("CREATED: ", end=' ')
+                    print("/".join(tag_list), end=' ')
+                elif op == 'modify':
+                    print("/".join(tag_list), end=' ')
+
+                print("=", elem.text)
+
+        # all_data.append(d)
+
+    # return all_data
 
 
 def new_change(old_values, new_values):
@@ -58,16 +56,22 @@ if __name__ == '__main__':
     root_2 = etree.parse('node2.xml').getroot()
     rows_1 = root_1.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
     rows_2 = root_2.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+
     print("---EXAMPLE CREATE---")
-    old_list = parse(rows_1, 'create')
-    new_list = parse(rows_2, 'create')
-    print("OLD values", old_list)
-    print("NEW values", new_list)
-    print("CHANGES", new_change(old_list, new_list))
+    # new_list = parse(rows_2, 'create')
+    # print("NEW values",new_list)
+    parse(rows_2, 'create')
 
     print("\n---EXAMPLE MODIFY---")
-    old_list = parse(rows_1, 'modify')
-    new_list = parse(rows_2, 'modify')
-    print("OLD values", old_list)
-    print("NEW values", new_list)
-    print("CHANGES", new_change(old_list, new_list))
+    operation = 'modify'
+    # old_list = parse(rows_1, operation)
+    # new_list = parse(rows_2, operation)
+    # print("OLD values", old_list)
+    # print("NEW values", new_list)
+    print("MODIFIED")
+    print("OLD values")
+    parse(rows_1, operation)
+    print("NEW values")
+    parse(rows_2, 'modify')
+    # changes_list = new_change(old_list, new_list)
+    # print("CHANGES", changes_list)
