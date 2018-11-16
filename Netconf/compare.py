@@ -28,9 +28,9 @@ def parse(rows, operation):
                 tag_list = get_ancestors(aux, elem)
                 # print(tag_list)
                 if operation == 'create':
-                    print("/".join(tag_list[2:]), end=' ')
+                    print("/".join(tag_list), end=' ')
                 elif operation == 'modify':
-                    print("/".join(tag_list[3:]), end=' ')
+                    print("/".join(tag_list), end=' ')
 
                 print("=", elem.text)
         all_data.append(d)
@@ -53,6 +53,14 @@ if __name__ == '__main__':
     root_2 = etree.parse('node2.xml').getroot()
     rows_1 = root_1.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
     rows_2 = root_2.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
+    print("---EXAMPLE CREATE---")
+    old_list = parse(rows_1, 'create')
+    new_list = parse(rows_2, 'create')
+    print("OLD values", old_list)
+    print("NEW values", new_list)
+    print("CHANGES", new_change(old_list, new_list))
+
+    print("---EXAMPLE MODIFY---")
     old_list = parse(rows_1, 'modify')
     new_list = parse(rows_2, 'modify')
     print("OLD values", old_list)

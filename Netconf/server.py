@@ -2,6 +2,7 @@ import argparse
 # import subprocess
 import sys
 import time
+import copy
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
@@ -50,7 +51,7 @@ class MyServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
         print_current_config(self.node_topology)
-        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
 
@@ -79,14 +80,10 @@ class MyServer(object):
                         if node_id.text == node_id2.text:
                             found = True
                             logging.debug("MATCH")
-                            # aux = copy.deepcopy(topo)  # current node topology
+                            aux = copy.deepcopy(topo)  # aux node topology
                             logging.debug("MERGING " + node_id.text)
-                            print("OLD")
-                            # print(etree.tostring(aux)) # 1
                             merge(topo, data)
-                            print_config_changes(self.node_topology, topo, data, 'modify')
-                            # print("NEW")
-                            # print(etree.tostring(aux))  # 2
+                            print_config_changes(self.node_topology, aux, data, 'modify')
                         else:
                             logging.debug("NOT MATCH")
 
