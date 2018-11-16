@@ -24,7 +24,6 @@ def print_config_changes(config, old_node, new_node, op):
     if old_node is not None:
         print("\n ========== CHANGES: =============================================\n")
         old_rows = old_node.xpath("xmlns:port", namespaces={'xmlns': 'urn:node-topology'})
-        old_values = parse(old_rows, op)
         print("MODIFIED")
         print("OLD values")
         parse(old_rows, op)

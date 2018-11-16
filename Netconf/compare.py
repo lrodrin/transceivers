@@ -10,7 +10,8 @@ def get_ancestors(aux, elem):
     # print(elem, aux)
     ancestors_list = [aux]
     for ancestor in elem.iterancestors():
-        ancestors_list.append(ancestor.tag.replace('{urn:node-topology}', ''))
+        # ancestor.tag.replace('{urn:node-topology}', '')
+        ancestors_list.append(ancestor.tag)
         # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
 
     # print(ancestors_list[::-1])
@@ -21,11 +22,10 @@ def parse(rows, op):
     # all_data = []
     for row in rows:
         d = {}
-        for elem in row.iter():
+        for elem in row.iter():       
             if '\n' not in elem.text:
                 aux = elem.tag.replace('{urn:node-topology}', '')
                 d[aux] = elem.text
-
                 tag_list = get_ancestors(aux, elem)
                 # print(tag_list)
                 if op == 'create':
@@ -72,6 +72,6 @@ if __name__ == '__main__':
     print("OLD values")
     parse(rows_1, operation)
     print("NEW values")
-    parse(rows_2, 'modify')
+    parse(rows_2, operation)
     # changes_list = new_change(old_list, new_list)
     # print("CHANGES", changes_list)
