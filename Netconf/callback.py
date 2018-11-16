@@ -9,12 +9,12 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
 
-# function to print current configuration
+# Function to print current configuration
 def print_current_config(config):
     logging.debug(etree.tostring(config))
 
 
-# function to print configuration changes
+# Function to print configuration changes
 def print_config_changes(config, old_node, new_node, op):
     print("\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n")
     print_current_config(config)

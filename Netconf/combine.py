@@ -53,7 +53,7 @@ def merge(one, other):
     of an element if another element is found in `one`, or adds it
     from `other` if not found.
     """
-    # Create a mapping from tag name to element, as that's what we are fltering with
+    # Create a mapping from tag name to element, as that's what we are filtering with
     mapping = {el.tag: el for el in one}
     for el in other:
         if len(el) == 0:

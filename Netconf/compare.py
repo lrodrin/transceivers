@@ -24,7 +24,8 @@ def parse(rows, op):
         d = {}
         for elem in row.iter():       
             if '\n' not in elem.text:
-                aux = elem.tag.replace('{urn:node-topology}', '')
+                # aux = elem.tag.replace('{urn:node-topology}', '')
+                aux = elem.tag
                 d[aux] = elem.text
                 tag_list = get_ancestors(aux, elem)
                 # print(tag_list)
