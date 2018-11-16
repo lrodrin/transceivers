@@ -1,21 +1,23 @@
 import argparse
+# import subprocess
 import sys
 import time
-import copy
-import binding
-import subprocess
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
+
+import binding
+# from helpers import *
 from callback import *
 from combine import *
 
-logging.basicConfig(level=logging.DEBUG)
+# TODO treure modularitat combine
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
+logging.basicConfig(level=logging.DEBUG)
 nsmap_add("node-topology", "urn:node-topology")
 
 
@@ -26,17 +28,15 @@ class MyServer(object):
         self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
         self.node_topology = None
 
-    def load_file(self, filename):  # create configuration
+    def load_file(self, filename):  # load configuration to the server
         xml_root = open(filename, 'r').read()
         node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
         xml = pybindIETFXMLEncoder.serialise(node_topo)
         tree = etree.XML(xml)
         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
-        # logging.debug(etree.tostring(tree, encoding='utf8', xml_declaration=True))
         data = util.elm("nc:data")
         data.append(tree)
         # print(etree.tostring(data, encoding='utf8', xml_declaration=True))
-        # logging.debug(etree.tostring(data, encoding='utf8', xml_declaration=True))
         self.node_topology = data
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
@@ -49,10 +49,6 @@ class MyServer(object):
         logging.debug(session)
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
-        
-        print("RUN MONITORING")
-        subprocess.call(['python', 'application_changes.py'])
-
         print_current_config(self.node_topology)
         logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
@@ -64,7 +60,10 @@ class MyServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
         # print(etree.tostring(new_config))
-        old_topology = copy.deepcopy(self.node_topology)
+
+        # print("RUNNING MONITORING")
+        # subprocess.call(['python', 'application_changes.py'])
+        # old_topology = copy.deepcopy(self.node_topology)
         # print(etree.tostring(old_topology))
 
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
@@ -77,61 +76,52 @@ class MyServer(object):
                     # print(etree.tostring(topo))
                     for node_id2 in topo.iter("{urn:node-topology}node-id"):
                         logging.debug("%s - %s" % (node_id.text, node_id2.text))
-                        # print("%s - %s" % (node_id.text, node_id2.text))
                         if node_id.text == node_id2.text:
-                            logging.debug("MATCH")
                             found = True
-                            aux = copy.deepcopy(topo)  # current node topology
-                            # call(etree.tostring(aux), nse)
+                            logging.debug("MATCH")
+                            # aux = copy.deepcopy(topo)  # current node topology
                             logging.debug("MERGING " + node_id.text)
-                            # print("OLD", etree.tostring(aux))
-                            # print("NEW", etree.tostring(data))
-                            print("HOLA")
+                            print("OLD")
                             # print(etree.tostring(aux)) # 1
-                            comb(topo, data)
-                            get_changes(self.node_topology, topo, data, 'modify')
-                            # print("HOLA")
+                            merge(topo, data)
+                            print_config_changes(self.node_topology, topo, data, 'modify')
+                            # print("NEW")
                             # print(etree.tostring(aux))  # 2
-                            # call(etree.tostring(aux), nse)
                         else:
                             logging.debug("NOT MATCH")
 
                 if not found:
                     logging.debug("APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
-                    get_changes(self.node_topology, None, data, 'create')
+                    print_config_changes(self.node_topology, None, data, 'create')
 
-        # caller(etree.tostring(old_topology), etree.tostring(self.node_topology), get_changes)
-        # run monitoring
-        logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+        # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
     # def rpc_get(self, session, rpc, filter_or_none):
-    #     logging.debug("--GET--")
-    #     logging.debug(session)
-    #     print(etree.tostring(rpc))
-    #     print(etree.tostring(source_elm))
-
-    #     print_current_config(self.node_topology)
-    #     logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-    #     return util.filter_results(rpc, self.node_topology, filter_or_none)
-    #     TODO filter_or_none options
+    # logging.debug("--GET--")
+    # logging.debug(session)
+    # print(etree.tostring(rpc))
+    # print(etree.tostring(source_elm))
+    # print_current_config(self.node_topology)
+    # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+    # return util.filter_results(rpc, self.node_topology, filter_or_none)
+    # TODO filter_or_none options
 
     def close(self):
         self.server.close()
 
-    # create an xml example
-    # def write_xml(self):
-    #     nt = binding.node_topology()
-    #     nt.node.add("10.1.7.64")
-    #     nt.node.add("10.1.7.65")
-
-    #     for i, n in nt.node.iteritems():
-    #         n.port.add("1")
+    # def write_xml(self):  # create an xml example with binding
+    #     node_topo = binding.node_topology()
+    #     node_topo.node.add("10.1.7.64")
+    #     node_topo.node.add("10.1.7.65")
+    #
+    #     for i, n in node_topo.node.iteritems():
+    #         n.port.add('1')
     #         for j, p in n.port.iteritems():
-    #             p.available_core.add("01")
-
-    #     result_xml = pybindIETFXMLEncoder.serialise(nt)
+    #             p.available_core.add('1')
+    #
+    #     result_xml = pybindIETFXMLEncoder.serialise(node_topo)
     #     write_file('node_topology.xml', result_xml)
 
 
@@ -139,18 +129,18 @@ def main(*margs):
     parser = argparse.ArgumentParser("Example Netconf Server")
     parser.add_argument("--username", default="admin", help='Netconf username')
     parser.add_argument("--password", default="admin", help='Netconf password')
-    parser.add_argument('--port', type=int, default=830, help='Netconf server port')
+    parser.add_argument('--port', type=int, default=830, help='Netconf port')
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
     s.load_file('test.xml')
-    
-    # run monitoring
-    print("RUN MONITORING")
-    subprocess.call(['python', 'application_changes.py'])
+
+    # print("RUNNING MONITORING")
+    # subprocess.call(['python', 'application_changes.py'])
 
     if sys.stdout.isatty():
         print("^C to quit server")
+
     # noinspection PyBroadException
     try:
         while True:

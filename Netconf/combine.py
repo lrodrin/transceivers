@@ -47,7 +47,7 @@ class XMLCombiner(object):
                     one.append(el)
 
 
-def comb(one, other):
+def merge(one, other):
     """
     This function recursively updates either the text or the children
     of an element if another element is found in `one`, or adds it
@@ -69,7 +69,7 @@ def comb(one, other):
         else:
             try:
                 # Recursively process the element, and update it in the same way
-                comb(mapping[el.tag], el)
+                merge(mapping[el.tag], el)
             except KeyError:
                 # Not in the mapping
                 mapping[el.tag] = el
@@ -83,5 +83,5 @@ if __name__ == '__main__':
     r = XMLCombiner(('node1.xml', 'node2.xml')).combine()
     root_1 = etree.parse('node1.xml').getroot()
     root_2 = etree.parse('node1.xml').getroot()
-    print(comb(root_1, root_2))
+    print(merge(root_1, root_2))
     print(r)

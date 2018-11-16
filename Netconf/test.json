@@ -6,7 +6,7 @@
                 "1": {
                     "available-core": {
                         "01": {
-                            "core-id": "01"
+                            "core-id": "1"
                         }
                     }, 
                     "port-id": "1"
@@ -19,7 +19,7 @@
                 "1": {
                     "available-core": {
                         "01": {
-                            "core-id": "01"
+                            "core-id": "1"
                         }
                     }, 
                     "port-id": "1"

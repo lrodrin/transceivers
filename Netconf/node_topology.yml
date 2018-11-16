@@ -4,4 +4,4 @@ node:
   port:
     port-id: 1
     available-core:
-    core-id: 01
+    core-id: 1

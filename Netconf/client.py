@@ -25,15 +25,14 @@ print(xmlstr)
 
 # edit config
 print("---EDIT CONFIG---")
-xml = etree.parse('test2.xml')
+xml = etree.parse('test2.xml')  # new configuration
 config = session.edit_config(newconf=etree.tostring(xml))
 xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)
 
 # print("---GET---")
-# config = session.get()
+# config = session.get_config()
 # xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 # print(xmlstr)
 
-# close connexion
 session.close()
