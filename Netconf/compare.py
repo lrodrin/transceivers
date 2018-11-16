@@ -17,6 +17,18 @@ def get_ancestors(aux, elem):
     return ancestors_list[::-1]
 
 
+def pretty_print(aux, elem, operation):
+    tag_list = get_ancestors(aux, elem)
+    # print(tag_list)
+    if operation == 'create':
+        print("CREATED: ", end=' ')
+        print("/".join(tag_list), end=' ')
+    elif operation == 'modify':
+        print("MODIFIED: ", end=' ')
+        print("/".join(tag_list), end=' ')
+    print("=", elem.text)
+
+
 def parse(rows, operation):
     all_data = []
     for row in rows:
@@ -25,14 +37,7 @@ def parse(rows, operation):
             if '\n' not in elem.text:
                 aux = elem.tag.replace('{urn:node-topology}', '')
                 d[aux] = elem.text
-                tag_list = get_ancestors(aux, elem)
-                # print(tag_list)
-                if operation == 'create':
-                    print("/".join(tag_list), end=' ')
-                elif operation == 'modify':
-                    print("/".join(tag_list), end=' ')
-
-                print("=", elem.text)
+                pretty_print(aux, elem, operation)
         all_data.append(d)
 
     return all_data
@@ -60,7 +65,7 @@ if __name__ == '__main__':
     print("NEW values", new_list)
     print("CHANGES", new_change(old_list, new_list))
 
-    print("---EXAMPLE MODIFY---")
+    print("\n---EXAMPLE MODIFY---")
     old_list = parse(rows_1, 'modify')
     new_list = parse(rows_2, 'modify')
     print("OLD values", old_list)
