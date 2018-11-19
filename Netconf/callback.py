@@ -14,7 +14,7 @@ def print_current_config(config):
     logging.debug(etree.tostring(config))
 
 
-# Function to print configuration changes
+# Function to be called for client of given session whenever configuration changes.
 def print_config_changes(config, old_node, new_node, op):
     print("\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n")
     print_current_config(config)
@@ -37,3 +37,6 @@ def print_config_changes(config, old_node, new_node, op):
         parse(new_rows, op)
 
     print("\n\n ========== END OF CHANGES =======================================\n")
+
+def caller(callback, args=()):
+    callback(*args)

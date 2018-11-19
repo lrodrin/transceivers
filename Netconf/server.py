@@ -47,7 +47,8 @@ class MyServer(object):
         logging.debug(session)
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
-        print_current_config(self.node_topology)
+        # print_current_config(self.node_topology)
+        caller(print_current_config, args=self.node_topology)
         # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
@@ -80,14 +81,16 @@ class MyServer(object):
                             aux = copy.deepcopy(topo)  # aux node topology
                             logging.debug("MERGING " + node_id.text)
                             merge(topo, data)
-                            print_config_changes(self.node_topology, aux, data, 'modify')
+                            # print_config_changes(self.node_topology, aux, data, 'modify')
+                            caller(print_config_changes, args=(self.node_topology, aux, data, 'modify'))
                         else:
                             logging.debug("NOT MATCH")
 
                 if not found:
                     logging.debug("APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
-                    print_config_changes(self.node_topology, None, data, 'create')
+                    # print_config_changes(self.node_topology, None, data, 'create')
+                    caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
 
         # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
@@ -98,6 +101,7 @@ class MyServer(object):
     # print(etree.tostring(rpc))
     # print(etree.tostring(source_elm))
     # print_current_config(self.node_topology)
+    # caller(print_current_config, args=self.node_topology)
     # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
     # return util.filter_results(rpc, self.node_topology, filter_or_none)
     # TODO filter_or_none options
