@@ -7,10 +7,10 @@ import traceback
 
 import xmltodict
 from netconf.client import NetconfSSHSession
+from lxml import etree
 
 __author__ = "Laura Rodriguez <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
-__license__ = "MIT License"
 
 logger = logging.getLogger('.'.join(os.path.abspath(__name__).split('/')[1:]))
 
@@ -43,7 +43,7 @@ class NETCONF_API:
         try:
             connection = NetconfSSHSession(self.ip, self.port, self.user, self.password)
             configuration = connection.get_config()
-            # configuration_json = parseConfiguration(configuration)
+            configuration_json = parseConfiguration(etree.tostring(configuration))
 
             return configuration_json
 
@@ -57,5 +57,5 @@ if __name__ == '__main__':
     api = NETCONF_API('admin', 'admin', '10.1.7.64', 830)
     config = api.retrieveConfiguration()
     print(config)
-#     config = api.retrieveConfiguration('<transceiver/>')
-#     print(json.loads(config))
+#    config = api.retrieveConfiguration('<transceiver/>')
+#    print(json.loads(config))
