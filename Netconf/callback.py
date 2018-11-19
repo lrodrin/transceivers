@@ -1,13 +1,51 @@
+from __future__ import print_function
+
 import logging
 
 from lxml import etree
-from compare import *
-
-# TODO treure modularitat compare
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
+def get_ancestors(aux, elem):
+    # print(elem, aux)
+    ancestors_list = [aux]
+    for ancestor in elem.iterancestors():
+        # ancestor.tag.replace('{urn:node-topology}', '')
+        ancestors_list.append(ancestor.tag)
+        # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
+
+    # print(ancestors_list[::-1])
+    return ancestors_list[::-1]
+
+def parse(rows, op):
+    # all_data = []
+    for row in rows:
+        d = {}
+        for elem in row.iter():       
+            if '\n' not in elem.text:
+                # aux = elem.tag.replace('{urn:node-topology}', '')
+                aux = elem.tag
+                d[aux] = elem.text
+                tag_list = get_ancestors(aux, elem)
+                # print(tag_list)
+                if op == 'create':
+                    print("CREATED: /", end='')
+                    print("/".join(tag_list[2:]).replace('{urn:node-topology}', ''), end=' ')
+                elif op == 'modify':
+                    if any("{urn:ietf:params:xml:ns:netconf:base:1.0}" in s for s in tag_list):
+                        print("/", end='')
+                        print("/".join(tag_list[3:]).replace('{urn:node-topology}', ''), end=' ')
+                    else:
+                        print("/node-topology/", end='')  # TODO pass yang model
+                        print("/".join(tag_list).replace('{urn:node-topology}', ''), end=' ')
+                        
+
+                print("=", elem.text)
+
+        # all_data.append(d)
+
+    # return all_data
 
 # Function to print current configuration
 def print_current_config(config):

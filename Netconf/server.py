@@ -3,12 +3,12 @@ import subprocess
 import sys
 import time
 import copy
+import binding
 
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
 
-import binding
 # from helpers import *
 from callback import *
 
