@@ -22,7 +22,7 @@ def parse(rows, op):
     # all_data = []
     for row in rows:
         d = {}
-        for elem in row.iter():       
+        for elem in row.iter():
             if '\n' not in elem.text:
                 # aux = elem.tag.replace('{urn:node-topology}', '')
                 aux = elem.tag
@@ -30,10 +30,15 @@ def parse(rows, op):
                 tag_list = get_ancestors(aux, elem)
                 # print(tag_list)
                 if op == 'create':
-                    print("CREATED: ", end=' ')
-                    print("/".join(tag_list), end=' ')
+                    print("CREATED: /", end='')
+                    print("/".join(tag_list[2:]).replace('{urn:node-topology}', ''), end=' ')
                 elif op == 'modify':
-                    print("/".join(tag_list), end=' ')
+                    if any("{urn:ietf:params:xml:ns:netconf:base:1.0}" in s for s in tag_list):
+                        print("/", end='')
+                        print("/".join(tag_list[3:]).replace('{urn:node-topology}', ''), end=' ')
+                    else:
+                        print("/node-topology/", end='')  # TODO pass yang model
+                        print("/".join(tag_list).replace('{urn:node-topology}', ''), end=' ')
 
                 print("=", elem.text)
 
