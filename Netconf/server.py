@@ -3,14 +3,16 @@ import subprocess
 import sys
 import time
 import copy
+import logging
 import binding
 
+from lxml import etree
+from bindingC import node_connectivity
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
-
 # from helpers import *
-from callback import *
+# from callback import *
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -25,6 +27,7 @@ class MyServer(object):
         auth = server.SSHUserPassController(username=username, password=password)
         self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
         self.node_topology = None
+        self.node_connectivity = node_connectivity()
 
     def load_file(self, filename):  # load configuration to the server
         xml_root = open(filename, 'r').read()
@@ -48,7 +51,7 @@ class MyServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
         # print_current_config(self.node_topology)
-        caller(print_current_config, args=self.node_topology)
+        # caller(print_current_config, args=self.node_topology)
         # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
@@ -82,7 +85,7 @@ class MyServer(object):
                             logging.debug("MERGING " + node_id.text)
                             merge(topo, data)
                             # print_config_changes(self.node_topology, aux, data, 'modify')
-                            caller(print_config_changes, args=(self.node_topology, aux, data, 'modify'))
+                            # caller(print_config_changes, args=(self.node_topology, aux, data, 'modify'))
                         else:
                             logging.debug("NOT MATCH")
 
@@ -90,7 +93,7 @@ class MyServer(object):
                     logging.debug("APPENDING " + node_id.text)
                     self.node_topology[0].append(data)
                     # print_config_changes(self.node_topology, None, data, 'create')
-                    caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
+                    # caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
 
         # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
@@ -166,13 +169,10 @@ def main(*margs):
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
-    s.load_file('test.xml')
+    s.load_file('node_topology.xml')
 
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])
-
-    print("RUNNING CLIENT")
-    subprocess.call(['python', 'client.py'])
 
     if sys.stdout.isatty():
         print("^C to quit server")
