@@ -171,9 +171,6 @@ def main(*margs):
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])
 
-    print("RUNNING CLIENT")
-    subprocess.call(['python', 'client.py'])
-
     if sys.stdout.isatty():
         print("^C to quit server")
 
