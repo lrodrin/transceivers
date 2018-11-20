@@ -8,10 +8,16 @@ __copyright__ = "Copyright 2018, CTTC"
 
 def get_ancestors(aux, elem):
     # print(elem, aux)
+    node_id = " "
     ancestors_list = [aux]
     for ancestor in elem.iterancestors():
         # ancestor.tag.replace('{urn:node-topology}', '')
+        if ancestor.tag.replace('{urn:node-topology}', '') == 'node':
+            node_id = ancestor.find("xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}).text
+            ancestors_list.append(node_id)
+
         ancestors_list.append(ancestor.tag)
+
         # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
 
     # print(ancestors_list[::-1])
@@ -22,7 +28,7 @@ def parse(rows, op):
     # all_data = []
     for row in rows:
         d = {}
-        for elem in row.iter():       
+        for elem in row.iter():
             if '\n' not in elem.text:
                 # aux = elem.tag.replace('{urn:node-topology}', '')
                 aux = elem.tag
