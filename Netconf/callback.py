@@ -12,8 +12,11 @@ def get_ancestors(aux, elem):
     ancestors_list = [aux]
     for ancestor in elem.iterancestors():
         # ancestor.tag.replace('{urn:node-topology}', '')
+        if ancestor.tag.replace('{urn:node-topology}', '') == 'node':
+            node_id = ancestor.find("xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}).text
+            ancestors_list.append(node_id)
+        
         ancestors_list.append(ancestor.tag)
-        # print(ancestor.tag.replace('{urn:node-topology}', ''), end=" ")
 
     # print(ancestors_list[::-1])
     return ancestors_list[::-1]
