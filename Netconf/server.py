@@ -171,7 +171,7 @@ def main(*margs):
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
-    s.load_file('node_topology_config_66.xml')
+    s.load_file('node_topology_config_65.xml')
 
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])
