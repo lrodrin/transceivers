@@ -38,7 +38,7 @@ class MyServer(object):
         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
         data = util.elm("nc:data")
         data.append(tree)
-        # print(etree.tostring(data, encoding='utf8', xml_declaration=True))
+        print(etree.tostring(data, encoding='utf8', xml_declaration=True))
         self.node_topology = data
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
@@ -165,13 +165,13 @@ def merge(one, other):
 
 def main(*margs):
     parser = argparse.ArgumentParser("Example Netconf Server")
-    parser.add_argument("--username", default="admin", help='Netconf username')
-    parser.add_argument("--password", default="admin", help='Netconf password')
-    parser.add_argument('--port', type=int, default=831, help='Netconf port')
+    parser.add_argument("--username", default="root", help='Netconf username')
+    parser.add_argument("--password", default="netlabN.", help='Netconf password')
+    parser.add_argument('--port', type=int, default=830, help='Netconf port')
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
-    s.load_file('node_topology.xml')
+    s.load_file('node_topology_config_65.xml')
 
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])
