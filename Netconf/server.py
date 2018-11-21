@@ -1,5 +1,5 @@
 import argparse
-import subprocess
+# import subprocess
 import sys
 import time
 import copy
@@ -19,6 +19,7 @@ __copyright__ = "Copyright 2018, CTTC"
 
 logging.basicConfig(level=logging.DEBUG)
 nsmap_add("node-topology", "urn:node-topology")
+nsmap_add("node-connectivity", "urn:node-connectivity")
 
 
 class MyServer(object):
@@ -43,6 +44,7 @@ class MyServer(object):
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
         util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
+        util.subelm(capabilities, "capability").text = NSMAP["node-connectivity"]
         # TODO generalize
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
