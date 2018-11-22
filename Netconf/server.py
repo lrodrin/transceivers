@@ -54,7 +54,6 @@ class MyServer(object):
         # print(etree.tostring(source_elm))
         # print_current_config(self.node_topology)
         # caller(print_current_config, args=self.node_topology)
-        # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
 
@@ -67,9 +66,7 @@ class MyServer(object):
 
         # print("RUNNING MONITORING")
         # subprocess.call(['python', 'application_changes.py'])
-        # old_topology = copy.deepcopy(self.node_topology)
-        # print(etree.tostring(old_topology))
-
+        
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
             found = False
@@ -96,7 +93,21 @@ class MyServer(object):
                     self.node_topology[0].append(data)
                     # print_config_changes(self.node_topology, None, data, 'create')
                     # caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
-
+        
+        # connections logic
+        # si no existeix cap connexio
+        if len(self.node_connectivity.connection) == 0:  # empty connections
+            print("NEW CONNECTION")
+            self.node_connectivity = new_config
+            print(etree.tostring(self.node_connectivity))
+        # si existeix una o mes connexions
+        else:
+            # new config connection id not in self.node_connectivity?
+            # append
+            # else nothing ? connection exists
+            logging.debug("APPENDING")
+        
+        
         # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 
@@ -107,7 +118,6 @@ class MyServer(object):
     # print(etree.tostring(source_elm))
     # print_current_config(self.node_topology)
     # caller(print_current_config, args=self.node_topology)
-    # logging.debug(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
     # return util.filter_results(rpc, self.node_topology, filter_or_none)
     # TODO filter_or_none options
 
@@ -171,7 +181,7 @@ def main(*margs):
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
-    s.load_file('node_topology_config_65.xml')
+    s.load_file('node_topology_config_64.xml')
 
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])
