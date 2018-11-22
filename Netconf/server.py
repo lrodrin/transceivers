@@ -5,13 +5,16 @@ import time
 import copy
 import logging
 import binding
+import bindingC
 
 from lxml import etree
 from bindingC import node_connectivity
 from netconf import nsmap_add, NSMAP
 from netconf import server, util
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
-# from helpers import *
+
+from helpers import *
+
 # from callback import *
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
@@ -66,7 +69,7 @@ class MyServer(object):
 
         # print("RUNNING MONITORING")
         # subprocess.call(['python', 'application_changes.py'])
-        
+
         data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
         for data in data_list:
             found = False
@@ -93,21 +96,35 @@ class MyServer(object):
                     self.node_topology[0].append(data)
                     # print_config_changes(self.node_topology, None, data, 'create')
                     # caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
-        
+
         # connections logic
         # si no existeix cap connexio
-        if len(self.node_connectivity.connection) == 0:  # empty connections
+        if len(self.node_connectivity.connection) == 0:
             print("NEW CONNECTION")
             self.node_connectivity = new_config
             print(etree.tostring(self.node_connectivity))
+
+            # encode to pyangbind format
+            self.node_connectivity = pybindIETFXMLDecoder.decode(etree.tostring(self.node_connectivity), bindingC,
+                                                                 'node-connectivity')
         # si existeix una o mes connexions
         else:
-            # new config connection id not in self.node_connectivity?
-            # append
-            # else nothing ? connection exists
-            logging.debug("APPENDING")
-        
-        
+            connectionid = new_config.find(".//xmlns:connectionid",
+                                           namespaces={'xmlns': 'urn:node-connectivity'})  # get connectionid
+            if connectionid not in self.node_connectivity.connection:  # connectionid no existeix encara
+                print("NOT IN")
+                logging.debug("APPENDING " + connectionid.text)  # afegirem la nova connexio
+                tree_config = etree.XML(etree.tostring(new_config))
+                # decode from pyangbind format
+                xml = pybindIETFXMLEncoder.serialise(self.node_connectivity)
+                tree_node = etree.XML(xml)
+
+                tree_node.append(tree_config[0])  # adding new connection
+
+                # encode to pyangbind format
+                self.node_connectivity = pybindIETFXMLDecoder.decode(etree.tostring(tree_node), bindingC,
+                                                                     'node-connectivity')
+        write_file('node_connectivity.xml', pybindIETFXMLEncoder.serialise(self.node_connectivity))
         # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
         return util.filter_results(rpc, self.node_topology, None)
 

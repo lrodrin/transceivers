@@ -1,0 +1,17 @@
+<node-connectivity xmlns="urn:node-connectivity">
+  <connection>
+    <connectionid>5001</connectionid>
+    <port-in_id>65792</port-in_id>
+    <port-out_out>65536</port-out_out>
+  </connection>
+  <connection>
+    <connectionid>5002</connectionid>
+    <port-in_id>65536</port-in_id>
+    <port-out_out>65792</port-out_out>
+  </connection>
+  <connection>
+    <connectionid>5003</connectionid>
+    <port-in_id>65536</port-in_id>
+    <port-out_out>65792</port-out_out>
+  </connection>
+</node-connectivity>
