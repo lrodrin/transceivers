@@ -5,10 +5,10 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
 # connexion parameters
-host = '127.0.0.1'
-port = 831
-username = "admin"
-password = "admin"
+host = '10.1.7.64'
+port = 830
+username = "root"
+password = "netlabN."
 
 # connexion to server
 session = NetconfSSHSession(host, port, username, password)
@@ -24,11 +24,11 @@ xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)
 
 # edit config
-print("---EDIT CONFIG---")
-xml = etree.parse('test2.xml')  # new configuration
-config = session.edit_config(newconf=etree.tostring(xml))
-xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
-print(xmlstr)
+# print("---EDIT CONFIG---")
+# xml = etree.parse('test2.xml')  # new configuration
+# config = session.edit_config(newconf=etree.tostring(xml))
+# xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
+# print(xmlstr)
 
 # print("---GET---")
 # config = session.get_config()

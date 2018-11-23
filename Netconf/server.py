@@ -2,7 +2,7 @@ import argparse
 # import subprocess
 import sys
 import time
-import copy
+# import copy
 import logging
 import binding
 import bindingC
@@ -33,6 +33,9 @@ class MyServer(object):
         self.node_topology = None
         self.node_connectivity = node_connectivity()
 
+    def close(self):
+        self.server.close()
+
     def load_file(self, filename):  # load configuration to the server
         xml_root = open(filename, 'r').read()
         node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
@@ -45,6 +48,7 @@ class MyServer(object):
         self.node_topology = data
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
+        """The server should append any capabilities it supports to capabilities"""
         util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
         util.subelm(capabilities, "capability").text = NSMAP["node-connectivity"]
@@ -83,7 +87,7 @@ class MyServer(object):
                         if node_id.text == node_id2.text:
                             found = True
                             logging.debug("MATCH")
-                            aux = copy.deepcopy(topo)  # aux node topology
+                            # aux = copy.deepcopy(topo)  # aux node topology
                             logging.debug("MERGING " + node_id.text)
                             merge(topo, data)
                             # print_config_changes(self.node_topology, aux, data, 'modify')
@@ -137,9 +141,6 @@ class MyServer(object):
     # caller(print_current_config, args=self.node_topology)
     # return util.filter_results(rpc, self.node_topology, filter_or_none)
     # TODO filter_or_none options
-
-    def close(self):
-        self.server.close()
 
     # def write_xml(self):  # create an xml example with binding
     #     node_topo = binding.node_topology()
