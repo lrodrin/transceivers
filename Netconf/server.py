@@ -2,7 +2,6 @@ import argparse
 # import subprocess
 import sys
 import time
-# import copy
 import logging
 import binding
 import bindingC
@@ -21,6 +20,7 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
 logging.basicConfig(level=logging.DEBUG)
+
 nsmap_add("node-topology", "urn:node-topology")
 nsmap_add("node-connectivity", "urn:node-connectivity")
 
@@ -36,9 +36,10 @@ class MyServer(object):
     def close(self):
         self.server.close()
 
-    def load_file(self, filename):  # load configuration to the server
+    def load_file(self, filename, module_name):  # load configuration to the server
+        logging.debug("--LOAD FILE--")
         xml_root = open(filename, 'r').read()
-        node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, "node_topology")
+        node_topo = pybindIETFXMLDecoder.decode(xml_root, binding, module_name)
         xml = pybindIETFXMLEncoder.serialise(node_topo)
         tree = etree.XML(xml)
         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
@@ -48,7 +49,7 @@ class MyServer(object):
         self.node_topology = data
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
-        """The server should append any capabilities it supports to capabilities"""
+        logging.debug("--APPEND CAPABILITIES--")
         util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
         util.subelm(capabilities, "capability").text = NSMAP["node-topology"]
         util.subelm(capabilities, "capability").text = NSMAP["node-connectivity"]
@@ -64,96 +65,84 @@ class MyServer(object):
         return util.filter_results(rpc, self.node_topology, filter_or_none)
         # TODO filter_or_none options
 
-    def rpc_edit_config(self, session, rpc, target, new_config):
+    def rpc_edit_config(self, session, rpc, target, method, new_config):  # pylint: disable=W0613
         logging.debug("--EDIT CONFIG--")
         logging.debug(session)
         # print(etree.tostring(rpc))
         # print(etree.tostring(target))
-        # print(etree.tostring(new_config))
+        print(etree.tostring(method))
+        print(etree.tostring(new_config))
 
         # print("RUNNING MONITORING")
         # subprocess.call(['python', 'application_changes.py'])
 
-        data_list = new_config.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-        for data in data_list:
-            found = False
-            # print(etree.tostring(data))
-            for node_id in data.iter("{urn:node-topology}node-id"):
-                topo_list = self.node_topology.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
-                for topo in topo_list:
-                    # print(etree.tostring(topo))
-                    for node_id2 in topo.iter("{urn:node-topology}node-id"):
-                        logging.debug("%s - %s" % (node_id.text, node_id2.text))
-                        if node_id.text == node_id2.text:
-                            found = True
-                            logging.debug("MATCH")
-                            # aux = copy.deepcopy(topo)  # aux node topology
-                            logging.debug("MERGING " + node_id.text)
-                            merge(topo, data)
-                            # print_config_changes(self.node_topology, aux, data, 'modify')
-                            # caller(print_config_changes, args=(self.node_topology, aux, data, 'modify'))
-                        else:
-                            logging.debug("NOT MATCH")
+        if 'topology' in new_config[0].tag:
+            topo_path = ".//xmlns:node"
+            topo_namespace = 'urn:node-topology'
+            data_list = new_config.findall(topo_path, namespaces={'xmlns': topo_namespace})
+            for data in data_list:
+                found = False
+                # print(etree.tostring(data))
+                # for node_id in data.iter("{urn:node-topology}node-id"):
+                for node_id in data.iter("{" + topo_namespace + "}node-id"):
+                    topo_list = self.node_topology.findall(topo_path, namespaces={'xmlns': topo_namespace})
+                    for topo in topo_list:
+                        # print(etree.tostring(topo))
+                        # for node_id2 in topo.iter("{urn:node-topology}node-id"):
+                        for node_id2 in topo.iter("{" + topo_namespace + "}node-id"):
+                            logging.debug("%s - %s" % (node_id.text, node_id2.text))
+                            if node_id.text == node_id2.text:
+                                found = True
+                                logging.debug("MATCH")
+                                # aux = copy.deepcopy(topo)  # aux node topology
+                                logging.debug("MERGING " + node_id.text)
+                                merge(topo, data)
+                                # print_config_changes(self.node_topology, aux, data, 'modify')
+                                # caller(print_config_changes, args=(self.node_topology, aux, data, 'modify'))
+                            else:
+                                logging.debug("NOT MATCH")
 
-                if not found:
-                    logging.debug("APPENDING " + node_id.text)
-                    self.node_topology[0].append(data)
-                    # print_config_changes(self.node_topology, None, data, 'create')
-                    # caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
+                    if not found:
+                        logging.debug("APPENDING " + node_id.text)
+                        self.node_topology[0].append(data)
+                        # print_config_changes(self.node_topology, None, data, 'create')
+                        # caller(print_config_changes, args=(self.node_topology, None, data, 'create'))
 
-        # connections logic
-        # si no existeix cap connexio
-        if len(self.node_connectivity.connection) == 0:
-            print("NEW CONNECTION")
-            self.node_connectivity = new_config
-            print(etree.tostring(self.node_connectivity))
+            # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
+            return util.filter_results(rpc, self.node_topology, None)
 
-            # encode to pyangbind format
-            self.node_connectivity = pybindIETFXMLDecoder.decode(etree.tostring(self.node_connectivity), bindingC,
-                                                                 'node-connectivity')
-        # si existeix una o mes connexions
-        else:
-            connectionid = new_config.find(".//xmlns:connectionid",
-                                           namespaces={'xmlns': 'urn:node-connectivity'})  # get connectionid
-            if connectionid not in self.node_connectivity.connection:  # connectionid no existeix encara
-                print("NOT IN")
-                logging.debug("APPENDING " + connectionid.text)  # afegirem la nova connexio
-                tree_config = etree.XML(etree.tostring(new_config))
-                # decode from pyangbind format
-                xml = pybindIETFXMLEncoder.serialise(self.node_connectivity)
-                tree_node = etree.XML(xml)
+        elif 'connectivity' in new_config.tag:
+            module_name = 'node-connectivity'
+            connid = new_config.find(".//xmlns:connectionid",
+                                     namespaces={'xmlns': 'urn:node-connectivity'}).text  # get connectionid
 
-                tree_node.append(tree_config[0])  # adding new connection
+            if method.text == "create":
+                print("NEW CONNECTION " + connid)
+                if len(self.node_connectivity.connection) == 0:  # if self.node_connectivity is empty
+                    self.node_connectivity = new_config
+                    # encode to pyangbind format
+                    self.node_connectivity = pybindIETFXMLDecoder.decode(etree.tostring(self.node_connectivity),
+                                                                         bindingC,
+                                                                         module_name)
 
-                # encode to pyangbind format
-                self.node_connectivity = pybindIETFXMLDecoder.decode(etree.tostring(tree_node), bindingC,
-                                                                     'node-connectivity')
-        write_file('node_connectivity.xml', pybindIETFXMLEncoder.serialise(self.node_connectivity))
-        # print(etree.tostring(self.node_topology, encoding='utf8', xml_declaration=True))
-        return util.filter_results(rpc, self.node_topology, None)
+                else:
+                    if connid not in self.node_connectivity.connection:  # connectionid no exists
+                        tree_config = etree.XML(etree.tostring(new_config))
+                        # decode from pyangbind format
+                        xml = pybindIETFXMLEncoder.serialise(self.node_connectivity)
+                        tree_node = etree.XML(xml)
+                        tree_node.append(tree_config[0])  # adding new connection
 
-    # def rpc_get(self, session, rpc, filter_or_none):
-    # logging.debug("--GET--")
-    # logging.debug(session)
-    # print(etree.tostring(rpc))
-    # print(etree.tostring(source_elm))
-    # print_current_config(self.node_topology)
-    # caller(print_current_config, args=self.node_topology)
-    # return util.filter_results(rpc, self.node_topology, filter_or_none)
-    # TODO filter_or_none options
+                        # encode to pyangbind format
+                        self.node_connectivity = pybindIETFXMLDecoder.decode(etree.tostring(tree_node), bindingC,
+                                                                             'node-connectivity')
+            elif method.text == "delete":
+                if connid in self.node_connectivity.connection:  # connectionid exists
+                    print("DELETE CONNECTION " + connid)
+                    self.node_connectivity.connection.delete(connid)
 
-    # def write_xml(self):  # create an xml example with binding
-    #     node_topo = binding.node_topology()
-    #     node_topo.node.add("10.1.7.64")
-    #     node_topo.node.add("10.1.7.65")
-    #
-    #     for i, n in node_topo.node.iteritems():
-    #         n.port.add('1')
-    #         for j, p in n.port.iteritems():
-    #             p.available_core.add('1')
-    #
-    #     result_xml = pybindIETFXMLEncoder.serialise(node_topo)
-    #     write_file('node_topology.xml', result_xml)
+            write_file('node_connectivity.xml', pybindIETFXMLEncoder.serialise(self.node_connectivity))
+            return util.filter_results(rpc, self.node_topology, None)
 
 
 def merge(one, other):
@@ -199,7 +188,7 @@ def main(*margs):
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
-    s.load_file('node_topology_config_64.xml')
+    s.load_file('node_topology_config_64.xml', "node_topology")
 
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])

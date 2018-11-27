@@ -24,11 +24,11 @@ xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)
 
 # edit config
-# print("---EDIT CONFIG---")
-# xml = etree.parse('test2.xml')  # new configuration
-# config = session.edit_config(newconf=etree.tostring(xml))
-# xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
-# print(xmlstr)
+print("---EDIT CONFIG---")
+xml = etree.parse('test2.xml')  # new configuration
+config = session.edit_config(method='none', newconf=etree.tostring(xml))
+xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
+print(xmlstr)
 
 # print("---GET---")
 # config = session.get_config()

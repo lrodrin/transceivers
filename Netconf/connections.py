@@ -20,29 +20,35 @@ def addConnection(connectionid, port_in_id, port_out_out, transceiverid):
     nc.connection[connectionid].transceiver = transceiverid
     return nc
 
-def deleteConnection(nc, connectionid):
-    print("DELETE CONNECTION " + connectionid)
-    nc.connection.delete(connectionid)
-
 
 if __name__ == '__main__':
     session = NetconfSSHSession(host, port, username, password)
     c = addConnection("5001", "65792", "65536", "1")
     c2 = addConnection("5002", "65536", "65792", "1")
     c3 = addConnection("5003", "65536", "65792", "1")
+    c4 = addConnection("5004", "65536", "65792", "1")
 
+    opC = 'create'
+    opD = 'delete'
     print("--EDIT CONFIG 1--")
-    config = session.edit_config(newconf=pybindIETFXMLEncoder.serialise(c))
+    config = session.edit_config(method=opC, newconf=pybindIETFXMLEncoder.serialise(c))
     xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
     print(xmlstr)
 
     print("--EDIT CONFIG 2--")
-    config = session.edit_config(newconf=pybindIETFXMLEncoder.serialise(c2))
+    config = session.edit_config(method=opC, newconf=pybindIETFXMLEncoder.serialise(c2))
     xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
     print(xmlstr)
 
     print("--EDIT CONFIG 3--")
-    config = session.edit_config(newconf=pybindIETFXMLEncoder.serialise(c3))
+    config = session.edit_config(method=opC, newconf=pybindIETFXMLEncoder.serialise(c3))
+    xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
+    print(xmlstr)
+
+    print("--EDIT CONFIG 4--")
+    nc = b.node_connectivity()
+    nc.connection.add('5002')
+    config = session.edit_config(method=opD, newconf=pybindIETFXMLEncoder.serialise(nc))
     xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
     print(xmlstr)
 
