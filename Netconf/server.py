@@ -141,8 +141,7 @@ class MyServer(object):
                     print("DELETE CONNECTION " + connid)
                     self.node_connectivity.connection.delete(connid)
 
-            write_file('node_connectivity.xml', pybindIETFXMLEncoder.serialise(self.node_connectivity))
-            return util.filter_results(rpc, self.node_topology, None)
+            return util.filter_results(rpc, etree.XML(pybindIETFXMLEncoder.serialise(self.node_connectivity)), None)
 
 
 def merge(one, other):
