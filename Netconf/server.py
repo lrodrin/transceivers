@@ -181,13 +181,16 @@ def merge(one, other):
 
 def main(*margs):
     parser = argparse.ArgumentParser("Example Netconf Server")
-    parser.add_argument("--username", default="root", help='Netconf username')
-    parser.add_argument("--password", default="netlabN.", help='Netconf password')
-    parser.add_argument('--port', type=int, default=830, help='Netconf port')
+    parser.add_argument("-username", default="root", help='netconf server username')
+    parser.add_argument("-password", default="netlabN.", help='netconf server password')
+    parser.add_argument('-port', type=int, default=830, help='netconf server port')
+    parser.add_argument('-file', metavar="FILENAME", help='netconf server configuration file to process')
+    parser.add_argument('-model', metavar="YANG MODEL", type=str, default="node_topology",
+                        help='netconf server model yang to process')
     args = parser.parse_args(*margs)
 
     s = MyServer(args.username, args.password, args.port)
-    s.load_file('node_topology_config_64.xml', "node_topology")
+    s.load_file(args.file, args.model)
 
     # print("RUNNING MONITORING")
     # subprocess.call(['python', 'application_changes.py'])
