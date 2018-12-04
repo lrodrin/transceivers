@@ -1,5 +1,6 @@
 import argparse
 # import subprocess
+import os
 import sys
 import time
 import logging
@@ -58,8 +59,8 @@ class MyServer(object):
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
         logging.debug("--GET CONFIG--")
         logging.debug(session)
-        # print(etree.tostring(rpc))
-        # print(etree.tostring(source_elm))
+        print(etree.tostring(rpc))
+        print(etree.tostring(source_elm))
         # print_current_config(self.node_topology)
         # caller(print_current_config, args=self.node_topology)
         return util.filter_results(rpc, self.node_topology, filter_or_none)

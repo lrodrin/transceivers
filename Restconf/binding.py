@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-
-import six
-from pyangbind.lib.base import PybindBase
-from pyangbind.lib.yangtypes import YANGDynClass
+from operator import attrgetter
+from pyangbind.lib.yangtypes import RestrictedPrecisionDecimalType
+from pyangbind.lib.yangtypes import RestrictedClassType
+from pyangbind.lib.yangtypes import TypedListType
+from pyangbind.lib.yangtypes import YANGBool
 from pyangbind.lib.yangtypes import YANGListType
+from pyangbind.lib.yangtypes import YANGDynClass
+from pyangbind.lib.yangtypes import ReferenceType
+from pyangbind.lib.base import PybindBase
+from collections import OrderedDict
+from decimal import Decimal
+from bitarray import bitarray
+import six
 
 # PY3 support of some PY2 keywords (needs improved)
 if six.PY3:
@@ -26,6 +33,7 @@ class yc_nominal_central_frequency_node_topology__node_port_available_core_avail
     __slots__ = ('_path_helper', '_extmethods', '__grid_type', '__adjustment_granularity', '__channel_number',)
 
     _yang_name = 'nominal-central-frequency'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -210,6 +218,7 @@ class yc_available_frequency_slot_node_topology__node_port_available_core_availa
     __slots__ = ('_path_helper', '_extmethods', '__slot_id', '__nominal_central_frequency', '__slot_width_number',)
 
     _yang_name = 'available-frequency-slot'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -400,6 +409,7 @@ class yc_nominal_central_frequency_node_topology__node_port_available_core_occup
     __slots__ = ('_path_helper', '_extmethods', '__grid_type', '__adjustment_granularity', '__channel_number',)
 
     _yang_name = 'nominal-central-frequency'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -584,6 +594,7 @@ class yc_occupied_frequency_slot_node_topology__node_port_available_core_occupie
     __slots__ = ('_path_helper', '_extmethods', '__slot_id', '__nominal_central_frequency', '__slot_width_number',)
 
     _yang_name = 'occupied-frequency-slot'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -773,6 +784,7 @@ class yc_available_core_node_topology__node_port_available_core(PybindBase):
     __slots__ = ('_path_helper', '_extmethods', '__core_id', '__available_frequency_slot', '__occupied_frequency_slot',)
 
     _yang_name = 'available-core'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -1003,6 +1015,7 @@ class yc_supported_modulation_format_node_topology__node_port_available_transcei
     __slots__ = ('_path_helper', '_extmethods', '__modulation_id', '__mod_type',)
 
     _yang_name = 'supported-modulation-format'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -1140,6 +1153,7 @@ class yc_supported_center_frequency_range_node_topology__node_port_available_tra
     __slots__ = ('_path_helper', '_extmethods', '__max_cf', '__min_cf',)
 
     _yang_name = 'supported-center-frequency-range'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -1276,6 +1290,7 @@ class yc_supported_bandwidth_node_topology__node_port_available_transceiver_supp
     __slots__ = ('_path_helper', '_extmethods', '__max_bw', '__min_bw',)
 
     _yang_name = 'supported-bandwidth'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -1415,6 +1430,7 @@ class yc_available_transceiver_node_topology__node_port_available_transceiver(Py
     '__supported_monitoring',)
 
     _yang_name = 'available-transceiver'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -1835,6 +1851,7 @@ class yc_port_node_topology__node_port(PybindBase):
     '_path_helper', '_extmethods', '__port_id', '__layer_protocol_name', '__available_core', '__available_transceiver',)
 
     _yang_name = 'port'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -2079,6 +2096,7 @@ class yc_node_node_topology__node(PybindBase):
     __slots__ = ('_path_helper', '_extmethods', '__node_id', '__port',)
 
     _yang_name = 'node'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -2089,7 +2107,7 @@ class yc_node_node_topology__node(PybindBase):
         self._extmethods = False
         self.__node_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="node-id", parent=self,
                                       path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True,
-                                      namespace='urn:node-topology', defining_module='node-topology',
+                                      is_keyval=True, namespace='urn:node-topology', defining_module='node-topology',
                                       yang_type='string', is_config=True)
         self.__port = YANGDynClass(
             base=YANGListType("port_id", yc_port_node_topology__node_port, yang_name="port", parent=self,
@@ -2139,18 +2157,23 @@ class yc_node_node_topology__node(PybindBase):
         method. Backends looking to populate this variable should
         do so via calling thisObj._set_node_id() directly.
         """
+        parent = getattr(self, "_parent", None)
+        if parent is not None and load is False:
+            raise AttributeError("Cannot set keys directly when" +
+                                 " within an instantiated list")
+
         if hasattr(v, "_utype"):
             v = v._utype(v)
         try:
             t = YANGDynClass(v, base=six.text_type, is_leaf=True, yang_name="node-id", parent=self,
                              path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True,
-                             namespace='urn:node-topology', defining_module='node-topology', yang_type='string',
-                             is_config=True)
+                             is_keyval=True, namespace='urn:node-topology', defining_module='node-topology',
+                             yang_type='string', is_config=True)
         except (TypeError, ValueError):
             raise ValueError({
                 'error-string': """node_id must be of a type compatible with string""",
                 'defined-type': "string",
-                'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="node-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:node-topology', defining_module='node-topology', yang_type='string', is_config=True)""",
+                'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="node-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:node-topology', defining_module='node-topology', yang_type='string', is_config=True)""",
             })
 
         self.__node_id = t
@@ -2160,7 +2183,7 @@ class yc_node_node_topology__node(PybindBase):
     def _unset_node_id(self):
         self.__node_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="node-id", parent=self,
                                       path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True,
-                                      namespace='urn:node-topology', defining_module='node-topology',
+                                      is_keyval=True, namespace='urn:node-topology', defining_module='node-topology',
                                       yang_type='string', is_config=True)
 
     def _get_port(self):
@@ -2224,6 +2247,7 @@ class node_topology(PybindBase):
     __slots__ = ('_path_helper', '_extmethods', '__node',)
 
     _yang_name = 'node-topology'
+    _yang_namespace = 'urn:node-topology'
 
     _pybind_generated_by = 'container'
 
@@ -2232,10 +2256,12 @@ class node_topology(PybindBase):
         self._path_helper = False
 
         self._extmethods = False
-        self.__node = YANGDynClass(base=yc_node_node_topology__node, is_container='container', yang_name="node",
-                                   parent=self, path_helper=self._path_helper, extmethods=self._extmethods,
-                                   register_paths=True, extensions=None, namespace='urn:node-topology',
-                                   defining_module='node-topology', yang_type='container', is_config=True)
+        self.__node = YANGDynClass(
+            base=YANGListType("node_id", yc_node_node_topology__node, yang_name="node", parent=self,
+                              is_container='list', user_ordered=False, path_helper=self._path_helper,
+                              yang_keys='node-id', extensions=None), is_container='list', yang_name="node", parent=self,
+            path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None,
+            namespace='urn:node-topology', defining_module='node-topology', yang_type='list', is_config=True)
 
         load = kwargs.pop("load", None)
         if args:
@@ -2266,13 +2292,13 @@ class node_topology(PybindBase):
 
     def _get_node(self):
         """
-        Getter method for node, mapped from YANG variable /node (container)
+        Getter method for node, mapped from YANG variable /node (list)
         """
         return self.__node
 
     def _set_node(self, v, load=False):
         """
-        Setter method for node, mapped from YANG variable /node (container)
+        Setter method for node, mapped from YANG variable /node (list)
         If this variable is read-only (config: false) in the
         source YANG file, then _set_node is considered as a private
         method. Backends looking to populate this variable should
@@ -2281,15 +2307,18 @@ class node_topology(PybindBase):
         if hasattr(v, "_utype"):
             v = v._utype(v)
         try:
-            t = YANGDynClass(v, base=yc_node_node_topology__node, is_container='container', yang_name="node",
-                             parent=self, path_helper=self._path_helper, extmethods=self._extmethods,
-                             register_paths=True, extensions=None, namespace='urn:node-topology',
-                             defining_module='node-topology', yang_type='container', is_config=True)
+            t = YANGDynClass(v, base=YANGListType("node_id", yc_node_node_topology__node, yang_name="node", parent=self,
+                                                  is_container='list', user_ordered=False,
+                                                  path_helper=self._path_helper, yang_keys='node-id', extensions=None),
+                             is_container='list', yang_name="node", parent=self, path_helper=self._path_helper,
+                             extmethods=self._extmethods, register_paths=True, extensions=None,
+                             namespace='urn:node-topology', defining_module='node-topology', yang_type='list',
+                             is_config=True)
         except (TypeError, ValueError):
             raise ValueError({
-                'error-string': """node must be of a type compatible with container""",
-                'defined-type': "container",
-                'generated-type': """YANGDynClass(base=yc_node_node_topology__node, is_container='container', yang_name="node", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:node-topology', defining_module='node-topology', yang_type='container', is_config=True)""",
+                'error-string': """node must be of a type compatible with list""",
+                'defined-type': "list",
+                'generated-type': """YANGDynClass(base=YANGListType("node_id",yc_node_node_topology__node, yang_name="node", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='node-id', extensions=None), is_container='list', yang_name="node", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:node-topology', defining_module='node-topology', yang_type='list', is_config=True)""",
             })
 
         self.__node = t
@@ -2297,10 +2326,12 @@ class node_topology(PybindBase):
             self._set()
 
     def _unset_node(self):
-        self.__node = YANGDynClass(base=yc_node_node_topology__node, is_container='container', yang_name="node",
-                                   parent=self, path_helper=self._path_helper, extmethods=self._extmethods,
-                                   register_paths=True, extensions=None, namespace='urn:node-topology',
-                                   defining_module='node-topology', yang_type='container', is_config=True)
+        self.__node = YANGDynClass(
+            base=YANGListType("node_id", yc_node_node_topology__node, yang_name="node", parent=self,
+                              is_container='list', user_ordered=False, path_helper=self._path_helper,
+                              yang_keys='node-id', extensions=None), is_container='list', yang_name="node", parent=self,
+            path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None,
+            namespace='urn:node-topology', defining_module='node-topology', yang_type='list', is_config=True)
 
     node = __builtin__.property(_get_node, _set_node)
 
