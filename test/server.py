@@ -9,28 +9,40 @@ app = Flask(__name__)
 
 model = sliceable_transceiver_sdm()
 
+
 @app.route('/api/transceiver', methods=['GET'])
 def get_transceiver():
-	return pybindJSON.dumps(model, mode='ietf')
+    return pybindJSON.dumps(model, mode='ietf')
+
 
 @app.route('/api/transceiver/slice', methods=['POST'])
 def create_slice():
-	payload = request.json
-	model.transceiver.slice.add(payload['sliceid'])
-	return "Created: {} \n".format(payload)
+    payload = request.json
+    model.transceiver.slice.add(payload['sliceid'])
+    return "Created: {} \n".format(payload)
+
 
 @app.route('/api/transceiver/slice', methods=['DELETE'])
 def delete_slice():
-	payload = request.json
-	model.transceiver.slice.delete(payload['sliceid'])
-	return "Deleted: {} \n".format(payload)
+    payload = request.json
+    model.transceiver.slice.delete(payload['sliceid'])
+    return "Deleted: {} \n".format(payload)
 
-# @app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
-# def create_opticalchannel(_id):
-# 	payload = request.json
-# 	for sliceid in model.transceiver.slice.iteritems():
-# 		# if _id == sliceid:
-# 		sliceid.optical_channel.add(payload['opticalchannelid'])
-# 	return "Created: {} \n".format(payload)
 
-app.run(host='10.1.16.53', port=5000)
+@app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
+def create_opticalchannel(_id):
+    payload = request.json
+    for sliceid in model.transceiver.slice.iteritems():
+        # if _id == sliceid:
+        sliceid.optical_channel.add(payload['opticalchannelid'])
+    return "Created: {} \n".format(payload)
+
+
+@app.route('/api/config', methods=['POST'])
+def execute_config():
+    print(request.values)
+    print(request.values)
+    return "Created: {} \n".format(request.data)
+
+
+app.run(host='10.1.16.53', port=5000, debug=True)

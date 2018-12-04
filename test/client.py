@@ -26,3 +26,8 @@ print(request.content)
 
 request = requests.get(url + 'transceiver', headers=headers)
 print(request.content)
+
+# call script
+# request = requests.post(url + 'config', headers=headers, params="python test.py")
+request = requests.post(url + 'config', headers=headers, params="python C:/Users/Laura/Desktop/test.py")
+print(request.content)
