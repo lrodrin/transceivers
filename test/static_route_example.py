@@ -49,9 +49,9 @@ print(pybindJSON.dumps(oclr.local_routes, mode="ietf"))
 # Load the "json/oc-lr.json" file into a new instance of
 # "openconfig_local_routing". We import the module here, such that a new
 # instance of the class can be created by the deserialisation code
-import binding
+import bindingTransceiver
 
-new_oclr = pybindJSON.load(os.path.join("json", "oc-lr.json"), binding, "openconfig_local_routing")
+new_oclr = pybindJSON.load(os.path.join("json", "oc-lr.json"), bindingTransceiver, "openconfig_local_routing")
 
 # Manipulate the data loaded
 print("Current tag: %d" % new_oclr.local_routes.static_routes.static["192.0.2.1/32"].config.set_tag)

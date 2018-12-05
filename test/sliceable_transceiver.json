@@ -1,0 +1,9 @@
+{
+    "transceiver": {
+        "slice": {
+            "1": {
+                "sliceid": "1"
+            }
+        }
+    }
+}
