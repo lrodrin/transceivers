@@ -8,7 +8,6 @@ __copyright__ = "Copyright 2018, CTTC"
 
 def get_ancestors(aux, elem):
     # print(elem, aux)
-    node_id = " "
     ancestors_list = [aux]
     for ancestor in elem.iterancestors():
         # ancestor.tag.replace('{urn:node-topology}', '')
@@ -45,7 +44,6 @@ def parse(rows, op):
                     else:
                         print("/node-topology/", end='')  # TODO pass yang model
                         print("/".join(tag_list).replace('{urn:node-topology}', ''), end=' ')
-                        
 
                 print("=", elem.text)
 

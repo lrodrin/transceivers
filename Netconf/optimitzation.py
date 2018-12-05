@@ -4,7 +4,8 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
 tree = etree.XML(
-    "<doc><block><title>Text 1</title><content>Stuff I want</content></block><block><title>Text 2</title><content>Stuff I don't want</content></block></doc>")
+    "<doc><block><title>Text 1</title><content>Stuff I want</content></block><block><title>Text "
+    "2</title><content>Stuff I don't want</content></block></doc>")
 
 new_config = '''
 <config>

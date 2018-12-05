@@ -1,6 +1,5 @@
 import logging
 
-from lxml import etree
 from compare import *
 
 # TODO treure modularitat compare

@@ -1,6 +1,6 @@
-HOST = '10.1.7.65'
+HOST = '10.1.7.64'
 PORT = 830
-USER = 'admin'
-PASS = 'admin'
+USER = 'root'
+PASS = 'netlabN.'
 XML = 'node_topology.xml'
 YML = 'node_topology.yml'

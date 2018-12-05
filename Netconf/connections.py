@@ -1,9 +1,10 @@
-import bindingC as b
 from lxml import etree
 from netconf.client import NetconfSSHSession
-from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
+from pyangbind.lib.serialise import pybindIETFXMLEncoder
+from bindingConnection import node_connectivity
 
-# from helpers import *
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
 
 # connexion parameters
 host = '10.1.7.64'
@@ -14,12 +15,12 @@ password = "netlabN."
 
 def addConnection(connectionid, port_in_id, port_out_out, transceiverid):
     print("CREATE CONNECTION " + connectionid)
-    nc = b.node_connectivity()
-    nc.connection.add(connectionid)
-    nc.connection[connectionid].port_in_id = port_in_id
-    nc.connection[connectionid].port_out_out = port_out_out
-    nc.connection[connectionid].transceiver = transceiverid
-    return nc
+    node_con = node_connectivity()
+    node_con.connection.add(connectionid)
+    node_con.connection[connectionid].port_in_id = port_in_id
+    node_con.connection[connectionid].port_out_out = port_out_out
+    node_con.connection[connectionid].transceiver = transceiverid
+    return node_con
 
 
 if __name__ == '__main__':
@@ -47,18 +48,15 @@ if __name__ == '__main__':
     print(xmlstr)
 
     print("--EDIT CONFIG 4--")
-    nc = b.node_connectivity()
+    nc = node_connectivity()
     nc.connection.add('5002')
     config = session.edit_config(method=opD, newconf=pybindIETFXMLEncoder.serialise(nc))
     xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
     print(xmlstr)
 
-    # print ("NEW CONFIG")
-    # new_config = pybindIETFXMLDecoder.decode(pybindIETFXMLEncoder.serialise(c2), node_connectivity, 'node-connectivity')
-    # new_config = pybindIETFXMLEncoder.serialise(c2)
-    # tree_config = etree.XML(new_config)
-    # print(etree.tostring(tree_config))
-    # print(etree.tostring(tree_config[0]))
+    # print ("NEW CONFIG") new_config = pybindIETFXMLDecoder.decode(pybindIETFXMLEncoder.serialise(c2),
+    # node_connectivity, 'node-connectivity') new_config = pybindIETFXMLEncoder.serialise(c2) tree_config =
+    # etree.XML(new_config) print(etree.tostring(tree_config)) print(etree.tostring(tree_config[0]))
 
     # print("NODE_CONNECTIVITY")
     # node = pybindIETFXMLEncoder.serialise(c)

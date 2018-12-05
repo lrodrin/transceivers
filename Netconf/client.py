@@ -25,7 +25,7 @@ print(xmlstr)
 
 # edit config
 print("---EDIT CONFIG---")
-xml = etree.parse('test2.xml')  # new configuration
+xml = etree.parse('new_config.xml')  # new configuration
 config = session.edit_config(method='none', newconf=etree.tostring(xml))
 xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
 print(xmlstr)

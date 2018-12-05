@@ -2,7 +2,7 @@ import argparse
 import re
 import sys
 
-from ncclient import manager
+from ncclient_examples import manager
 
 from defaults import *
 

@@ -7,6 +7,7 @@ from lxml import etree
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
+
 def get_ancestors(aux, elem):
     # print(elem, aux)
     ancestors_list = [aux]
@@ -15,17 +16,18 @@ def get_ancestors(aux, elem):
         if ancestor.tag.replace('{urn:node-topology}', '') == 'node':
             node_id = ancestor.find("xmlns:node-id", namespaces={'xmlns': 'urn:node-topology'}).text
             ancestors_list.append(node_id)
-        
+
         ancestors_list.append(ancestor.tag)
 
     # print(ancestors_list[::-1])
     return ancestors_list[::-1]
 
+
 def parse(rows, op):
     # all_data = []
     for row in rows:
         d = {}
-        for elem in row.iter():       
+        for elem in row.iter():
             if '\n' not in elem.text:
                 # aux = elem.tag.replace('{urn:node-topology}', '')
                 aux = elem.tag
@@ -42,13 +44,13 @@ def parse(rows, op):
                     else:
                         print("/node-topology/", end='')  # TODO pass yang model
                         print("/".join(tag_list).replace('{urn:node-topology}', ''), end=' ')
-                        
 
                 print("=", elem.text)
 
         # all_data.append(d)
 
     # return all_data
+
 
 # Function to print current configuration
 def print_current_config(config):
@@ -78,6 +80,7 @@ def print_config_changes(config, old_node, new_node, op):
         parse(new_rows, op)
 
     print("\n\n ========== END OF CHANGES =======================================\n")
+
 
 def caller(callback, args=()):
     callback(*args)
