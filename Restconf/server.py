@@ -1,8 +1,9 @@
-import subprocess
+import json
 
 import pyangbind.lib.pybindJSON as pybindJSON
-from flask import Flask, request
+import subprocess
 
+from flask import Flask, request
 from bindingTransceiver import sliceable_transceiver_sdm
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
@@ -36,7 +37,7 @@ def new_slice():
         ncf = payload['ncf']
         slot_width = payload['slot_width']
         create_slice(coreid, modeid, ncf, opticalchannelid, sliceid, slot_width)
-        return "Created slice %s: %s" % (sliceid, pybindJSON.dumps(payload))
+        return "Created slice %s: %s" % (sliceid, json.dumps(payload))
     else:
         return "Slice %s exists", sliceid
 
@@ -50,21 +51,21 @@ def create_slice(coreid, modeid, ncf, opticalchannelid, sliceid, slot_width):
     model.transceiver.slice[sliceid].optical_channel[opticalchannelid].frequency_slot.slot_width = slot_width
 
 
-@app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
-def new_opticalchannel(_id):
-    payload = request.json
-    for sliceid in model.transceiver.slice.iteritems():
-        # if _id == sliceid:
-        sliceid.optical_channel.add(payload['opticalchannelid'])
-    return "Created: {} \n".format(payload)
-
-@app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
-def new_opticalsignal(_id):
-    payload = request.json
-    for sliceid in model.transceiver.slice.iteritems():
-        # if _id == sliceid:
-        sliceid.optical_channel.add(payload['opticalchannelid'])
-    return "Created: {} \n".format(payload)
+# @app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
+# def new_opticalchannel(_id):
+#     payload = request.json
+#     for sliceid in model.transceiver.slice.iteritems():
+#         # if _id == sliceid:
+#         sliceid.optical_channel.add(payload['opticalchannelid'])
+#     return "Created: {} \n".format(payload)
+#
+# @app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
+# def new_opticalsignal(_id):
+#     payload = request.json
+#     for sliceid in model.transceiver.slice.iteritems():
+#         # if _id == sliceid:
+#         sliceid.optical_channel.add(payload['opticalchannelid'])
+#     return "Created: {} \n".format(payload)
 
 
 @app.route('/api/config', methods=['POST'])
@@ -81,6 +82,13 @@ def startup_monitor():
     return "Started monitoring: {} \n".format(process_name)
 
 
+@app.route('/api/matlab', methods=['POST'])
+def startup_matlab():
+    process_name = request.args.keys()
+    subprocess.call(process_name[0])
+    return "Started matlab: {} \n".format(process_name)
+
+
 # DELETE OPERATIONS
 @app.route('/api/transceiver/slice', methods=['DELETE'])
 def delete_slice():
@@ -88,7 +96,7 @@ def delete_slice():
     sliceid = payload['sliceid']
     if sliceid in model.transceiver.slice:
         model.transceiver.slice.delete(sliceid)
-        return "Deleted slice %s: %s" % (sliceid, pybindJSON.dumps(payload))
+        return "Deleted slice %s: %s" % (sliceid, json.dumps(payload))
     else:
         return "Slice %s not exists", sliceid
 

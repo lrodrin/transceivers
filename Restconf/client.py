@@ -22,9 +22,6 @@ print(request.content)
 request = requests.get(url + 'transceiver', headers=headers)
 print(request.content)
 
-# request = requests.post(url + 'transceiver/slice/1', headers=headers, data=json.dumps({"opticalchannelid": "1"}))
-# print(request.content)
-
 # delete slice
 request = requests.delete(url + 'transceiver/slice', headers=headers, data=json.dumps({"sliceid": 2}))
 print(request.content)
@@ -32,7 +29,17 @@ print(request.content)
 request = requests.get(url + 'transceiver', headers=headers)
 print(request.content)
 
-# call script
-startup_config = "python C:/Users/Laura/Desktop/test.py"
+# call config script
+startup_config = "python C:/Users/Laura/Desktop/scripts/config.py"
 request = requests.post(url + 'config', headers=headers, params=startup_config)
+print(request.content)
+
+# call monitor script
+startup_config = "python C:/Users/Laura/Desktop/scripts/monitor.py"
+request = requests.post(url + 'monitor', headers=headers, params=startup_config)
+print(request.content)
+
+# call matlab script
+startup_config = "python C:/Users/Laura/Desktop/scripts/matlab.py"
+request = requests.post(url + 'matlab', headers=headers, params=startup_config)
 print(request.content)
