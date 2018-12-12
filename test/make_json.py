@@ -9,7 +9,7 @@ __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
 
-def make_json(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width):
+def make_slice(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width):
     model = sliceable_transceiver_sdm()
     model.transceiver.slice.add(sliceid)
     model.transceiver.slice[sliceid].optical_channel.add(opticalchannelid)
@@ -29,10 +29,10 @@ def make_json(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width):
 
 
 def main():
-    result_json = make_json(1, 1, "Core19", "LP01", 137, 2)
-    print(result_json)
+    slice = make_slice(1, 1, "Core19", "LP01", 137, 2)
+    print(slice)
 
-    write_file('sliceable_transceiver.json', result_json)
+    write_file('sliceable_transceiver.json', slice)
 
 
 if __name__ == '__main__':

@@ -1,9 +1,8 @@
-import json
-
-import pyangbind.lib.pybindJSON as pybindJSON
 import subprocess
 
+import pyangbind.lib.pybindJSON as pybindJSON
 from flask import Flask, request
+
 from bindingTransceiver import sliceable_transceiver_sdm
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
@@ -37,7 +36,7 @@ def new_slice():
         ncf = payload['ncf']
         slot_width = payload['slot_width']
         create_slice(coreid, modeid, ncf, opticalchannelid, sliceid, slot_width)
-        return "Created slice %s: %s" % (sliceid, json.dumps(payload))
+        return "Created slice %s: %s" % (sliceid, pybindJSON.dumps(payload))
     else:
         return "Slice %s exists", sliceid
 
@@ -89,7 +88,7 @@ def delete_slice():
     sliceid = payload['sliceid']
     if sliceid in model.transceiver.slice:
         model.transceiver.slice.delete(sliceid)
-        return "Deleted slice %s: %s" % (sliceid, json.dumps(payload))
+        return "Deleted slice %s: %s" % (sliceid, pybindJSON.dumps(payload))
     else:
         return "Slice %s not exists", sliceid
 
