@@ -36,13 +36,13 @@ def new_slice():
         modeid = payload['modeid']
         ncf = payload['ncf']
         slot_width = payload['slot_width']
-        create_slice(coreid, modeid, ncf, opticalchannelid, sliceid, slot_width)
+        create_slice(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width)
         return "Created slice %s: %s" % (sliceid, json.dumps(payload))
     else:
         return "Slice %s exists", sliceid
 
 
-def create_slice(coreid, modeid, ncf, opticalchannelid, sliceid, slot_width):
+def create_slice(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width):
     model.transceiver.slice.add(sliceid)
     model.transceiver.slice[sliceid].optical_channel.add(opticalchannelid)
     model.transceiver.slice[sliceid].optical_channel[opticalchannelid].coreid = coreid
