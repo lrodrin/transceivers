@@ -25,6 +25,7 @@ def make_slice(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width):
     #     intf_model.description = conf['description']
     #     ip_model = intf_model.ipv4.address.add(conf['address']['prefix'])
     #     ip_model.netmask = conf['address']['netmask']
+    print(model.transceiver.slice)
     return pybindJSON.dumps(model)
 
 
