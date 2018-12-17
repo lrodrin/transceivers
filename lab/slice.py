@@ -339,9 +339,4 @@ if __name__ == '__main__':
     SNRT=np.zeros((512,), dtype=float)
     slice_num=1
     BitRate=DSPTx(estimate_SNR, Algorithm, SNRT, slice_num, BitRate)
-<<<<<<< HEAD
     #(Tx_success, BERactual,SNRactual)=DSPRx(True, Algorithm, BitRate, 1)
-=======
-    #(Tx_success, BERactual,SNRactual)=DSPRx(True, Algorithm, BitRate, 1)
-        
->>>>>>> origin
