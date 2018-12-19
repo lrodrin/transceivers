@@ -6,10 +6,14 @@ __copyright__ = "Copyright 2018, CTTC"
 url = 'http://10.1.1.10:5000/api/'
 headers = {"Content-Type": "application/json"}
 
-# DAC configuration
-# params = "python C:/Users/Laura/Desktop/scripts/slice.py"
-params = "python C:/Users/cttc/Desktop/agent_bluespace/slice.py"
-request = requests.post(url + 'dac', headers=headers, params=params)
+# DAC bluespace configuration
+params = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': [], 'pps': []}
+request = requests.post(url + 'blue/dac', headers=headers, params=params)
+print(request.content)
+
+# OSC bluespace configuration
+params = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': [], 'pps': []}
+request = requests.post(url + 'blue/osc', headers=headers, params=params)
 print(request.content)
 
 # Laser configuration

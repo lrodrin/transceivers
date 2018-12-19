@@ -1,4 +1,3 @@
-import subprocess
 import time
 
 from flask import Flask, request
@@ -12,17 +11,67 @@ __copyright__ = "Copyright 2018, CTTC"
 app = Flask('server')
 
 
-# DAC
-@app.route('/api/dac', methods=['POST'])
+# DAC bluespace
+@app.route('/api/blue/dac', methods=['POST'])
 def startup_dac():
-    process_name = request.args.keys()
+    payload = request.json  # tx_ID, trx_mode, FEC, bps, pps
     try:
-        subprocess.call(process_name[0])
-        return "Called: {} \n".format(process_name)
+        ack = transmitter(payload['tx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
+        return "DAC ACK {}\n".format(ack)
 
     except OSError as error:
         return "ERROR: {} \n".format(error)
 
+
+# OSC bluespace
+@app.route('/api/blue/osc', methods=['POST'])
+def startup_osc():
+    payload = request.json  # rx_ID, trx_mode, FEC, bps, pps
+    try:
+        result = receiver(payload['rx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
+        return "Oscilloscope ACK {} SNR {} BER {}\n".format(result[0], result[1], result[2])
+
+    except OSError as error:
+        return "ERROR: {} \n".format(error)
+
+
+# DAC metrohaul
+@app.route('/api/metro/dac', methods=['POST'])
+def startup_dac():
+    payload = request.json  # scenario, tx_ID
+    scenario = payload['scenario']
+    if scenario == "METRO_1":
+        try:
+            pass
+            # python_xc(1, 1) # client opticalchannel
+            # python_f(1, 193400000, 14, 2) # opticalchannel frequency power trx_mode
+            # ?
+            # python_disconnect()
+
+        except OSError as error:
+            return "ERROR: {} \n".format(error)
+
+    elif scenario == "METRO_2":
+        try:
+            pass
+
+        except OSError as error:
+            return "ERROR: {} \n".format(error)
+
+
+# OSC metrohaul
+@app.route('/api/metro/osc', methods=['POST'])
+# def startup_osc():
+#     payload = request.json  # rx_ID
+#     try:
+#         ack = receiver(payload['rx_ID'])
+#         return "Oscilloscope ACK {}\n".format(ack)
+#
+#     except OSError as error:
+#         return "ERROR: {} \n".format(error)
+
+# TODO merge DAC bluespace with metrohaul
+# TODO merge OSC bluespace with metrohaul
 
 # Laser
 @app.route('/api/laser', methods=['POST'])

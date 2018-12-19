@@ -1,0 +1,62 @@
+Help on module amp:
+
+NAME
+    amp
+
+FILE
+    /root/restAPI/lib/amp.py
+
+CLASSES
+    Amp
+    
+    class Amp
+     |  This is a class for Amplifier configuration.
+     |  
+     |  Methods defined here:
+     |  
+     |  __init__(self, ip)
+     |      The constructor for Amp class.
+     |      
+     |      :param ip: IP address of GPIB-ETHERNET
+     |      :type ip: string
+     |  
+     |  checkerror(self)
+     |  
+     |  close(self)
+     |  
+     |  enable(self, stat=False)
+     |      Enable / Disable EDFA
+     |      
+     |      :param stat: status
+     |      :type stat: bool
+     |  
+     |  mode(self, mod, param=0)
+     |      Define mode AGC / APC
+     |      
+     |      :param mod: mode type
+     |      :param param: power or gain
+     |      :type mod: string
+     |      :type param: int
+     |  
+     |  open(self)
+     |      The function to initialize the Amp default parameters:
+     |          - Set GPIB address
+     |          - Set mode as CONTROLLER
+     |          - Set GPIB address
+     |  
+     |  status(self)
+     |          - Check mode (power/gain) and put it into the variable 'param' as float
+     |          - Check status (enable/disable) and put it into the variable 'stat' (True/False)
+     |      
+     |      :rtype list
+     |      :return: status, mode, power
+     |  
+     |  test(self)
+     |      Just as test, ask for instrument ID according to SCPI API
+     |      
+     |      :return: s
+
+DATA
+    print_function = _Feature((2, 6, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0)...
+
+
