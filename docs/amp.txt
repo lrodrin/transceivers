@@ -4,7 +4,7 @@ NAME
     amp
 
 FILE
-    /root/restAPI/lib/amp.py
+    /root/agent-bvt/lib/amp.py
 
 CLASSES
     Amp

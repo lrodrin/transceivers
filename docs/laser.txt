@@ -4,7 +4,7 @@ NAME
     laser
 
 FILE
-    /root/restAPI/lib/laser.py
+    /root/agent-bvt/lib/laser.py
 
 CLASSES
     Laser
