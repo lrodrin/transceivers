@@ -67,8 +67,6 @@ app = Flask('server')
 #     except OSError as error:
 #         return "ERROR: {} \n".format(error)
 #
-# # TODO merge DAC bluespace with metrohaul
-# # TODO merge OSC bluespace with metrohaul
 
 
 # Laser
@@ -82,7 +80,7 @@ def startup_laser():
         yenista.wavelength(channel, payload['wavelength'])  # define wavelength
         yenista.power(channel, payload['power'])  # define power
         yenista.enable(channel, payload['status'])  # enable laser
-        time.sleep(10)
+        time.sleep(5)
         result = yenista.status(channel)  # check status, wavelength, power
         yenista.close()
         return "Laser status {}, wavelength {}, power {}\n".format(result[0], result[1], result[2])
@@ -100,7 +98,7 @@ def startup_amp():
         print(manlight.test())
         manlight.mode(payload['mode'], payload['power'])  # define mode
         manlight.enable(payload['status'])  # enable EDFA
-        time.sleep(10)
+        time.sleep(5)
         result = manlight.status()  # check status, mode, power
         manlight.close()
         return "Amplifier status {}, mode {}, power {}\n".format(result[0], result[1], result[2])
@@ -110,4 +108,5 @@ def startup_amp():
 
 
 if __name__ == '__main__':
-    app.run(host='10.1.1.10', port=5000, debug=True)
+    app.run(host='10.1.1.10', port=5000, debug=True) # REAL
+    # app.run(host='10.1.16.53', port=5000, debug=True)  # TEST

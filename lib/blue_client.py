@@ -6,7 +6,8 @@ import time
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
-url = 'http://10.1.1.10:5000/api/'
+url = 'http://10.1.1.10:5000/api/'  # REAL
+# url = 'http://10.1.16.53:5000/api/' # TEST
 headers = {"Content-Type": "application/json"}
 
 # Laser configuration
@@ -19,7 +20,7 @@ params = {'ip': '10.1.1.15', 'mode': 'APC', 'power': 5, 'status': True}
 request = requests.post(url + 'amp', headers=headers, data=json.dumps(params))
 print(request.content)
 
-time.sleep(10)
+time.sleep(5)
 
 # Amplifier 10.1.1.16 configuration
 params = {'ip': '10.1.1.16', 'mode': 'APC', 'power': 3, 'status': True}
