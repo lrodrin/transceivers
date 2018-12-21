@@ -1,10 +1,10 @@
 module: blueSPACE-DRoF-TP-capability
   +--ro DRoF-TP-capability
      +--ro supportable-capacity
-     |  +--ro max-capacity?   int32
-     |  +--ro min-capacity?   int32
+     |  +--ro max-capacity?   uint32
+     |  +--ro min-capacity?   uint32
      +--ro supportable-modulation?                        string
-     +--ro supportable-subcarriers?                       int32
+     +--ro supportable-subcarriers*                       uint32
      +--ro supportable-constellation
      |  +--ro constellation-id?   string
      |  +--ro mod-type?           identityref

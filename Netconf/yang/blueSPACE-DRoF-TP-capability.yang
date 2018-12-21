@@ -132,11 +132,11 @@ module blueSPACE-DRoF-TP-capability {
 
     grouping supportable-capacity {
         leaf max-capacity {
-            type int32;
+            type uint32;
             description "e.g 50";
         }
         leaf min-capacity {
-            type int32;
+            type uint32;
             description "e.g 5";
         }
     }
@@ -149,9 +149,9 @@ module blueSPACE-DRoF-TP-capability {
             type string;
             description "e.g. OFDM";
         }
-        leaf supportable-subcarriers {
-            type int32;
-            description "e.g. 50";
+        leaf-list supportable-subcarriers {
+            type uint32;
+            max-elements 512;
         }
         container supportable-constellation {
             uses supportable-constellation;

@@ -6,9 +6,9 @@ module: blueSPACE-DRoF-configuration
      |  +--rw subcarrier-id?   string
      |  +--rw bitsxsymbol?     string
      |  +--rw powerxsymbol?    string
-     +--rw FEC?                         string
+     +--rw FEC?                         identityref
      +--rw equalization?                string
      +--ro monitor
-        +--ro subcarrier-id?   string
-        +--ro SNR?             string
-        +--ro BER?             string
+     |  +--ro subcarrier-id?   string
+     |  +--ro SNR?             string
+     +--ro BER?                         string

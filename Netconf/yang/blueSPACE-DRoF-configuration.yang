@@ -34,14 +34,23 @@ module blueSPACE-DRoF-configuration {
         base status;
     }
 
+    identity FEC {
+        description "FEC base";
+    }
+
+    identity HD-FEC {
+        base FEC;
+    }
+
+    identity SD-FEC {
+        base FEC;
+    }
+
     grouping monitor {
         leaf subcarrier-id {
             type string;
         }
         leaf SNR {
-            type string;
-        }
-        leaf BER {
             type string;
         }
     }
@@ -71,7 +80,9 @@ module blueSPACE-DRoF-configuration {
             uses constellation;
         }
         leaf FEC {
-            type string;
+            type identityref {
+                base FEC;
+            }
         }
         leaf equalization {
             type string;
@@ -80,13 +91,15 @@ module blueSPACE-DRoF-configuration {
             config false;
             uses monitor;
         }
+        leaf BER {
+            config false;
+            type string;
+        }
     }
 
     container DRoF-configuration {
         uses DRoF-configuration;
     }
-
-
 }
 
 

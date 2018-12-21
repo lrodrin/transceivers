@@ -40,8 +40,8 @@ class yc_constellation_blueSPACE_DRoF_configuration__DRoF_configuration_constell
 
     self._extmethods = False
     self.__subcarrier_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="subcarrier-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
-    self.__powerxsymbol = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="powerxsymbol", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
     self.__bitsxsymbol = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="bitsxsymbol", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
+    self.__powerxsymbol = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="powerxsymbol", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
 
     load = kwargs.pop("load", None)
     if args:
@@ -183,7 +183,7 @@ class yc_monitor_blueSPACE_DRoF_configuration__DRoF_configuration_monitor(Pybind
   the container is represented as a class variable - with a specific
   YANG type.
   """
-  __slots__ = ('_path_helper', '_extmethods', '__subcarrier_id','__SNR','__BER',)
+  __slots__ = ('_path_helper', '_extmethods', '__subcarrier_id','__SNR',)
 
   _yang_name = 'monitor'
   _yang_namespace = 'urn:blueSPACE-DRoF-configuration'
@@ -197,7 +197,6 @@ class yc_monitor_blueSPACE_DRoF_configuration__DRoF_configuration_monitor(Pybind
     self._extmethods = False
     self.__subcarrier_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="subcarrier-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
     self.__SNR = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="SNR", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
-    self.__BER = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
 
     load = kwargs.pop("load", None)
     if args:
@@ -291,45 +290,11 @@ class yc_monitor_blueSPACE_DRoF_configuration__DRoF_configuration_monitor(Pybind
   def _unset_SNR(self):
     self.__SNR = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="SNR", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
 
-
-  def _get_BER(self):
-    """
-    Getter method for BER, mapped from YANG variable /DRoF_configuration/monitor/BER (string)
-    """
-    return self.__BER
-      
-  def _set_BER(self, v, load=False):
-    """
-    Setter method for BER, mapped from YANG variable /DRoF_configuration/monitor/BER (string)
-    If this variable is read-only (config: false) in the
-    source YANG file, then _set_BER is considered as a private
-    method. Backends looking to populate this variable should
-    do so via calling thisObj._set_BER() directly.
-    """
-    if hasattr(v, "_utype"):
-      v = v._utype(v)
-    try:
-      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
-    except (TypeError, ValueError):
-      raise ValueError({
-          'error-string': """BER must be of a type compatible with string""",
-          'defined-type': "string",
-          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)""",
-        })
-
-    self.__BER = t
-    if hasattr(self, '_set'):
-      self._set()
-
-  def _unset_BER(self):
-    self.__BER = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
-
   subcarrier_id = __builtin__.property(_get_subcarrier_id)
   SNR = __builtin__.property(_get_SNR)
-  BER = __builtin__.property(_get_BER)
 
 
-  _pyangbind_elements = OrderedDict([('subcarrier_id', subcarrier_id), ('SNR', SNR), ('BER', BER), ])
+  _pyangbind_elements = OrderedDict([('subcarrier_id', subcarrier_id), ('SNR', SNR), ])
 
 
 class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(PybindBase):
@@ -339,7 +304,7 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
   the container is represented as a class variable - with a specific
   YANG type.
   """
-  __slots__ = ('_path_helper', '_extmethods', '__status','__nominal_central_frequency','__constellation','__FEC','__equalization','__monitor',)
+  __slots__ = ('_path_helper', '_extmethods', '__status','__nominal_central_frequency','__constellation','__FEC','__equalization','__monitor','__BER',)
 
   _yang_name = 'DRoF-configuration'
   _yang_namespace = 'urn:blueSPACE-DRoF-configuration'
@@ -351,12 +316,13 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
     self._path_helper = False
 
     self._extmethods = False
-    self.__FEC = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
     self.__equalization = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
-    self.__constellation = YANGDynClass(base=yc_constellation_blueSPACE_DRoF_configuration__DRoF_configuration_constellation, is_container='container', yang_name="constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='container', is_config=True)
-    self.__status = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
-    self.__nominal_central_frequency = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="nominal-central-frequency", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
     self.__monitor = YANGDynClass(base=yc_monitor_blueSPACE_DRoF_configuration__DRoF_configuration_monitor, is_container='container', yang_name="monitor", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='container', is_config=True)
+    self.__status = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
+    self.__FEC = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
+    self.__constellation = YANGDynClass(base=yc_constellation_blueSPACE_DRoF_configuration__DRoF_configuration_constellation, is_container='container', yang_name="constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='container', is_config=True)
+    self.__BER = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
+    self.__nominal_central_frequency = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="nominal-central-frequency", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
 
     load = kwargs.pop("load", None)
     if args:
@@ -402,12 +368,12 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
+      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """status must be of a type compatible with identityref""",
           'defined-type': "blueSPACE-DRoF-configuration:identityref",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)""",
+          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)""",
         })
 
     self.__status = t
@@ -415,7 +381,7 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
       self._set()
 
   def _unset_status(self):
-    self.__status = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
+    self.__status = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-configuration:active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:standby': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'off': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'active': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="status", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
 
 
   def _get_nominal_central_frequency(self):
@@ -486,13 +452,13 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
 
   def _get_FEC(self):
     """
-    Getter method for FEC, mapped from YANG variable /DRoF_configuration/FEC (string)
+    Getter method for FEC, mapped from YANG variable /DRoF_configuration/FEC (identityref)
     """
     return self.__FEC
       
   def _set_FEC(self, v, load=False):
     """
-    Setter method for FEC, mapped from YANG variable /DRoF_configuration/FEC (string)
+    Setter method for FEC, mapped from YANG variable /DRoF_configuration/FEC (identityref)
     If this variable is read-only (config: false) in the
     source YANG file, then _set_FEC is considered as a private
     method. Backends looking to populate this variable should
@@ -501,12 +467,12 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
+      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
     except (TypeError, ValueError):
       raise ValueError({
-          'error-string': """FEC must be of a type compatible with string""",
-          'defined-type': "string",
-          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)""",
+          'error-string': """FEC must be of a type compatible with identityref""",
+          'defined-type': "blueSPACE-DRoF-configuration:identityref",
+          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)""",
         })
 
     self.__FEC = t
@@ -514,7 +480,7 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
       self._set()
 
   def _unset_FEC(self):
-    self.__FEC = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=True)
+    self.__FEC = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:SD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}, 'blueSPACE-DRoF-configuration:HD-FEC': {'@module': 'blueSPACE-DRoF-configuration', '@namespace': 'urn:blueSPACE-DRoF-configuration'}},), is_leaf=True, yang_name="FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='identityref', is_config=True)
 
 
   def _get_equalization(self):
@@ -582,15 +548,49 @@ class yc_DRoF_configuration_blueSPACE_DRoF_configuration__DRoF_configuration(Pyb
   def _unset_monitor(self):
     self.__monitor = YANGDynClass(base=yc_monitor_blueSPACE_DRoF_configuration__DRoF_configuration_monitor, is_container='container', yang_name="monitor", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='container', is_config=True)
 
+
+  def _get_BER(self):
+    """
+    Getter method for BER, mapped from YANG variable /DRoF_configuration/BER (string)
+    """
+    return self.__BER
+      
+  def _set_BER(self, v, load=False):
+    """
+    Setter method for BER, mapped from YANG variable /DRoF_configuration/BER (string)
+    If this variable is read-only (config: false) in the
+    source YANG file, then _set_BER is considered as a private
+    method. Backends looking to populate this variable should
+    do so via calling thisObj._set_BER() directly.
+    """
+    if hasattr(v, "_utype"):
+      v = v._utype(v)
+    try:
+      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
+    except (TypeError, ValueError):
+      raise ValueError({
+          'error-string': """BER must be of a type compatible with string""",
+          'defined-type': "string",
+          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)""",
+        })
+
+    self.__BER = t
+    if hasattr(self, '_set'):
+      self._set()
+
+  def _unset_BER(self):
+    self.__BER = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="BER", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-configuration', defining_module='blueSPACE-DRoF-configuration', yang_type='string', is_config=False)
+
   status = __builtin__.property(_get_status, _set_status)
   nominal_central_frequency = __builtin__.property(_get_nominal_central_frequency, _set_nominal_central_frequency)
   constellation = __builtin__.property(_get_constellation, _set_constellation)
   FEC = __builtin__.property(_get_FEC, _set_FEC)
   equalization = __builtin__.property(_get_equalization, _set_equalization)
   monitor = __builtin__.property(_get_monitor, _set_monitor)
+  BER = __builtin__.property(_get_BER)
 
 
-  _pyangbind_elements = OrderedDict([('status', status), ('nominal_central_frequency', nominal_central_frequency), ('constellation', constellation), ('FEC', FEC), ('equalization', equalization), ('monitor', monitor), ])
+  _pyangbind_elements = OrderedDict([('status', status), ('nominal_central_frequency', nominal_central_frequency), ('constellation', constellation), ('FEC', FEC), ('equalization', equalization), ('monitor', monitor), ('BER', BER), ])
 
 
 class blueSPACE_DRoF_configuration(PybindBase):
