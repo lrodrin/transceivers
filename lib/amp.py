@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import socket
 import time
-import string
 
 
 class Amp:
@@ -65,6 +64,7 @@ class Amp:
         self.sock.send("*IDN?\n")
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
@@ -120,19 +120,21 @@ class Amp:
         self.sock.send("MODE\n")
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
         except socket.timeout:
             s = ""
 
-        mod = string.split(s, " ")[1]  # Store mode in variable 'mod' as string
-        param = float(string.split(s, " ")[2])  # Store parameter (power/gain) in variable 'param' as float
+        mod = str.split(s, " ")[1]  # Store mode in variable 'mod' as string
+        param = float(str.split(s, " ")[2])  # Store parameter (power/gain) in variable 'param' as float
 
         # Then ask for the status (enable/disable) and put it into the variable 'stat' (True/False)
         self.sock.send("POW\n")
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
@@ -140,19 +142,29 @@ class Amp:
             s = ""
 
         stat = False
-        if string.find(s, "OFF") == -1:
+        if str.find(s, "OFF") == -1:
             stat = True
 
         # Return status, mode, power
         return [stat, mod, param]
 
     def close(self):
+        """
+            Close and delete the amplifier
+
+            """
         self.sock.close()
 
     def checkerror(self):
+        """
+        Check system error
+
+        :return: s
+        """
         self.sock.send("SYST:ERR?\n")
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
@@ -162,6 +174,7 @@ class Amp:
 
         print(s)
 
+
 # if __name__ == '__main__':
 #     manlight_1 = Amp('10.1.1.15')
 #     manlight_2 = Amp('10.1.1.16')
@@ -170,6 +183,8 @@ class Amp:
 #     manlight_1.mode("APC", 5)
 #     manlight_2.mode("APC", 3)
 #     manlight_1.enable(True)
+#     manlight_2.enable(True)
+#     time.sleep(10)
 #     print(manlight_1.status())
 #     print(manlight_2.status())
 #     manlight_1.close()

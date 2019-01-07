@@ -1,8 +1,9 @@
 from __future__ import print_function
 
-import socket
+from socket import SOCK_STREAM, IPPROTO_TCP, socket, AF_INET, timeout
+
+
 # import time
-import string
 
 
 class Laser:
@@ -35,7 +36,7 @@ class Laser:
         addr = '11'
 
         # Open TCP connect to port 1234 of GPIB-ETHERNET
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
+        self.sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
         self.sock.settimeout(1)
         self.sock.connect((ip, 1234))
 
@@ -66,10 +67,11 @@ class Laser:
         self.sock.send("*IDN?\n")
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
-        except socket.timeout:
+        except timeout:
             s = ""
 
         return s
@@ -134,13 +136,14 @@ class Laser:
         self.sock.send(cmd)
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
-        except socket.timeout:
+        except timeout:
             s = ""
 
-        if string.split(s, ":")[1] == "ENABLED\n":
+        if str.split(s, ":")[1] == "ENABLED\n":
             stat = True
         else:
             stat = False
@@ -150,26 +153,28 @@ class Laser:
         self.sock.send(cmd)
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
-        except socket.timeout:
+        except timeout:
             s = ""
 
-        lambda0 = float(string.split(s, "=")[1])
+        lambda0 = float(str.split(s, "=")[1])
 
         # Check power and put it into the variable 'power' in dBm (-60 indicates DISABLED)
         cmd = "CH%d:P?\n" % ch
         self.sock.send(cmd)
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
-        except socket.timeout:
+        except timeout:
             s = ""
         if stat:
-            power = float(string.split(s, "=")[1])
+            power = float(str.split(s, "=")[1])
         else:
             power = -60
 
@@ -177,16 +182,26 @@ class Laser:
         return [stat, lambda0, power]
 
     def close(self):
+        """
+        Close and delete the laser
+
+        """
         self.sock.close()
 
     def checkerror(self):
+        """
+        Check system error
+
+        :return: s
+        """
         self.sock.send("SYST:ERR?\n")
         self.sock.send("++read eoi\n")
         s = None
+        # TODO local variable s is not used
         try:
             s = self.sock.recv(100)
 
-        except socket.timeout:
+        except timeout:
 
             s = ""
 
@@ -197,7 +212,7 @@ class Laser:
 #     yenista.wavelength(3, 1550.12)
 #     yenista.power(3, 14.5)
 #     yenista.enable(3, True)
-#     time.sleep(10)
+#     time.sleep(5)
 #     print(yenista.status(3)[0])
 #     print(yenista.test())
 #     yenista.close()
