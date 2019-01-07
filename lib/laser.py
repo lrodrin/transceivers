@@ -1,9 +1,6 @@
-from __future__ import print_function
+import time
 
 from socket import SOCK_STREAM, IPPROTO_TCP, socket, AF_INET, timeout
-
-
-# import time
 
 
 class Laser:
@@ -207,12 +204,13 @@ class Laser:
 
         return s
 
-# if __name__ == '__main__':
-#     yenista = Laser()
-#     yenista.wavelength(3, 1550.12)
-#     yenista.power(3, 14.5)
-#     yenista.enable(3, True)
-#     time.sleep(5)
-#     print(yenista.status(3)[0])
-#     print(yenista.test())
-#     yenista.close()
+
+if __name__ == '__main__':
+    yenista = Laser()
+    yenista.wavelength(3, 1550.12)
+    yenista.power(3, 14.5)
+    yenista.enable(3, True)
+    time.sleep(5)
+    print(yenista.status(3)[0])
+    print(yenista.test())
+    yenista.close()

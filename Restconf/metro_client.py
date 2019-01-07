@@ -6,8 +6,8 @@ import time
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
-url = 'http://10.1.1.10:5000/api/'  # REAL
-# url = 'http://10.1.16.53:5000/api/' # TEST
+# url = 'http://10.1.1.10:5000/'  # REAL
+url = 'http://10.1.16.53:5000/' # TEST
 headers = {"Content-Type": "application/json"}
 
 # Laser configuration
@@ -36,5 +36,3 @@ print(request.content)
 # params = {'rx_ID': 0, 'trx_mode': 0}
 # request = requests.post(url + 'metro/osc', headers=headers, data=json.dumps(params))
 # print(request.content)
-
-

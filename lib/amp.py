@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import socket
 import time
 
@@ -175,17 +173,17 @@ class Amp:
         print(s)
 
 
-# if __name__ == '__main__':
-#     manlight_1 = Amp('10.1.1.15')
-#     manlight_2 = Amp('10.1.1.16')
-#     print(manlight_1.test())
-#     print(manlight_2.test())
-#     manlight_1.mode("APC", 5)
-#     manlight_2.mode("APC", 3)
-#     manlight_1.enable(True)
-#     manlight_2.enable(True)
-#     time.sleep(10)
-#     print(manlight_1.status())
-#     print(manlight_2.status())
-#     manlight_1.close()
-#     manlight_2.close()
+if __name__ == '__main__':
+    manlight_1 = Amp('10.1.1.15')
+    manlight_2 = Amp('10.1.1.16')
+    print(manlight_1.test())
+    print(manlight_2.test())
+    manlight_1.mode("APC", 5)
+    manlight_2.mode("APC", 3)
+    manlight_1.enable(True)
+    manlight_2.enable(True)
+    time.sleep(5)
+    print(manlight_1.status())
+    print(manlight_2.status())
+    manlight_1.close()
+    manlight_2.close()

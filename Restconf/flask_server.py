@@ -1,19 +1,23 @@
 import time
 
 from flask import Flask, request
-
 from lib.amp import Amp
 from lib.laser import Laser
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
-app = Flask('server')
+app = Flask(__name__)
+
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
 
 # DAC bluespace
-# @app.route('/api/blue/dac', methods=['POST'])
-# def startup_dac():
+# @app.route('/blue/dac', methods=['POST'])
+# def dac():
 #     payload = request.json  # tx_ID, trx_mode, FEC, bps, pps
 #     try:
 #         ack = transmitter(payload['tx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
@@ -24,8 +28,8 @@ app = Flask('server')
 #
 #
 # # OSC bluespace
-# @app.route('/api/blue/osc', methods=['POST'])
-# def startup_osc():
+# @app.route('/blue/osc', methods=['POST'])
+# def osc():
 #     payload = request.json  # rx_ID, trx_mode, FEC, bps, pps
 #     try:
 #         result = receiver(payload['rx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
@@ -36,8 +40,8 @@ app = Flask('server')
 #
 #
 # # DAC metrohaul
-# @app.route('/api/metro/dac', methods=['POST'])
-# def startup_dac():
+# @app.route('/metro/dac', methods=['POST'])
+# def dac():
 #     payload = request.json  # trx_mode, tx_ID
 #     scenario = payload['trx_mode']
 #     if scenario == "METRO_1":
@@ -57,8 +61,8 @@ app = Flask('server')
 #
 #
 # # OSC metrohaul
-# @app.route('/api/metro/osc', methods=['POST'])
-# def startup_osc():
+# @app.route('/metro/osc', methods=['POST'])
+# def osc():
 #     payload = request.json  # rx_ID, trx_mode
 #     try:
 #         ack = receiver(payload['rx_ID'], payload['trx_mode'])
@@ -69,9 +73,22 @@ app = Flask('server')
 #
 
 
-# Laser
-@app.route('/api/laser', methods=['POST'])
-def startup_laser():
+@app.route('/laser', methods=['POST'])
+def laser():
+    """
+    Laser route.
+
+    post:
+        summary: Laser configuration.
+        description: Modify a laser configuration.
+        parameters:
+        responses:
+            200:
+                description: Laser status, wavelength and power to be returned.
+            404:
+                description: Laser not operative.
+
+    """
     payload = request.json  # channel, wavelength, power, status
     yenista = Laser()
     try:
@@ -89,9 +106,22 @@ def startup_laser():
         return "ERROR: {} \n".format(error)
 
 
-# Amplifier
-@app.route('/api/amp', methods=['POST'])
-def startup_amp():
+@app.route('/amp', methods=['POST'])
+def amp():
+    """
+    Amplifier route.
+
+    post:
+        summary: Amplifier configuration.
+        description: Modify an amplifier configuration.
+        parameters:
+        responses:
+            200:
+                description: Amplifier status, mode and power to be returned.
+            404:
+                description: Amplifier not operative.
+
+    """
     payload = request.json  # ip, mode, power, status
     manlight = Amp(payload['ip'])
     try:
@@ -108,5 +138,5 @@ def startup_amp():
 
 
 if __name__ == '__main__':
-    app.run(host='10.1.1.10', port=5000, debug=True) # REAL
-    # app.run(host='10.1.16.53', port=5000, debug=True)  # TEST
+    # app.run(host='10.1.1.10', port=5000, debug=True) # REAL
+    app.run(host='10.1.16.53', port=5000, debug=True)  # TEST

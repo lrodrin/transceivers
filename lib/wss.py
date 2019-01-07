@@ -1,8 +1,7 @@
 import time
-
 import numpy as np
-import matplotlib.pyplot as plt
 
+from matplotlib.pyplot import figure, plot, show
 from lib import wsapi
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
@@ -134,9 +133,9 @@ class Wss:
             check_BW_wss = (data[-1, 0] - data[0, 0]) * 1e3  # in GHz
             check_att = data[:, 1]
 
-            plt.figure()
-            plt.plot(profile_wss[:, 0], profile_wss[:, 1])
-            plt.show()
+            figure()
+            plot(profile_wss[:, 0], profile_wss[:, 1])
+            show()
 
         else:
             print('Error: All the attenuation values are set to 60dB')  # No ha llegit el perfil del wss ha agafat
