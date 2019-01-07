@@ -4,7 +4,7 @@ NAME
     laser
 
 FILE
-    /root/agent-bvt/lib/laser.py
+    /root/restAPI/lib/laser.py
 
 CLASSES
     Laser
@@ -18,8 +18,12 @@ CLASSES
      |      The constructor for Laser class.
      |  
      |  checkerror(self)
+     |      Check system error
+     |      
+     |      :return: s
      |  
      |  close(self)
+     |      Close and delete the laser
      |  
      |  enable(self, ch, stat=False)
      |      Enable / Disable Laser
@@ -68,6 +72,9 @@ CLASSES
      |      :type lambda0: float
 
 DATA
+    AF_INET = 2
+    IPPROTO_TCP = 6
+    SOCK_STREAM = 1
     print_function = _Feature((2, 6, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0)...
 
 

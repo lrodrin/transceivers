@@ -4,7 +4,7 @@ NAME
     amp
 
 FILE
-    /root/agent-bvt/lib/amp.py
+    /root/restAPI/lib/amp.py
 
 CLASSES
     Amp
@@ -21,8 +21,12 @@ CLASSES
      |      :type ip: string
      |  
      |  checkerror(self)
+     |      Check system error
+     |      
+     |      :return: s
      |  
      |  close(self)
+     |      Close and delete the amplifier
      |  
      |  enable(self, stat=False)
      |      Enable / Disable EDFA
