@@ -9,7 +9,7 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>laser</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/root/restAPI/lib/laser.py">/root/restAPI/lib/laser.py</a></font></td></tr></table>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/root/restAPI/lib/laser/laser.py">/root/restAPI/lib/laser/laser.py</a></font></td></tr></table>
     <p></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -18,8 +18,10 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="time.html">time</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="socket.html">socket</a><br>
+</td><td width="25%" valign=top><a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -39,37 +41,48 @@
 <td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Laser">Laser</a>&nbsp;configuration.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="Laser-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;<a href="#Laser">Laser</a>&nbsp;class.</tt></dd></dl>
+<dl><dt><a name="Laser-__init__"><strong>__init__</strong></a>(self, ip, addr)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;<a href="#Laser">Laser</a>&nbsp;class.<br>
+&nbsp;<br>
+:param&nbsp;ip:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET<br>
+:param&nbsp;addr:&nbsp;GPIB&nbsp;address<br>
+:type&nbsp;ip:&nbsp;str<br>
+:type&nbsp;addr:&nbsp;str</tt></dd></dl>
 
-<dl><dt><a name="Laser-checkerror"><strong>checkerror</strong></a>(self)</dt><dd><tt>Check&nbsp;system&nbsp;error<br>
+<dl><dt><a name="Laser-checkerror"><strong>checkerror</strong></a>(self)</dt><dd><tt>Check&nbsp;system&nbsp;errors&nbsp;in&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;<br>
 :return:&nbsp;s</tt></dd></dl>
 
-<dl><dt><a name="Laser-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;laser</tt></dd></dl>
+<dl><dt><a name="Laser-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;connection.</tt></dd></dl>
 
-<dl><dt><a name="Laser-enable"><strong>enable</strong></a>(self, ch, stat<font color="#909090">=False</font>)</dt><dd><tt>Enable&nbsp;/&nbsp;Disable&nbsp;<a href="#Laser">Laser</a><br>
+<dl><dt><a name="Laser-enable"><strong>enable</strong></a>(self, ch, stat<font color="#909090">=False</font>)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :param&nbsp;stat:&nbsp;status<br>
 :type&nbsp;ch:&nbsp;int<br>
 :type&nbsp;stat:&nbsp;bool</tt></dd></dl>
 
-<dl><dt><a name="Laser-open"><strong>open</strong></a>(self)</dt><dd><tt>The&nbsp;function&nbsp;to&nbsp;initialize&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;default&nbsp;parameters:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;GPIB&nbsp;address<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;mode&nbsp;as&nbsp;CONTROLLER<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;GPIB&nbsp;address</tt></dd></dl>
+<dl><dt><a name="Laser-open"><strong>open</strong></a>(self)</dt><dd><tt>Connect&nbsp;to&nbsp;<a href="#Laser">Laser</a>&nbsp;and&nbsp;initialize&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;default&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;MODE&nbsp;as&nbsp;CONTROLLER.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;GPIB&nbsp;address.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Turn&nbsp;off&nbsp;READ_AFTER_WRITE&nbsp;to&nbsp;avoid&nbsp;"Query&nbsp;Unterminated"&nbsp;errors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Read&nbsp;timeout&nbsp;is&nbsp;500&nbsp;ms.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Do&nbsp;not&nbsp;append&nbsp;CR&nbsp;or&nbsp;LF&nbsp;to&nbsp;GPIB&nbsp;data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Assert&nbsp;EOI&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
 
-<dl><dt><a name="Laser-power"><strong>power</strong></a>(self, ch, power)</dt><dd><tt>Define&nbsp;power&nbsp;in&nbsp;dBm<br>
+<dl><dt><a name="Laser-power"><strong>power</strong></a>(self, ch, power)</dt><dd><tt>Define&nbsp;power&nbsp;in&nbsp;dBm.<br>
+The&nbsp;range&nbsp;of&nbsp;power&nbsp;takes&nbsp;6'03&nbsp;to&nbsp;14'50&nbsp;dBm.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :param&nbsp;power:&nbsp;power<br>
 :type&nbsp;ch:&nbsp;int<br>
 :type&nbsp;power:&nbsp;float</tt></dd></dl>
 
-<dl><dt><a name="Laser-status"><strong>status</strong></a>(self, ch)</dt><dd><tt>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;status&nbsp;(enable/disable)&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'stat'&nbsp;(True/False)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;wavelength&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'lambda0'&nbsp;in&nbsp;nm<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;power&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'power'&nbsp;in&nbsp;dBm&nbsp;(-60&nbsp;indicates&nbsp;DISABLED)<br>
+<dl><dt><a name="Laser-status"><strong>status</strong></a>(self, ch)</dt><dd><tt>Check&nbsp;and&nbsp;return&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;configured&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;status&nbsp;(enable/disable)&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'stat'&nbsp;(True/False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;wavelength&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'lambda0'&nbsp;in&nbsp;nm.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;power&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'power'&nbsp;in&nbsp;dBm&nbsp;(-60&nbsp;indicates&nbsp;DISABLED).<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :type&nbsp;ch:&nbsp;int<br>
@@ -80,7 +93,8 @@
 &nbsp;<br>
 :return:&nbsp;s</tt></dd></dl>
 
-<dl><dt><a name="Laser-wavelength"><strong>wavelength</strong></a>(self, ch, lambda0)</dt><dd><tt>Define&nbsp;wavelength&nbsp;in&nbsp;nm<br>
+<dl><dt><a name="Laser-wavelength"><strong>wavelength</strong></a>(self, ch, lambda0)</dt><dd><tt>Define&nbsp;wavelength&nbsp;in&nbsp;nm.<br>
+The&nbsp;range&nbsp;of&nbsp;wavelength&nbsp;takes&nbsp;1527'55899&nbsp;to&nbsp;1565'544&nbsp;nm.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :param&nbsp;lambda0:&nbsp;wavelength<br>
@@ -94,8 +108,22 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>AF_INET</strong> = 2<br>
-<strong>IPPROTO_TCP</strong> = 6<br>
-<strong>SOCK_STREAM</strong> = 1<br>
-<strong>print_function</strong> = _Feature((2, 6, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0), 65536)</td></tr></table>
+<td width="100%"><strong>BUFSIZE</strong> = 100<br>
+<strong>CONNECTION_PORT</strong> = 1234<br>
+<strong>CONNECTION_TIMEOUT</strong> = 1<br>
+<strong>EOS_1</strong> = '++eoi 1<font color="#c040c0">\n</font>'<br>
+<strong>EOS_3</strong> = '++eos 3<font color="#c040c0">\n</font>'<br>
+<strong>MODE</strong> = '++mode 1<font color="#c040c0">\n</font>'<br>
+<strong>READ_AFTER_WRITE</strong> = '++auto 0<font color="#c040c0">\n</font>'<br>
+<strong>READ_EOI</strong> = '++read eoi<font color="#c040c0">\n</font>'<br>
+<strong>TIMEOUT</strong> = '++read_tmo_ms 500<font color="#c040c0">\n</font>'<br>
+<strong>__author__</strong> = 'Laura Rodriguez Navas &lt;laura.rodriguez@cttc.cat&gt;'<br>
+<strong>__copyright__</strong> = 'Copyright 2018, CTTC'</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Laura&nbsp;Rodriguez&nbsp;Navas&nbsp;&lt;laura.rodriguez@cttc.cat&gt;</td></tr></table>
 </body></html>

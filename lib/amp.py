@@ -1,61 +1,59 @@
-import socket
 import time
 
+from socket import SOCK_STREAM, IPPROTO_TCP, socket, AF_INET, timeout
 
-class Amp:
+TIMEOUT = 2
+PORT = 1234
+MODE = "++mode 1\n"
+READ_AFTER_WRITE = "++auto 0\n"
+EOI = "++eoi 1\n"
+
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
+
+class Amplifier:
     """
     This is a class for Amplifier configuration.
 
     """
 
-    def __init__(self, ip):
+    def __init__(self, ip, addr):
         """
-        The constructor for Amp class.
+        The constructor for Amplifier class.
 
         :param ip: IP address of GPIB-ETHERNET
-        :type ip: string
+        :param addr: GPIB address
+        :type ip: str
+        :type addr: str
         """
         self.ip = ip
+        self.addr = addr
         self.open()
 
     def open(self):
         """
-        The function to initialize the Amp default parameters:
-            - Set GPIB address
-            - Set mode as CONTROLLER
-            - Set GPIB address
+        Connect to Amplifier and initialize the Amplifier default parameters:
+            - Set mode as CONTROLLER.
+            - Set GPIB address.
+            - Turn off READ_AFTER_WRITE to avoid "Query Unterminated" errors.
+            - Read timeout is 500 ms.
+            - Do not append CR or LF to GPIB data.
+            - Assert EOI with last byte to indicate end of data.
 
         """
-
-        # Set GPIB address
-        addr = '3'
-
-        # Open TCP connect to port 1234 of GPIB-ETHERNET
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
-        self.sock.settimeout(2)  # readjusted the timeout in order to allow a propper GPIB -> Eth conversion
-        self.sock.connect((self.ip, 1234))
-
-        # Set mode as CONTROLLER
-        self.sock.send("++mode 1\n")
-
-        # Set GPIB address
-        self.sock.send("++addr " + addr + "\n")
-
-        # Turn off read-after-write to avoid "Query Unterminated" errors
-        self.sock.send("++auto 0\n")
-
-        # Read timeout is 500 msec
+        self.sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+        self.sock.settimeout(TIMEOUT)
+        self.sock.connect((self.ip, PORT))
+        self.sock.send(MODE)
+        self.sock.send("++addr " + self.addr + "\n")
+        self.sock.send(READ_AFTER_WRITE)
         self.sock.send("++read_tmo_ms 500\n")
-
-        # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
-
-        # Assert EOI with last byte to indicate end of data
-        self.sock.send("++eoi 1\n")
+        self.sock.send(EOI)
 
     def test(self):
         """
-        Just as test, ask for instrument ID according to SCPI API
+        Ask for instrument ID according to SCPI API
 
         :return: s
         """
@@ -66,7 +64,7 @@ class Amp:
         try:
             s = self.sock.recv(100)
 
-        except socket.timeout:
+        except timeout:
             s = ""
 
         return s
@@ -174,6 +172,7 @@ class Amp:
 
 
 if __name__ == '__main__':
+    addr = '3'
     manlight_1 = Amp('10.1.1.15')
     manlight_2 = Amp('10.1.1.16')
     print(manlight_1.test())

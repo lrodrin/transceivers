@@ -1,8 +1,4 @@
-import time
-
-from flask import Flask, request
-from lib.amp import Amp
-from lib.laser import Laser
+from flask import Flask
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -71,70 +67,6 @@ def hello_world():
 #     except OSError as error:
 #         return "ERROR: {} \n".format(error)
 #
-
-
-@app.route('/laser', methods=['POST'])
-def laser():
-    """
-    Laser route.
-
-    post:
-        summary: Laser configuration.
-        description: Modify a laser configuration.
-        parameters:
-        responses:
-            200:
-                description: Laser status, wavelength and power to be returned.
-            404:
-                description: Laser not operative.
-
-    """
-    payload = request.json  # channel, wavelength, power, status
-    yenista = Laser()
-    try:
-        print(yenista.test())
-        channel = payload['channel']
-        yenista.wavelength(channel, payload['wavelength'])  # define wavelength
-        yenista.power(channel, payload['power'])  # define power
-        yenista.enable(channel, payload['status'])  # enable laser
-        time.sleep(5)
-        result = yenista.status(channel)  # check status, wavelength, power
-        yenista.close()
-        return "Laser status {}, wavelength {}, power {}\n".format(result[0], result[1], result[2])
-
-    except OSError as error:
-        return "ERROR: {} \n".format(error)
-
-
-@app.route('/amp', methods=['POST'])
-def amp():
-    """
-    Amplifier route.
-
-    post:
-        summary: Amplifier configuration.
-        description: Modify an amplifier configuration.
-        parameters:
-        responses:
-            200:
-                description: Amplifier status, mode and power to be returned.
-            404:
-                description: Amplifier not operative.
-
-    """
-    payload = request.json  # ip, mode, power, status
-    manlight = Amp(payload['ip'])
-    try:
-        print(manlight.test())
-        manlight.mode(payload['mode'], payload['power'])  # define mode
-        manlight.enable(payload['status'])  # enable EDFA
-        time.sleep(5)
-        result = manlight.status()  # check status, mode, power
-        manlight.close()
-        return "Amplifier status {}, mode {}, power {}\n".format(result[0], result[1], result[2])
-
-    except OSError as error:
-        return "ERROR: {} \n".format(error)
 
 
 if __name__ == '__main__':
