@@ -1,6 +1,6 @@
 import time
 
-from lib.laser.laser import Laser
+from lib.laser.laser import *
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"

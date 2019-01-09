@@ -2,6 +2,10 @@ import socket
 import time
 import string
 
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
+
+
 BUFSIZE = 100
 
 READ_EOI = "++read eoi\n"
@@ -19,9 +23,6 @@ TIMEOUT = "++read_tmo_ms 500\n"
 READ_AFTER_WRITE = "++auto 0\n"
 
 MODE = "++mode 1\n"
-
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
 
 
 class Laser:
