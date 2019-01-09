@@ -148,7 +148,7 @@ class nettest():
         # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
 
-        # Assert EOI with last byte to indicate end of data
+        # Assert EOI_1 with last byte to indicate end of data
         self.sock.send("++eoi 1\n")
         
                 
@@ -531,7 +531,7 @@ class agilentmeter():
         # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
 
-        # Assert EOI with last byte to indicate end of data
+        # Assert EOI_1 with last byte to indicate end of data
         self.sock.send("++eoi 1\n")
         
     def test(self):
@@ -616,7 +616,7 @@ class agilentpsupply():
         # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
 
-        # Assert EOI with last byte to indicate end of data
+        # Assert EOI_1 with last byte to indicate end of data
         self.sock.send("++eoi 1\n")
         
     def test(self):
@@ -696,7 +696,7 @@ class ando():
         # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
 
-        # Assert EOI with last byte to indicate end of data
+        # Assert EOI_1 with last byte to indicate end of data
         self.sock.send("++eoi 1\n")
         
     def test(self):
@@ -781,7 +781,7 @@ class yenista():
         # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
 
-        # Assert EOI with last byte to indicate end of data
+        # Assert EOI_1 with last byte to indicate end of data
         self.sock.send("++eoi 1\n")
         
     def test(self):
@@ -862,7 +862,7 @@ class manlight():
         # Do not append CR or LF to GPIB data
         self.sock.send("++eos 3\n")
 
-        # Assert EOI with last byte to indicate end of data
+        # Assert EOI_1 with last byte to indicate end of data
         self.sock.send("++eoi 1\n")
         
     def test(self):

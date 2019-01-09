@@ -2,10 +2,6 @@ import socket
 import time
 import string
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
-
-
 BUFSIZE = 100
 
 READ_EOI = "++read eoi\n"
@@ -14,7 +10,7 @@ CONNECTION_PORT = 1234
 
 CONNECTION_TIMEOUT = 1
 
-EOS_1 = "++eoi 1\n"
+EOI_1 = "++eoi 1\n"
 
 EOS_3 = "++eos 3\n"
 
@@ -23,6 +19,9 @@ TIMEOUT = "++read_tmo_ms 500\n"
 READ_AFTER_WRITE = "++auto 0\n"
 
 MODE = "++mode 1\n"
+
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat> and Josep M.Fabrega <jmfabrega@cttc.cat>"
+__copyright__ = "Copyright 2018, CTTC"
 
 
 class Laser:
@@ -54,7 +53,7 @@ class Laser:
             - Turn off READ_AFTER_WRITE to avoid "Query Unterminated" errors.
             - Read timeout is 500 ms.
             - Do not append CR or LF to GPIB data.
-            - Assert EOI with last byte to indicate end of data.
+            - Assert EOI_1 with last byte to indicate end of data.
 
         """
         # connection
@@ -67,7 +66,7 @@ class Laser:
         self.sock.send(READ_AFTER_WRITE)
         self.sock.send(TIMEOUT)
         self.sock.send(EOS_3)
-        self.sock.send(EOS_1)
+        self.sock.send(EOI_1)
 
     def test(self):
         """
@@ -137,8 +136,8 @@ class Laser:
 
         :param ch: channel
         :type ch: int
-        :rtype: list
         :return: status, wavelength, power
+        :rtype: list
         """
 
         # Check status

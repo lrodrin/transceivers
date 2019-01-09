@@ -13,6 +13,10 @@ import sys
 
 print(sys.path)
 
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from lib.laser.laser import Laser
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"

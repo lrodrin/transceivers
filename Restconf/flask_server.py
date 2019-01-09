@@ -113,7 +113,7 @@ def metro_dac():
         attributes:
             - name: trx_mode
               description: Identify the configuration mode of the transceiver.
-              type: str (METRO_1 for configuration 1 mode or METRO_2 for configuration 2 mode)
+              type: int (0 for configuration 1 mode or 1 for configuration 2 mode)
             - name: tx_ID
               description: Identify the channel of the DAC to be used and the local files to use for storing data.
               type: int (0 or 1)
@@ -127,7 +127,7 @@ def metro_dac():
     """
     payload = request.json  # trx_mode, tx_ID
     scenario = payload['trx_mode']
-    if scenario == "METRO_1":
+    if scenario == 0:
         try:
             ack = transmitter(scenario, payload['tx_ID'])
             return "DAC ACK {}\n".format(ack)
@@ -135,9 +135,10 @@ def metro_dac():
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
-    elif scenario == "METRO_2":
+    elif scenario == 1:
         try:
-            pass
+            ack = transmitter(scenario, payload['tx_ID'])
+            return "DAC ACK {}\n".format(ack)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)

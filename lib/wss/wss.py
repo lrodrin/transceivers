@@ -2,7 +2,7 @@ import time
 import numpy as np
 
 from matplotlib.pyplot import figure, plot, show
-from lib import wsapi
+from lib.wss import wsapi
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"

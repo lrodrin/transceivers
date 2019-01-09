@@ -269,12 +269,12 @@ def DSPRx(SNR_estimation, Loading_algorithm,  BitRate=20e9, Numiter=1):
             Ncarriers_eq=Ncarriers_eq-Subzero.size
         
             #Equalize
-            #FHTdatarx_eq=ofdm.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, NTS)
+            #FHTdatarx_eq=od.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, NTS)
             #print FHTdatarx.size
             #print Ncarriers
             #print cdatar.size
             FHTdatarx_eq=ofdm.equalize_MMSE_LE(FHTdatarx, cdatar, Ncarriers_eq, NTS)
-               #FHTdatarx_eq=ofdm.equalize_LMS(FHTdatarx, cdatar, Ncarriers, NTS) 
+               #FHTdatarx_eq=od.equalize_LMS(FHTdatarx, cdatar, Ncarriers, NTS)
         #FHTdatarx_eq=FHTdatarx_eq
             #FHTdatarx_eq=np.delete(FHTdatarx_eq,Subzero,axis=1)          
             #cdatar_eq=np.delete(cdatar,Subzero,axis=1)  
