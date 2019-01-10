@@ -20,7 +20,8 @@ READ_AFTER_WRITE = "++auto 0\n"
 
 MODE = "++mode 1\n"
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat> and Josep M.Fabrega <jmfabrega@cttc.cat>"
+__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>, Josep M.Fabrega <jmfabrega@cttc.cat> and Laia Nadal " \
+             "<laia.nadal@cttc.cat> "
 __copyright__ = "Copyright 2018, CTTC"
 
 
@@ -72,19 +73,18 @@ class Amplifier:
         """
         Just as test, ask for instrument ID according to SCPI API
 
-        :return: s
+        :return: amplifier type, band type and software release (e.g EDFA C Band,V2.1)
+        :rtype: str
         """
         self.sock.send("*IDN?\n")
         self.sock.send(READ_EOI)
         try:
-            s = self.sock.recv(BUFSIZE)
+            instrument_id = self.sock.recv(BUFSIZE)
 
         except socket.timeout:
-            s = ""
+            instrument_id = ""
 
-        # TODO define s
-        # EDFA C Band,V2.1
-        return s
+        return instrument_id
 
     def enable(self, stat=False):
         """
@@ -102,10 +102,10 @@ class Amplifier:
 
     def mode(self, mod, param=0):
         """
-        Define power or gain for mode AGC, APC in dBm or ACC in mA.
+        Define power or gain for mode AGC, APC in dBm or current for mode ACC in mA.
         The range of gain in mode AGC takes 20 to 35 dBm.
         The range of power in mode APC takes 0 to 23'5 dBm.
-        The range of ? in mode ACC takes 0 to 1210 mA.
+        The range of current in mode ACC takes 0 to 1210 mA.
 
         :param mod: mode type
         :param param: power or gain
@@ -124,12 +124,11 @@ class Amplifier:
             time.sleep(1)
             self.sock.send(cmd + "\n")  # set the power
 
-        # TODO new mode ACC
         elif mod == "ACC":
             self.sock.send("MODE:ACC\n")  # set the mode to ACC
-            # cmd = "SEL:CM:%.2f\n" % param
+            cmd = "SEL:IL1:%.2f\n" % param
             time.sleep(1)
-            # self.sock.send(cmd + "\n")  # set the ?
+            self.sock.send(cmd + "\n")  # set the current
 
     def status(self):
         """
@@ -191,20 +190,20 @@ class Amplifier:
         return s
 
 
-if __name__ == '__main__':
-    ip_eth_manlight_1 = '10.1.1.15'
-    ip_eth_manlight_2 = '10.1.1.16'
-    addr_gpib = '3'
-    manlight_1 = Amplifier(ip_eth_manlight_1, addr_gpib)
-    manlight_2 = Amplifier(ip_eth_manlight_2, addr_gpib)
-    manlight_1.mode("APC", 5)
-    manlight_2.mode("APC", 3)
-    manlight_1.enable(True)
-    manlight_2.enable(True)
-    time.sleep(5)
-    print(manlight_1.status())
-    print(manlight_2.status())
-    print(manlight_1.test())
-    print(manlight_2.test())
-    manlight_1.close()
-    manlight_2.close()
+# if __name__ == '__main__':
+#     ip_eth_manlight_1 = '10.1.1.15'
+#     ip_eth_manlight_2 = '10.1.1.16'
+#     addr_gpib = '3'
+#     manlight_1 = Amplifier(ip_eth_manlight_1, addr_gpib)
+#     manlight_2 = Amplifier(ip_eth_manlight_2, addr_gpib)
+#     manlight_1.mode("APC", 5)
+#     manlight_2.mode("ACC", 3)
+#     manlight_1.enable(True)
+#     manlight_2.enable(True)
+#     time.sleep(5)
+#     print(manlight_1.status())
+#     print(manlight_2.status())
+#     print(manlight_1.test())
+#     print(manlight_2.test())
+#     manlight_1.close()
+#     manlight_2.close()

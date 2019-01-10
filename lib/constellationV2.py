@@ -82,7 +82,7 @@ def Format(constellation, bn):
             #    plt.show()
             #bittx2=bittx.reshape(len(bittx)/bn,bn)  
         elif bn==9:
-            print 'Modulation format not supported'
+            print('Modulation format not supported')
             exit()
             
         return mapped,bitmap

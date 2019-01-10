@@ -72,19 +72,18 @@ class Laser:
         """
         Just as test, ask for instrument ID according to SCPI API
 
-        :return: s
+        :return: instrument ID (e.g NetTest,OSICS,0,3.01)
+        :rtype: str
         """
         self.sock.send("*IDN?\n")
         self.sock.send(READ_EOI)
         try:
-            s = self.sock.recv(BUFSIZE)
+            instrument_id = self.sock.recv(BUFSIZE)
 
         except socket.timeout:
-            s = ""
+            instrument_id = ""
 
-        # TODO define s
-        # NetTest,OSICS,0,3.01
-        return s
+        return instrument_id
 
     def wavelength(self, ch, lambda0):
         """
@@ -201,14 +200,14 @@ class Laser:
         return s
 
 
-if __name__ == '__main__':
-    ip_eth = '10.1.1.7'
-    addr_gpib = '11'
-    yenista = Laser(ip_eth, addr_gpib)
-    yenista.wavelength(3, 1550.12)
-    yenista.power(3, 14.5)
-    yenista.enable(3, True)
-    time.sleep(5)
-    print(yenista.status(3))
-    print(yenista.test())
-    yenista.close()
+# if __name__ == '__main__':
+#     ip_eth = '10.1.1.7'
+#     addr_gpib = '11'
+#     yenista = Laser(ip_eth, addr_gpib)
+#     yenista.wavelength(3, 1550.12)
+#     yenista.power(3, 14.5)
+#     yenista.enable(3, True)
+#     time.sleep(5)
+#     print(yenista.status(3))
+#     print(yenista.test())
+#     yenista.close()

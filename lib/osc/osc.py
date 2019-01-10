@@ -4,7 +4,9 @@ import scipy as sp
 import scipy.signal as sgn
 import lib.constellationV2 as modulation
 import lib.ofdm as ofdm
-#import lib.instruments_v18p02 as inst
+import os
+import time
+import lib.instruments_v18p02 as inst
 
 class OSC():
 	def __init__(self, trx_mode, rx_ID):
@@ -70,16 +72,17 @@ class OSC():
     
 		for run in range(1,Numiter+1):
 			Ncarriers_eq=Ncarriers
-			#if self.rx_ID==0:
-				#data_acqT=inst.acquire(1, R*nsamplesrx,f_DCO)
-			#else:
-				#data_acqT=inst.acquire(3, R*nsamplesrx,f_DCO)
+			print('Adquire')
+			if self.rx_ID==0:
+				data_acqT=inst.acquire(1, R*nsamplesrx,f_DCO)
+			else:
+				data_acqT=inst.acquire(3, R*nsamplesrx,f_DCO)
        
-			#data_acqT=data_acqT-np.mean(data_acqT)
-			#data_acq2=sgn.resample(data_acqT,len(data_acqT)/float(R))    
+			data_acqT=data_acqT-np.mean(data_acqT)
+			data_acq2=sgn.resample(data_acqT,len(data_acqT)/float(R))    
        
-			#I_rx_BB=data_acq2*np.cos(2*np.math.pi*fc*ttt2[0:data_acq2.size])+1j*data_acq2*np.sin(2*np.math.pi*fc*ttt2[0:data_acq2.size])
-			I_rx_BB=Cx_up2*np.cos(2*np.math.pi*fc*ttt2[0:Cx_up2.size])+1j*Cx_up2*np.sin(2*np.math.pi*fc*ttt2[0:Cx_up2.size])
+			I_rx_BB=data_acq2*np.cos(2*np.math.pi*fc*ttt2[0:data_acq2.size])+1j*data_acq2*np.sin(2*np.math.pi*fc*ttt2[0:data_acq2.size])
+			#I_rx_BB=Cx_up2*np.cos(2*np.math.pi*fc*ttt2[0:Cx_up2.size])+1j*Cx_up2*np.sin(2*np.math.pi*fc*ttt2[0:Cx_up2.size])
  
 			ref2=Cx_up[0:sps*NTS*(Ncarriers_eq+np.round(CP*Ncarriers_eq))]
  
@@ -120,12 +123,12 @@ class OSC():
 				Ncarriers_eq=Ncarriers_eq-Subzero.size
         
             #Equalize
-            #FHTdatarx_eq=od.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, NTS)
+            #FHTdatarx_eq=of.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, NTS)
             #print FHTdatarx.size
             #print Ncarriers
             #print cdatar.size
 				FHTdatarx_eq=ofdm.equalize_MMSE_LE(FHTdatarx, cdatar, Ncarriers_eq, NTS)
-				#FHTdatarx_eq=od.equalize_LMS(FHTdatarx, cdatar, Ncarriers, NTS)
+				#FHTdatarx_eq=of.equalize_LMS(FHTdatarx, cdatar, Ncarriers, NTS)
         #FHTdatarx_eq=FHTdatarx_eq
             #FHTdatarx_eq=np.delete(FHTdatarx_eq,Subzero,axis=1)          
             #cdatar_eq=np.delete(cdatar,Subzero,axis=1)  
@@ -186,7 +189,7 @@ class OSC():
    
    
 if __name__ == '__main__':	
-	Tx=OSC(0,0)
+	Tx=OSC(1,0)
 	ACK=Tx.mode()  
 	print 'ACK=', ACK
    

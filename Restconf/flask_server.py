@@ -3,6 +3,18 @@
 
 from flask import Flask, request
 
+from lib.dac.dac import *
+
+METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
+                                           '-nodesktop -r '"Leia_DAC_down; "
+
+METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
+                                         '-nodesktop -r '"Leia_DAC_up; "
+
+SLEEP_TIME = 100
+
+METRO_DAC_INPUTS_ENABLE_TXT = "Inputs_enable.txt"
+
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
 
@@ -108,15 +120,17 @@ def metro_dac():
     DAC metrohaul route.
 
     post:
-        summary: Metrohaul DAC configuration.
-        description: Startup Metrohaul DAC configuration.
+        summary: Metrohaul DAC configuration. description: Startup Metrohaul DAC configuration.
         attributes:
             - name: trx_mode
-              description: Identify the configuration mode of the transceiver.
-              type: int (0 for configuration 1 mode or 1 for configuration 2 mode)
+            description: Identify the configuration mode of the transceiver.
+            type: int (0 for METRO_1 scenario or 1 for METRO_2 scenario)
             - name: tx_ID
-              description: Identify the channel of the DAC to be used and the local files to use for storing data.
-              type: int (0 or 1)
+            description: Identify the channel of the DAC to be used and the local files to use for storing data.
+            tx_ID when Mode 0 (METRO_1 scenario) is equivalent to select the OpenConfig client. tx_ID when Mode 1
+            METRO_2 scenario) is equivalent to select the S_BVT, which includes 2 clients multiplexed in a single
+            optical channel. Due to hardware limitations in this last case (METRO2 scenario) tx_ID will be always 0.
+            type: int (0 or 1)
 
         responses:
             200:
@@ -127,18 +141,48 @@ def metro_dac():
     """
     payload = request.json  # trx_mode, tx_ID
     scenario = payload['trx_mode']
-    if scenario == 0:
+    channel_id = payload['tx_ID']
+
+    tx = DAC(trx_mode, tx_ID)
+    input_file = open(METRO_DAC_INPUTS_ENABLE_TXT, "w")
+
+    if scenario == 0:  # METRO1 scenario with BVTs to demonstrate bidirectionality
         try:
-            ack = transmitter(scenario, payload['tx_ID'])
+            ack = tx.transmitter()
+            if channel_id == 0:
+                input_file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
+
+            else:
+                input_file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
+
+            time.sleep(SLEEP_TIME)
+            print('Leia initialized and SPI input_file uploaded')
             return "DAC ACK {}\n".format(ack)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
-    elif scenario == 1:
+
+    elif scenario == 1:  # METRO2 scenario with an SBVT. In this case tx_ID can not be modified as the two slices are
+        # multiplexed in a superchannel and are created in the same function call
         try:
-            ack = transmitter(scenario, payload['tx_ID'])
-            return "DAC ACK {}\n".format(ack)
+            if channel_id == 0:
+                ack = tx.transmitter()
+                input_file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
+                time.sleep(SLEEP_TIME)
+                print('Leia initialized and SPI input_file uploaded')
+                return "DAC ACK {}\n".format(ack)
+
+            if channel_id == 1:
+                ack = tx.transmitter()
+                input_file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
+                time.sleep(SLEEP_TIME)
+                print('Leia initialized and SPI input_file uploaded')
+                return "DAC ACK {}\n".format(ack)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
