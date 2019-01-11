@@ -1,6 +1,4 @@
-import glob
 import os
-import shutil
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -12,7 +10,6 @@ def listdirs(folder):
 if __name__ == '__main__':
     basepath = os.getcwd()
     libpath = "/lib"
-    ld = listdirs(basepath + libpath)
-    print(ld)
-    for d in ld:
-        os.system("pydoc -w " + d + "/*.py")
+    for d in listdirs(basepath + libpath):
+        print("pydoc -w " + basepath + libpath + "/" + d + "/*.py")
+        os.system("pydoc -w " + basepath + libpath + "/" + d + "/*.py")
