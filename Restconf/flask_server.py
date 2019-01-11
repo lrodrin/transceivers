@@ -26,11 +26,10 @@ def hello_world():
     return 'Hello, World!'
 
 
-# DAC bluespace
 @app.route('/blue/dac', methods=['POST'])
 def blue_dac():
     """
-    DAC bluespace route.
+    DAC Bluespace route.
 
     post:
         summary: Bluespace DAC configuration.
@@ -59,7 +58,7 @@ def blue_dac():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # tx_ID, trx_mode, FEC, bps, pps
+    payload = request.json  # tx_ID, trx_mode, FEC, bps, pps from agent
     try:
         ack = transmitter(payload['tx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
         return "DAC ACK {}\n".format(ack)
@@ -68,11 +67,10 @@ def blue_dac():
         return "ERROR: {} \n".format(error)
 
 
-# OSC bluespace
 @app.route('/blue/osc', methods=['POST'])
 def blue_osc():
     """
-    OSC bluespace route.
+    OSC Bluespace route.
 
     post:
         summary: Bluespace OSC configuration.
@@ -104,7 +102,7 @@ def blue_osc():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # rx_ID, trx_mode, FEC, bps, pps
+    payload = request.json  # rx_ID, trx_mode, FEC, bps, pps from agent
     try:
         result = receiver(payload['rx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
         return "Oscilloscope ACK {} SNR {} BER {}\n".format(result[0], result[1], result[2])
@@ -113,23 +111,35 @@ def blue_osc():
         return "ERROR: {} \n".format(error)
 
 
-# DAC metrohaul
 @app.route('/metro/dac', methods=['POST'])
 def metro_dac():
     """
-    DAC metrohaul route.
+    DAC Metro-haul route.
 
     post:
-        summary: Metrohaul DAC configuration. description: Startup Metrohaul DAC configuration.
+        summary: Metro-haul DAC configuration.
+        description: Startup Metro-haul DAC configuration.
+            - Configuration 1a:
+                - To demonstrate bidirectionality.
+                - Simple scheme: An OpenConfig terminal device comprises BVTx+BVTRx of a single client.
+            - Configuration 1b:
+                - The S-BVT architecture is used for a single client creating a superchannel.
+                - Up to 2 slices can be enabled to increase data rate according to the bandwith requirements.
+                - The superchannel central wavelength is configured/set by the OpenConfig agent.
+            - Configuration 2:
+                - The S-BVT consist of 2 clients (C1 and C2) that are part of a single OpenConfig terminal device.
+                - There is another S-BVT with 2 more clients (C3, C4) or a BVT with a single client C3 at another point
+                  of the network that corresponds to another OpenConfig terminal.
+                - The superchannel central wavelength is configured/set by the OpenConfig agent.
+                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels.
+                - We can not demonstrate bidirectionality due to hardware limitations.
+
         attributes:
             - name: trx_mode
             description: Identify the configuration mode of the transceiver.
-            type: int (0 for METRO_1 scenario or 1 for METRO_2 scenario)
+            type: int (0 for configuration 1a and 1b scenario or 1 for configuration 1 scenario)
             - name: tx_ID
             description: Identify the channel of the DAC to be used and the local files to use for storing data.
-            tx_ID when Mode 0 (METRO_1 scenario) is equivalent to select the OpenConfig client. tx_ID when Mode 1
-            METRO_2 scenario) is equivalent to select the S_BVT, which includes 2 clients multiplexed in a single
-            optical channel. Due to hardware limitations in this last case (METRO2 scenario) tx_ID will be always 0.
             type: int (0 or 1)
 
         responses:
@@ -139,64 +149,62 @@ def metro_dac():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # trx_mode, tx_ID
+    payload = request.json  # trx_mode, tx_ID from agent
     scenario = payload['trx_mode']
     channel_id = payload['tx_ID']
 
     tx = DAC(trx_mode, tx_ID)
-    input_file = open(METRO_DAC_INPUTS_ENABLE_TXT, "w")
-
-    if scenario == 0:  # METRO1 scenario with BVTs to demonstrate bidirectionality
+    file = open(METRO_DAC_INPUTS_ENABLE_TXT, "w")
+    file_uploaded_message = 'Leia initialized and SPI file uploaded'
+    if scenario == 0:  # Configuration 1
         try:
             ack = tx.transmitter()
-            if channel_id == 0:
-                input_file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+            if channel_id == 0:  # Configuration 1a
+                file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
 
-            else:
-                input_file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+            else:  # Configuration 1b
+                file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
 
             time.sleep(SLEEP_TIME)
-            print('Leia initialized and SPI input_file uploaded')
+            print(file_uploaded_message)
             return "DAC ACK {}\n".format(ack)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
-
-    elif scenario == 1:  # METRO2 scenario with an SBVT. In this case tx_ID can not be modified as the two slices are
-        # multiplexed in a superchannel and are created in the same function call
+    elif scenario == 1:  # Configuration 2
         try:
             if channel_id == 0:
+                # TODO extract method metro_dac_configuration_2
                 ack = tx.transmitter()
-                input_file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
                 time.sleep(SLEEP_TIME)
-                print('Leia initialized and SPI input_file uploaded')
+                print(file_uploaded_message)
                 return "DAC ACK {}\n".format(ack)
 
             if channel_id == 1:
                 ack = tx.transmitter()
-                input_file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
                 time.sleep(SLEEP_TIME)
-                print('Leia initialized and SPI input_file uploaded')
+                print(file_uploaded_message)
                 return "DAC ACK {}\n".format(ack)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
 
-# OSC metrohaul
 @app.route('/metro/osc', methods=['POST'])
 def metro_osc():
     """
-    OSC metrohaul route.
+    OSC Metro-haul route.
 
     post:
-        summary: Metrohaul DAC configuration.
-        description: Startup Metrohaul OSC configuration.
+        summary: Metro-haul DAC configuration.
+        description: Startup Metro-haul OSC configuration.
         attributes:
             - name: rx_ID
               description: Identify the channel of the OSC to be used and the local files to use for storing data.
@@ -212,7 +220,7 @@ def metro_osc():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # rx_ID, trx_mode
+    payload = request.json  # rx_ID, trx_mode from agent
     try:
         ack = receiver(payload['rx_ID'], payload['trx_mode'])
         return "Oscilloscope ACK {} \n".format(ack)

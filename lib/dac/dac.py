@@ -7,6 +7,11 @@ import scipy.signal as sgn
 import lib.constellationV2 as modulation
 import lib.ofdm as of
 
+METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
+                                           '-nodesktop -r '"Leia_DAC_down; "
+
+METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
+                                         '-nodesktop -r '"Leia_DAC_up; "
 TEMP_TXT = 'TEMP.txt'
 
 LEIA_DAC_DOWN = "Leia_DAC_down"
@@ -30,11 +35,7 @@ class DAC:
         The constructor for DAC class.
 
         :param trx_mode: Identify the mode of a transceiver (0 for METRO_1 scenario or 1 for METRO_2 scenario)
-        :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data. Tx_id when
-        Mode 0 (METRO_1 scenario) is equivalent to select the Openconfig client. Tx_id when Mode 1 (METRO_2 scenario)
-        is equivalent to select the S_BVT, which includes 2 clients multiplexed in a single optical channel. Due to
-        hardware limitations in this last case (METRO2 scenario) tx_ID will be always 0.
-        # TODO treure la info
+        :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
         :type trx_mode: int
         :type tx_ID: int
         """
@@ -42,48 +43,61 @@ class DAC:
         self.tx_ID = tx_ID
 
     def mode(self):
-        # TODO posar la logica al flask_server.py
+        # TODO posar la logica al flask_server.py i esborrar el metode
         """
         Sets the operational mode for a channel.
+
+            - Configuration 1a:
+                - To demonstrate bidirectionality.
+                - Simple scheme: An OpenConfig terminal device comprises BVTx+BVTRx of a single client.
+
+            - Configuration 1b:
+                - The S-BVT architecture is used for a single client creating a superchannel.
+                - Up to 2 slices can be enabled to increase data rate according to the bandwith requirements.
+                - The superchannel central wavelength is configured/set by the OpenConfig agent.
+
+            - Configuration 2:
+                - The S-BVT consist of 2 clients (C1 and C2) that are part of a single OpenConfig terminal device.
+                - There is another S-BVT with 2 more clients (C3, C4) or a BVT with a single client C3 at another point
+                  of the network that corresponds to another OpenConfig terminal.
+                - The superchannel central wavelength is configured/set by the OpenConfig agent.
+                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels.
+                - We can not demonstrate bidirectionality due to hardware limitations.
 
         :return: ACK (0 or -1). 0 for OK and -1 in case there is some error.
         :rtype: int
         """
         global ACK
-        f = open("Inputs_enable.txt", "w")
-        if self.trx_mode == 0:  # METRO1 scenario with BVTs to demonstrate bidirectionality
+        file = open("Inputs_enable.txt", "w")
+        file_uploaded_message = 'Leia initialized and SPI file uploaded'
+        if self.trx_mode == 0:  # Configuration 1
             self.transmitter()
-            if self.tx_ID == 0:
-                f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
-                os.system(
-                    '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash -nodesktop -r ' "%s;" % LEIA_DAC_UP)
-            else:
-                f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
-                os.system(
-                    '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash -nodesktop -r ' "%s;" % LEIA_DAC_DOWN)
+            if self.tx_ID == 0:  # Configuration 1a
+                file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
+            else:  # Configuration 1b
+                file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
 
             time.sleep(SLEEP_TIME)
-            print('Leia initialized and SPI file uploaded')
+            print(file_uploaded_message)
             ACK = 0
 
-        elif self.trx_mode == 1:
-            # METRO2 scenario with an SBVT. In this case tx_ID can not be modified as the two
-            # slices are multiplexed in a superchannel and are created in the same function call
-            self.tx_ID = 0
+        elif self.trx_mode == 1:  # Configuration 2
+            # self.tx_ID = 0
             self.transmitter()
-            f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
-            os.system(
-                '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash -nodesktop -r ' "%s;" % LEIA_DAC_UP)
+            file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+            os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
             time.sleep(SLEEP_TIME)
-            print('Leia initialized and SPI file uploaded')
+            print(file_uploaded_message)
+            # ACK = 0
 
-            self.tx_ID = 1
+            # self.tx_ID = 1
             self.transmitter()
-            f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
-            os.system(
-                '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash -nodesktop -r ' "%s;" % LEIA_DAC_DOWN)
+            file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+            os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
             time.sleep(SLEEP_TIME)
-            print('Leia initialized and SPI file uploaded')
+            print(file_uploaded_message)
             ACK = 0
 
         return ACK
