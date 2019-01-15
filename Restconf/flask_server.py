@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
+import time
 
 from flask import Flask, request
 
@@ -138,11 +140,11 @@ def metro_dac():
 
         attributes:
             - name: trx_mode
-            description: Identify the configuration mode of the transceiver.
-            type: int (0 for configuration 1a and 1b scenario or 1 for configuration 1 scenario)
+              description: Identify the configuration mode of the transceiver.
+              type: int (0 for configuration 1a and 1b scenario or 1 for configuration 1 scenario)
             - name: tx_ID
-            description: Identify the channel of the DAC to be used and the local files to use for storing data.
-            type: int (0 or 1)
+              description: Identify the channel of the DAC to be used and the local files to use for storing data.
+              type: int (0 or 1)
             - name: SNR_est
               description: Identify the SNR estimation. # TODO ampliar info
               type: bool

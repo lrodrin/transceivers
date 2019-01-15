@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import time
 
 from flask import Flask, request
 
@@ -78,10 +79,6 @@ def optical_channel_configuration():
     payload = request.json  # Ochα, freq, pow and mode from client
     try:
         ack = python_f(payload['Ochα'], payload['freq'], payload['pow'], payload['mode'])
-        # laser
-        # amplis
-        # dac
-        # osc
         return "ACK {}\n".format(ack)
 
     except OSError as error:
