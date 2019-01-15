@@ -11,9 +11,11 @@ METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/b
 METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
                                          '-nodesktop -r '"Leia_DAC_up; "
 
+# TODO s'han de colocar els fitxers de configuracio en una mateixa carpeta i cridar-los amb el path corresponent
+
 SLEEP_TIME = 100
 
-METRO_DAC_INPUTS_ENABLE_TXT = "Inputs_enable.txt"
+METRO_DAC_INPUTS_ENABLE_TXT = "metro_dac_inputs_enable.txt"
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -21,12 +23,12 @@ __copyright__ = "Copyright 2018, CTTC"
 app = Flask(__name__)
 
 
-@app.route('/')
-def hello_world():
+@app.route('/api/hello', methods=['GET'])
+def hello_world():  # TODO esborrar quan fucnioni tot
     return 'Hello, World!'
 
 
-@app.route('/blue/dac', methods=['POST'])
+@app.route('/api/blue/dac', methods=['POST'])
 def blue_dac():
     """
     DAC Bluespace route.
@@ -58,7 +60,7 @@ def blue_dac():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # tx_ID, trx_mode, FEC, bps, pps from agent
+    payload = request.json  # tx_ID, trx_mode, FEC, bps, pps values from agent
     try:
         ack = transmitter(payload['tx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
         return "DAC ACK {}\n".format(ack)
@@ -67,7 +69,7 @@ def blue_dac():
         return "ERROR: {} \n".format(error)
 
 
-@app.route('/blue/osc', methods=['POST'])
+@app.route('/api/blue/osc', methods=['POST'])
 def blue_osc():
     """
     OSC Bluespace route.
@@ -102,7 +104,7 @@ def blue_osc():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # rx_ID, trx_mode, FEC, bps, pps from agent
+    payload = request.json  # rx_ID, trx_mode, FEC, bps, pps values from agent
     try:
         result = receiver(payload['rx_ID'], payload['trx_mode'], payload['FEC'], payload['bps'], payload['pps'])
         return "Oscilloscope ACK {} SNR {} BER {}\n".format(result[0], result[1], result[2])
@@ -111,7 +113,7 @@ def blue_osc():
         return "ERROR: {} \n".format(error)
 
 
-@app.route('/metro/dac', methods=['POST'])
+@app.route('/api/metro/dac', methods=['POST'])
 def metro_dac():
     """
     DAC Metro-haul route.
@@ -141,6 +143,9 @@ def metro_dac():
             - name: tx_ID
             description: Identify the channel of the DAC to be used and the local files to use for storing data.
             type: int (0 or 1)
+            - name: SNR_est
+              description: Identify the SNR estimation. # TODO ampliar info
+              type: bool
 
         responses:
             200:
@@ -149,22 +154,23 @@ def metro_dac():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # trx_mode, tx_ID from agent
+    payload = request.json  # trx_mode, tx_ID, SNR_estimation values from agent
     scenario = payload['trx_mode']
     channel_id = payload['tx_ID']
+    SNR_estimation = payload['SNR_est']
 
-    tx = DAC(trx_mode, tx_ID)
-    file = open(METRO_DAC_INPUTS_ENABLE_TXT, "w")
+    tx = DAC(scenario, channel_id)
+    f = open(METRO_DAC_INPUTS_ENABLE_TXT, "w")
     file_uploaded_message = 'Leia initialized and SPI file uploaded'
     if scenario == 0:  # Configuration 1
         try:
-            ack = tx.transmitter()
+            ack = tx.transmitter(SNR_estimation)
             if channel_id == 0:  # Configuration 1a
-                file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
 
             else:  # Configuration 1b
-                file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
 
             time.sleep(SLEEP_TIME)
@@ -178,16 +184,16 @@ def metro_dac():
         try:
             if channel_id == 0:
                 # TODO extract method metro_dac_configuration_2
-                ack = tx.transmitter()
-                file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                ack = tx.transmitter(SNR_estimation)
+                f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
                 time.sleep(SLEEP_TIME)
                 print(file_uploaded_message)
                 return "DAC ACK {}\n".format(ack)
 
             if channel_id == 1:
-                ack = tx.transmitter()
-                file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                ack = tx.transmitter(SNR_estimation)
+                f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(METRO_DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
                 time.sleep(SLEEP_TIME)
                 print(file_uploaded_message)
@@ -197,7 +203,7 @@ def metro_dac():
             return "ERROR: {} \n".format(error)
 
 
-@app.route('/metro/osc', methods=['POST'])
+@app.route('/api/metro/osc', methods=['POST'])
 def metro_osc():
     """
     OSC Metro-haul route.
@@ -220,7 +226,7 @@ def metro_osc():
                 description: (int) -1 in case there is some error.
 
     """
-    payload = request.json  # rx_ID, trx_mode from agent
+    payload = request.json  # rx_ID, trx_mode values from agent
     try:
         ack = receiver(payload['rx_ID'], payload['trx_mode'])
         return "Oscilloscope ACK {} \n".format(ack)
@@ -230,5 +236,5 @@ def metro_osc():
 
 
 if __name__ == '__main__':
-    # app.run(host='10.1.1.10', port=5000, debug=True) # REAL
-    app.run(host='127.0.0.1', port=5000, debug=True)  # TEST
+    app.run(host='10.1.1.10', port=5000, debug=True)  # REAL
+    # app.run(host='127.0.0.1', port=5000, debug=True)  # TEST

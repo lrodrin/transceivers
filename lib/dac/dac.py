@@ -102,8 +102,7 @@ class DAC:
 
         return ACK
 
-    def transmitter(self):
-        SNR_estimation = False
+    def transmitter(self, SNR_estimation):
         Preemphasis = 'True'
         # Algorithm parameters
         gapdB = 9.8
@@ -136,6 +135,7 @@ class DAC:
                 SNR_in = np.load('ChannelGain2.npy')
             Load = of.Loading(Ncarriers, BWs)
             if Loading_algorithm == 'LCMA_QAM':
+                BitRate=20e9
                 (En, bn) = Load.LCMA_QAM(gap, BitRate / float(BWs), SNR_in)
             if Loading_algorithm == 'LCRA_QAM':
                 (En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)

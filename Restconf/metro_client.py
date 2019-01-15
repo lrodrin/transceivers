@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# import requests
-# import json
+import requests
+import json
 import time
 
 from os import sys, path
@@ -36,7 +36,6 @@ print(yenista.test())
 yenista.close()
 
 # Amplifiers configuration
-# Amplifiers configuration
 manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)
 manlight_2 = Amplifier(IP_AMPLIFIER_2, AMPLIFIER_ADDR)
 manlight_1.mode("APC", 5)
@@ -53,16 +52,19 @@ manlight_2.close()
 
 # Waveshaper configuration
 
-# url = 'http://10.1.1.10:5000/'  # REAL
-url = 'http://127.0.0.1:5000/'  # TEST
+url = 'http://10.1.1.10:5000/'  # REAL
+# url = 'http://127.0.0.1:5000/'  # TEST
 headers = {"Content-Type": "application/json"}
 
+request = requests.get(url + 'api/hello', headers=headers)
+print(request.content)
+
 # DAC metro configuration
-# params = {'trx_mode': 0, 'tx_ID': 0}
-# request = requests.post(url + 'metro/dac', headers=headers, data=json.dumps(params))
-# print(request.content)
+params = {'trx_mode': 0, 'tx_ID': 0, 'SNR_est': True}
+request = requests.post(url + 'api/metro/dac', headers=headers, data=json.dumps(params))
+print(request.content)
 
 # OSC metro configuration
 # params = {'rx_ID': 0, 'trx_mode': 0}
-# request = requests.post(url + 'metro/osc', headers=headers, data=json.dumps(params))
+# request = requests.post(url + 'api/metro/osc', headers=headers, data=json.dumps(params))
 # print(request.content)
