@@ -1,23 +1,15 @@
 import socket
-import time
+# import time
 import string
 
 BUFSIZE = 100
-
 READ_EOI = "++read eoi\n"
-
 CONNECTION_PORT = 1234
-
 CONNECTION_TIMEOUT = 1
-
 EOI_1 = "++eoi 1\n"
-
 EOS_3 = "++eos 3\n"
-
 TIMEOUT = "++read_tmo_ms 500\n"
-
 READ_AFTER_WRITE = "++auto 0\n"
-
 MODE = "++mode 1\n"
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat> and Josep M.Fabrega <jmfabrega@cttc.cat>"
@@ -198,7 +190,6 @@ class Laser:
 
         # TODO define s
         return s
-
 
 # if __name__ == '__main__':
 #     ip_eth = '10.1.1.7'
