@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import requests
 import json
 import time
@@ -11,15 +8,12 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
+# from lib.wss.wss import Wss
 
 AMPLIFIER_ADDR = '3'
-
 IP_AMPLIFIER_2 = '10.1.1.16'
-
 IP_AMPLIFIER_1 = '10.1.1.15'
-
 IP_LASER = '10.1.1.7'
-
 LASER_ADDR = '11'
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
@@ -52,16 +46,16 @@ manlight_2.close()
 
 # Waveshaper configuration
 
-url = 'http://10.1.1.10:5000/'  # REAL
-# url = 'http://127.0.0.1:5000/'  # TEST
+# url = 'http://10.1.1.10:5000/api/'  # REAL
+url = 'http://127.0.0.1:5000/api/'  # TEST
 headers = {"Content-Type": "application/json"}
 
-request = requests.get(url + 'api/hello', headers=headers)
+request = requests.get(url + 'hello', headers=headers)
 print(request.content)
 
 # DAC metro configuration
-params = {'trx_mode': 0, 'tx_ID': 0, 'SNR_est': True}
-request = requests.post(url + 'api/metro/dac', headers=headers, data=json.dumps(params))
+params = {'trx_mode': 0, 'tx_ID': 0}
+request = requests.post(url + 'metro/dac', headers=headers, data=json.dumps(params))
 print(request.content)
 
 # OSC metro configuration
