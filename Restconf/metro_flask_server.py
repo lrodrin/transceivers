@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import time
-
 from flask import Flask, request
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
@@ -10,9 +9,9 @@ __copyright__ = "Copyright 2018, CTTC"
 app = Flask(__name__)
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+@app.route('/api/hello', methods=['GET'])
+def hello_world():  # TODO esborrar quan fucnioni tot
+    return 'Test: Hello, World!'
 
 
 @app.route('/api/vi/openconfig/local_assignment', methods=['POST'])
@@ -86,5 +85,5 @@ def optical_channel_configuration():
 
 
 if __name__ == '__main__':
-    # app.run(host='10.1.1.10', port=5000, debug=True) # REAL
+    # app.run(host='10.1.7.65', port=5000, debug=True)  # REAL
     app.run(host='127.0.0.1', port=5000, debug=True)  # TEST

@@ -1,11 +1,10 @@
 import os
 import time
 
+from flask import Flask, request
 from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
-from flask import Flask, request
 
 from lib.dac.dac import DAC, METRO_DAC_INPUTS_ENABLE_FILE, SLEEP_TIME
 
