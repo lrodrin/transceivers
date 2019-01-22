@@ -10,7 +10,15 @@ def listdirs(folder):
 
 if __name__ == '__main__':
     basepath = os.getcwd()
-    libpath = "/lib"
+    libpath = "/lib/"
+    docpath = "/docs/"
     for d in listdirs(basepath + libpath):
-        print("pydoc -w " + basepath + libpath + "/" + d + "/*.py")
-        # os.system("pydoc -w " + basepath + libpath + "/" + d + "/*.py")
+        print("pydoc -w " + basepath + libpath + d + "/*.py")
+        # TODO remove init files from the call
+        try:
+            os.system("pydoc -w " + basepath + libpath + d + "/*.py")
+        except:
+            pass
+
+    print("mv *.html " + basepath + docpath)
+    os.system("mv *.html " + basepath + docpath)

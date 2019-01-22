@@ -16,6 +16,7 @@ class OSC:
         # optical channel. Due to hardware limitations in this last case (METRO2 scenario) tx_ID will be always 0.
 
     def mode(self):
+        # TODO cap a flask server
         if self.trx_mode == 0:
             (Tx_success, BER) = self.receiver()
             if Tx_success:
@@ -34,10 +35,13 @@ class OSC:
         return ACK
 
     def receiver(self):
+        # TODO link cap a carpeta params*.npy
         if self.rx_ID == 0:
             (bn, cdatar, data, Cx_up, Cx_up2) = np.load('params_tx.npy')
         else:
             (bn, cdatar, data, Cx_up, Cx_up2) = np.load('params_tx2.npy')
+
+        ##############################
         Ncarriers = 512  # Number of carriers
         constellation = "QAM"
         CP = 0.019  # Cyclic prefix
@@ -47,18 +51,18 @@ class OSC:
         Nframes = NsymbolsTS / Ncarriers  # No of OFDM symbols / frames
         sps = 3.2  # Samples per symbol
         fs = 64e9  # Sampling frequency DAC
-        BWs = fs / sps  # BW electrical signal
-        f_DCO = 100e9
+
+        f_DCO = 100e9 # frew mostreig de osc
         Tx_success = False
         Algorithm = 'LCRA_QAM'  # 0 == Rate adaptiv if SNR_estimation==True:e , 1 == Margin adaptive
         Numiter = 5  # Number of iterations
 
-        wavelength = 1550.12  # wavelength (nm)
         SNRT = np.zeros((512,), dtype=float)
         SNR_B = np.empty((512,), dtype=float)
-        gap = 9.8
         nsamplesrx = 2 * sps * Nframes * (Ncarriers + np.round(CP * Ncarriers))  # nsamplesrx must be multiple of 4
 
+        ###################
+        BWs = fs / sps  # BW electrical signal
         R = f_DCO / fs
         fc = BWs / 2
         ttime2 = (1 / fs) * np.ones((nsamplesrx,))
@@ -127,7 +131,7 @@ class OSC:
                 # print FHTdatarx.size
                 # print Ncarriers
                 # print cdatar.size
-                FHTdatarx_eq = ofdm.equalize_MMSE_LE(FHTdatarx, cdatar, Ncarriers_eq, NTS)  # TODO equalize_MMSE_LE
+                FHTdatarx_eq = ofdm.equalize_MMSE_LE(FHTdatarx, cdatar, Ncarriers_eq, NTS)
                 # FHTdatarx_eq=of.equalize_LMS(FHTdatarx, cdatar, Ncarriers, NTS)
                 # FHTdatarx_eq=FHTdatarx_eq
                 # FHTdatarx_eq=np.delete(FHTdatarx_eq,Subzero,axis=1)
