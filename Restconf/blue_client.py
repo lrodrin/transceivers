@@ -16,9 +16,6 @@ IP_AMPLIFIER_1 = '10.1.1.15'
 IP_LASER = '10.1.1.7'
 LASER_ADDR = '11'
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
-
 # Laser configuration
 yenista = Laser(IP_LASER, LASER_ADDR)
 yenista.wavelength(3, 1560.12)

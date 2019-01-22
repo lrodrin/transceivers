@@ -47,7 +47,7 @@ def parse(rows, op):
 
                 print("=", elem.text)
 
-        # all_data.append(d)
+        # all_data.append(dir)
 
     # return all_data
 
