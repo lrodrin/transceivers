@@ -16,8 +16,6 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
 
 app = Flask(__name__)
 

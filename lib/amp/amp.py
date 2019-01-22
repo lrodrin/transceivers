@@ -12,10 +12,7 @@ TIMEOUT = "++read_tmo_ms 500\n"
 READ_AFTER_WRITE = "++auto 0\n"
 MODE = "++mode 1\n"
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>, Josep M.Fabrega <jmfabrega@cttc.cat> and Laia Nadal " \
-             "<laia.nadal@cttc.cat> "
-__copyright__ = "Copyright 2018, CTTC"
-
+# TODO error control
 
 class Amplifier:
     """
@@ -180,21 +177,3 @@ class Amplifier:
 
         # TODO define s
         return s
-
-# if __name__ == '__main__':
-#     ip_eth_manlight_1 = '10.1.1.15'
-#     ip_eth_manlight_2 = '10.1.1.16'
-#     addr_gpib = '3'
-#     manlight_1 = Amplifier(ip_eth_manlight_1, addr_gpib)
-#     manlight_2 = Amplifier(ip_eth_manlight_2, addr_gpib)
-#     manlight_1.mode("APC", 5)
-#     manlight_2.mode("ACC", 3)
-#     manlight_1.enable(True)
-#     manlight_2.enable(True)
-#     time.sleep(5)
-#     print(manlight_1.status())
-#     print(manlight_2.status())
-#     print(manlight_1.test())
-#     print(manlight_2.test())
-#     manlight_1.close()
-#     manlight_2.close()

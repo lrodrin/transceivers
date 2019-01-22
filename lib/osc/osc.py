@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.signal as sgn
 
-import lib.constellationV2 as modulation
+import lib.dac.constellationV2 as modulation
 import lib.instruments_v18p02 as inst
 import lib.ofdm as ofdm
 

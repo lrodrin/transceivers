@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import time
 
 from os import sys, path
@@ -14,8 +12,6 @@ IP_AMPLIFIER_2 = '10.1.1.16'
 
 IP_AMPLIFIER_1 = '10.1.1.15'
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
 
 if __name__ == '__main__':
     manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)

@@ -1,22 +1,34 @@
 import os
-from os import walk
+
+BASEPATH = os.getcwd()
+LIBPATH = BASEPATH + "/lib/"
+DOCPATH = BASEPATH + "/docs/"
+
 
 def listdirs(folder):
+    """
+    List directories inside a folder specified by folder
+
+    :param folder: path folder
+    :type folder: str
+    :return: list of directories from folder
+    :rtype: list
+    """
     return [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
 
 
 if __name__ == '__main__':
-    basepath = os.getcwd()
-    libpath = "/lib/"
-    docpath = "/docs/"
-    match = "*.py"
-    for dir in listdirs(basepath + libpath):
-        if not dir.startswith("_"):   # ignore __pycache__ directory
-            print("pydoc -w " + basepath + libpath + dir + "/" + match)
-        # try:
-        #     os.system("pydoc -w " + basepath + libpath + dir + "/*.py")
-        # except:
-        #     pass
+    for dir in listdirs(LIBPATH):
+        if not dir.startswith("_"):  # ignore __pycache__ directory
+            for root, dirs, files in os.walk(LIBPATH + dir + "/"):
+                for filename in files:
+                    if filename.endswith(".py") and not filename.startswith("_"):
+                        print("pydoc -w " + LIBPATH + dir + "/" + filename)
+                        try:
+                            os.system("pydoc -w " + LIBPATH + dir + "/" + filename)
+                        except:
+                            pass
+                            # TODO
 
-    print("mv *.html " + basepath + docpath)
-    # os.system("mv *.html " + basepath + docpath)
+    print("mv *.html " + DOCPATH)
+    os.system("mv *.html " + DOCPATH)

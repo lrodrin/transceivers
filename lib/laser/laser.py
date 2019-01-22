@@ -1,5 +1,4 @@
 import socket
-# import time
 import string
 
 BUFSIZE = 100
@@ -12,8 +11,7 @@ TIMEOUT = "++read_tmo_ms 500\n"
 READ_AFTER_WRITE = "++auto 0\n"
 MODE = "++mode 1\n"
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat> and Josep M.Fabrega <jmfabrega@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
+# TODO error control
 
 
 class Laser:
@@ -190,15 +188,3 @@ class Laser:
 
         # TODO define s
         return s
-
-# if __name__ == '__main__':
-#     ip_eth = '10.1.1.7'
-#     addr_gpib = '11'
-#     yenista = Laser(ip_eth, addr_gpib)
-#     yenista.wavelength(3, 1550.12)
-#     yenista.power(3, 14.5)
-#     yenista.enable(3, True)
-#     time.sleep(5)
-#     print(yenista.status(3))
-#     print(yenista.test())
-#     yenista.close()

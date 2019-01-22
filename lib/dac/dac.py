@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.signal as sgn
 
-import lib.constellationV2 as modulation
+import lib.dac.constellationV2 as modulation
 import lib.ofdm as ofdm
 
 CLOCK_REF_FILE = "CLK_ref.txt"
@@ -9,9 +9,7 @@ CLOCK_FILE = "CLK.txt"
 METRO_DAC_INPUTS_ENABLE_FILE = "TEMP.txt"
 SLEEP_TIME = 100
 
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>, Laia Nadal <laia.nadal@cttc.cat> and Josep M.Fabrega " \
-             "<jmfabrega@cttc.cat> "
-__copyright__ = "Copyright 2018, CTTC"
+# TODO error control
 
 
 class DAC:
@@ -20,39 +18,51 @@ class DAC:
 
     """
 
-    def __init__(self, trx_mode, tx_ID):
+    def __init__(self, tx_ID, trx_mode):
         """
         The constructor for DAC class.
         Define and initialize the DAC default parameters:
-            - SNR_estimation
+            - SNR_estimation:
+                -gapdB: SNR gap
+                - Loading_algorithm: LC_RA or LC_MA
             - Preemphasis: 
                 - BW_filter: Preemphasis filter bandwidth.
                 - N_filter: Preemphasis filter order.
-            - gapdB.
-            - Loading_algorithm.
-            - Number of carriers.
-            - Constellation.
-            - Bits per symbol.
-            - Cyclic prefix.
-            - Number of training symbols.
-            - Number of symbols without TS.
-            - Number of symbols with TS.
-            - Number of OFDM symbols/frames.
-            - Samples per symbol.
-            - Sampling frequency DAC.
-            - k_clip:
+            - Ncarriers: Number of carriers.
+            - Constellation: QAM
+            - bps: Bits per symbol.
+            - CP:Cyclic prefix.
+            - NTS:Number of training symbols.
+            - Nsymbols: Number of symbols without TS.
+            - NsymbolsTS: Number of symbols with TS.
+            - Nframes: Number of OFDM symbols/frames.
+            - sps: Samples per symbol.
+            - fs: Sampling frequency DAC.
+            - k_clip: clipping level
                 - k_clip = 3.16 optimum for 256QAM.
                 - k_clip= 2.66 optimum for 32QAM.
                 - k_clip= 2.8 optimum for 64QAM.
-            - # LEIA Quantization steps
+            - Qt: LEIA Quantization steps
 
-        :param trx_mode: Identify the mode of a transceiver (0 for METRO_1 scenario or 1 for METRO_2 scenario)
+        
         :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
+        :param trx_mode: (0 or 1), for identifying the mode of the transceiver: 0 for estimation mode and 1 for transmission mode
+        :param FEC: (HD-FEC, SD-FEC), in order to identifiy the channel encoding to be used (TBI).
+        :param bps: array of 512 positions. It contains the bits per symbol per subcarrier.
+        :param pps: array of 512 positions. It contains the power per subcarrier figure.
         :type trx_mode: int
         :type tx_ID: int
+        :type FEC: string
+        :type bps:int array
+        :type pps: float array
+        
+        
         """
         self.trx_mode = trx_mode
         self.tx_ID = tx_ID
+        # self.FEC=FEC
+        # self.bps=bps
+        # self.pps=pps
 
         self.SNR_estimation = 'True'
         self.Preemphasis = 'True'
@@ -183,12 +193,3 @@ class DAC:
             np.save('params_tx2', (bn, cdatar, data, Cx_up, Cx_up2))
 
         return 0
-
-
-# if __name__ == '__main__':
-#     # Configuration 1a scenario
-#     trx_mode = 0
-#     tx_ID = 0
-#     tx = DAC(trx_mode, tx_ID)
-#     ack = tx.transmitter()
-#     print('ACK= ', ack)
