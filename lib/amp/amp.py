@@ -14,6 +14,7 @@ MODE = "++mode 1\n"
 
 # TODO error control
 
+
 class Amplifier:
     """
     This is a class for Amplifier configuration.
@@ -49,7 +50,7 @@ class Amplifier:
         # connection
         self.sock.settimeout(CONNECTION_TIMEOUT)
         self.sock.connect((self.ip, CONNECTION_PORT))
-        # change parameters
+        # initialization
         self.sock.send(MODE)
         addr_GPIB = "++addr " + self.addr + "\n"
         self.sock.send(addr_GPIB)
@@ -156,9 +157,9 @@ class Amplifier:
 
     def close(self):
         """
-            Close and delete the Amplifier connection.
+        Close and delete the Amplifier connection.
 
-            """
+        """
         self.sock.close()
 
     def checkerror(self):

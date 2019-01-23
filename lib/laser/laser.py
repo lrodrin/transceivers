@@ -49,7 +49,7 @@ class Laser:
         # connection
         self.sock.settimeout(CONNECTION_TIMEOUT)
         self.sock.connect((self.ip, CONNECTION_PORT))
-        # change parameters
+        # initialization
         self.sock.send(MODE)
         addr_GPIB = "++addr " + self.addr + "\n"
         self.sock.send(addr_GPIB)

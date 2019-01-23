@@ -1,16 +1,22 @@
-# import ctypes
 from ctypes import *
+
+TEST_LIBRARY_PATH = "C:/Users/Laura/Desktop/tp_configuration_files/"
 
 wsapi = None
 
-dllnames = ["wstestapi.dll", "wsapi.dll", "libwstestapi.so", "libwsapi.so"]
+# dllnames = ["wstestapi.dll", "wsapi.dll", "libwstestapi.so", "libwsapi.so"]  # TODO link the file
+
+dllnames = ["wsapi.dll"]
 
 if wsapi is None:
     for dllname in dllnames:
+        print(TEST_LIBRARY_PATH + dllname)
         try:
-            wsapi = cdll.LoadLibrary(dllname)
+            wsapi = cdll.LoadLibrary(TEST_LIBRARY_PATH + dllname)
+            print(wsapi)
 
-        except:
+        except IOError as error:
+            print(error)
             continue
         break
 
