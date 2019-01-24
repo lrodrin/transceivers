@@ -3,7 +3,7 @@ from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 
-from lib.laser.laser import *
+from lib.laser.laser import Laser
 
 IP_LASER = '10.1.1.7'
 

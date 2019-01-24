@@ -16,30 +16,40 @@ IP_AMPLIFIER_1 = '10.1.1.15'
 IP_LASER = '10.1.1.7'
 LASER_ADDR = '11'
 
+
+def laser_startup(och, lamba0, pow, stat):
+    yenista = Laser(IP_LASER, LASER_ADDR)
+    yenista.wavelength(och, lamba0)
+    yenista.power(och, pow)
+    yenista.enable(och, stat)
+    time.sleep(5)
+    print(yenista.status(och))
+    print(yenista.test())
+    yenista.close()
+
+
 # Laser configuration
-yenista = Laser(IP_LASER, LASER_ADDR)
-yenista.wavelength(3, 1560.12)
-yenista.power(3, 7.5)
-yenista.enable(3, True)
-time.sleep(5)
-print(yenista.status(3))
-print(yenista.test())
-yenista.close()
+laser_startup(3, 1560.12, 7.5, True)
+
+
+def amplifier_startup(modeA, powA, modeB, powB):
+    manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)
+    manlight_2 = Amplifier(IP_AMPLIFIER_2, AMPLIFIER_ADDR)
+    manlight_1.mode(modeA, powA)
+    manlight_2.mode(modeB, powB)
+    manlight_1.enable(True)
+    manlight_2.enable(True)
+    time.sleep(5)
+    print(manlight_1.status())
+    print(manlight_2.status())
+    print(manlight_1.test())
+    print(manlight_2.test())
+    manlight_1.close()
+    manlight_2.close()
+
 
 # Amplifiers configuration
-manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)
-manlight_2 = Amplifier(IP_AMPLIFIER_2, AMPLIFIER_ADDR)
-manlight_1.mode("APC", 5)
-manlight_2.mode("APC", 3)
-manlight_1.enable(True)
-manlight_2.enable(True)
-time.sleep(5)
-print(manlight_1.status())
-print(manlight_2.status())
-print(manlight_1.test())
-print(manlight_2.test())
-manlight_1.close()
-manlight_2.close()
+amplifier_startup("APC", 5, "APC", 3)
 
 # Waveshaper configuration
 

@@ -16,15 +16,19 @@ IP_AMPLIFIER_1 = '10.1.1.15'
 IP_LASER = '10.1.1.7'
 LASER_ADDR = '11'
 
+def laser_startup(och, lamba0, pow, stat):
+    yenista = Laser(IP_LASER, LASER_ADDR)
+    yenista.wavelength(och, lamba0)
+    yenista.power(och, pow)
+    yenista.enable(och, stat)
+    time.sleep(5)
+    print(yenista.status(och))
+    print(yenista.test())
+    yenista.close()
+
+
 # Laser configuration
-yenista = Laser(IP_LASER, LASER_ADDR)
-yenista.wavelength(3, 1560.12)
-yenista.power(3, 7.5)
-yenista.enable(3, True)
-time.sleep(5)
-print(yenista.status(3))
-print(yenista.test())
-yenista.close()
+laser_startup(3, 1560.12, 7.5, True)
 
 # Amplifiers configuration
 manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)

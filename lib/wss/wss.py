@@ -3,11 +3,9 @@ from matplotlib.pyplot import figure, plot, show
 
 from lib.wss import wsapi
 
-VALUE_3 = 0.001
-
-VALUE_2 = 196.274
-
-VALUE_1 = 191.250  # TODO enomenar
+STEP = 0.001
+FREQUENCY_END = 196.274
+FREQUENCY_START = 191.250
 SPEED_OF_LIGHT = 299792.458
 
 
@@ -25,7 +23,7 @@ class Wss:
 
         Initialize the Waveshaper default parameters:
 
-            - Set wavelength.
+            - Set wavelength. 1528'773 to 1566'723 nm.
             - Set bandwidth.
             - Set phase.
             - Set attenuation.
@@ -71,7 +69,7 @@ class Wss:
         # TODO extract * 0.5 * 1e-3
 
         # for frequency in np.arange(191.250, 196.274, 0.001, dtype=float):
-        for frequency in np.arange(VALUE_1, VALUE_2, VALUE_3, dtype=float):
+        for frequency in np.arange(FREQUENCY_START, FREQUENCY_END, STEP, dtype=float):
             for k in range(1):
                 if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
                     profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (
@@ -91,7 +89,7 @@ class Wss:
 
         """
         profiletext = ""
-        for frequency in np.arange(VALUE_1, VALUE_2, VALUE_3, dtype=float):
+        for frequency in np.arange(FREQUENCY_START, FREQUENCY_END, STEP, dtype=float):
             profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
         rc = wsapi.ws_load_profile(self.name, profiletext)
@@ -108,7 +106,7 @@ class Wss:
         profiletext = ""
         check_BW_wss = 0
         check_att = []
-        for frequency in np.arange(VALUE_1, VALUE_2, VALUE_3, dtype=float):
+        for frequency in np.arange(FREQUENCY_START, FREQUENCY_END, STEP, dtype=float):
             for k in range(1):
                 profiletext = profiletext + "%.3f\t60.0\t0.0\t0\n" % frequency
 
@@ -135,19 +133,3 @@ class Wss:
             print('ERROR: All the attenuation values are set to 60dB')
 
         return check_BW_wss, check_att
-
-
-# if __name__ == '__main__':
-#     wstx_name = "wstx"
-#     wstx_config_filename = "SN042561.wsconfig"
-#     wstx = Wss(wstx_name, wstx_config_filename)
-#     wstx.open()
-#     wstx.attenuation[0] = 0.0
-#     wstx.phase[0] = 0.0
-#     wstx.bandwidth[0] = 25
-#     wstx.wavelength[0] = 1550.12  # nm
-#     wstx.execute()
-#     time.sleep(5)
-#     [BW_wss, read_att] = wstx.check_profile()
-#     print('Bw', BW_wss)
-#     wstx.close()
