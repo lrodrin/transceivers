@@ -81,7 +81,7 @@ class Wss:
         if rc < 0:
             print(wsapi.ws_get_result_description(rc))
 
-    # TODO diferencia entre execute i execute_wss?
+    # TODO diferencia entre execute i execute_wss ?
 
     def execute_wss(self, profile):
         """
