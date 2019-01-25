@@ -18,9 +18,9 @@ from lib.amp.amp import Amplifier
 from lib.wss.wss import Wss
 
 
-def laser_startup(och, lamba0, pow, stat):
+def laser_startup(och, lambda0, pow, stat):
     yenista = Laser(IP_LASER, LASER_ADDR)
-    yenista.wavelength(och, lamba0)
+    yenista.wavelength(och, lambda0)
     yenista.power(och, pow)
     yenista.enable(och, stat)
     time.sleep(SECS)

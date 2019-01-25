@@ -129,109 +129,101 @@ class DAC:
         Generate a multi BitStream and creates the OFDM signal to be uploaded into the DAC. It also implements
         bit/power Loading_algorithm.
 
-        :return: ACK (0 or -1). 0 for OK and -1 in case there is some error.
-        :rtype: int
         """
-        try:
-            BWs = self.fs / self.sps  # BW electrical signal
-            print('Signal bandwidth:', BWs / 1e9, 'GHz')
+        BWs = self.fs / self.sps  # BW electrical signal
+        print('Signal bandwidth:', BWs / 1e9, 'GHz')
 
-            BitRate = 0
-            En = np.array(np.zeros(self.Ncarriers))
-            bn = np.array(np.zeros(self.Ncarriers))
-            if not self.SNR_estimation:
-                print('Implementing loading algorithm...')
-                gap = 10 ** (self.gapdB / 10.)
-                if self.tx_ID == 0:
-                    SNR_in = np.load('ChannelGain.npy')  # TODO link to file
-                else:
-                    SNR_in = np.load('ChannelGain2.npy')  # TODO link to file
-
-                Load = ofdm.Loading(self.Ncarriers, BWs)
-                if self.Loading_algorithm == 'LCMA_QAM':
-                    BitRate = 20e9
-                    (En, bn) = Load.LCMA_QAM(gap, BitRate / float(BWs), SNR_in)
-                if self.Loading_algorithm == 'LCRA_QAM':
-                    (En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)
-                bps = np.sum(bn) / float(len(bn))
-
-            else:
-                bn = self.bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
-                bps = np.sum(bn) / float(len(bn))
-                BitRate = BWs * bps  # Net data rate
-            print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', BWs / 1e9, 'GHz')
-
-            fc = BWs / 2
-            ttime = (1 / self.fs) * np.ones(
-                (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
-            ttt = ttime.cumsum()
-
+        BitRate = 0
+        En = np.array(np.zeros(self.Ncarriers))
+        bn = np.array(np.zeros(self.Ncarriers))
+        if not self.SNR_estimation:
+            print('Implementing loading algorithm...')
+            gap = 10 ** (self.gapdB / 10.)
             if self.tx_ID == 0:
-                np.random.seed(42)
+                SNR_in = np.load('ChannelGain.npy')  # TODO link to file
             else:
-                np.random.seed(36)
+                SNR_in = np.load('ChannelGain2.npy')  # TODO link to file
 
-            data = np.random.randint(0, 2, bps * self.Nsymbols)
-            TS = np.random.randint(0, 2, self.NTS * bps * self.Ncarriers)
-            # BitStream = np.array(np.zeros(self.Nframes * np.sum(bn)), int)
-            BitStream = np.r_[TS, data]
-            BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
-            cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
+            Load = ofdm.Loading(self.Ncarriers, BWs)
+            if self.Loading_algorithm == 'LCMA_QAM':
+                BitRate = 20e9
+                (En, bn) = Load.LCMA_QAM(gap, BitRate / float(BWs), SNR_in)
+            if self.Loading_algorithm == 'LCRA_QAM':
+                (En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)
+            bps = np.sum(bn) / float(len(bn))
 
-            cumBit = 0
-            for k in range(0, self.Ncarriers):
-                (FormatM, bitOriginal) = modulation.Format(self.constellation, bn[k])
-                cdatar[:, k] = modulation.Modulator(BitStream[:, cumBit:cumBit + bn[k]], FormatM, bitOriginal, bn[k])
-                cumBit = cumBit + bn[k]
+        else:
+            bn = self.bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
+            bps = np.sum(bn) / float(len(bn))
+            BitRate = BWs * bps  # Net data rate
+        print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', BWs / 1e9, 'GHz')
 
-            if self.SNR_estimation == 'False':  # Power loading
-                cdatary = cdatar * np.sqrt(En)
-            else:
-                cdatary = cdatar
+        fc = BWs / 2
+        ttime = (1 / self.fs) * np.ones(
+            (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
+        ttt = ttime.cumsum()
 
-            FHTdatatx = ofdm.ifft(cdatary, self.Ncarriers)
-            # Add cyclic prefix
-            FHTdata_cp = np.concatenate((FHTdatatx, FHTdatatx[:, 0:np.round(self.CP * self.Ncarriers)]), axis=1)
-            # Serialize
-            Cx = FHTdata_cp.reshape(FHTdata_cp.size, )
-            # print 'Clipping the signal...'
-            deviation = np.std(Cx)
-            Cx_clip = Cx.clip(min=-self.k_clip * deviation, max=self.k_clip * deviation)
-            # Resample
-            Cx_up = sgn.resample(Cx_clip, self.sps * Cx_clip.size)
-            # print G+ 'Upconversion...'
-            Cx_up2 = Cx_up.real * np.cos(2 * np.math.pi * fc * ttt) + Cx_up.imag * np.sin(2 * np.math.pi * fc * ttt)
+        if self.tx_ID == 0:
+            np.random.seed(42)
+        else:
+            np.random.seed(36)
 
-            if self.Preemphasis == 'True':
-                print('preemphasis...')
-                # Pre-emphasis (inverted gaussian) filter
-                sigma = self.BW_filter / (2 * np.sqrt(2 * np.log10(2)))
-                stepfs = self.fs / len(Cx_up2)
-                freq1 = np.arange(stepfs, self.fs / 2 - stepfs, stepfs)
-                freq2 = np.arange(-self.fs / 2, 0, stepfs)
-                freq = np.r_[freq1, 0, freq2, self.fs / 2 - stepfs]
-                emphfilt = np.exp(.5 * np.abs(freq / sigma) ** self.N_filter)  # Just a Gaussian filter inverted
-                Cx_up2 = np.real(np.fft.ifft(emphfilt * np.fft.fft(Cx_up2)))
+        data = np.random.randint(0, 2, bps * self.Nsymbols)
+        TS = np.random.randint(0, 2, self.NTS * bps * self.Ncarriers)
+        # BitStream = np.array(np.zeros(self.Nframes * np.sum(bn)), int)
+        BitStream = np.r_[TS, data]
+        BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
+        cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
 
-            Cx_bias = Cx_up2 - np.min(Cx_up2)
-            Cx_LEIA = np.around(
-                Cx_bias / np.max(Cx_bias) * self.Qt - np.ceil(self.Qt / 2))  # Signal to download to LEIA_DAC
-            Cx_bias_up = Cx_up - np.min(Cx_up)
-            Cx_up = np.around(Cx_bias_up / np.max(Cx_bias_up) * self.Qt - np.ceil(self.Qt / 2))
+        cumBit = 0
+        for k in range(0, self.Ncarriers):
+            (FormatM, bitOriginal) = modulation.Format(self.constellation, bn[k])
+            cdatar[:, k] = modulation.Modulator(BitStream[:, cumBit:cumBit + bn[k]], FormatM, bitOriginal, bn[k])
+            cumBit = cumBit + bn[k]
 
-            print('Initializing LEIA...')
-            f = open(CLOCK_FILE, "w")
-            f.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
-            f = open(CLOCK_REF_FILE, "w")
-            f.write("10\n")  # 10MHz or 50MHz Ref frequency
-            np.savetxt(DAC_INPUTS_ENABLE_FILE, Cx_LEIA)  # .txt with the OFDM signal
+        if self.SNR_estimation == 'False':  # Power loading
+            cdatary = cdatar * np.sqrt(En)
+        else:
+            cdatary = cdatar
 
-            if self.tx_ID == 0:
-                np.save('params_tx', (bn, cdatar, data, Cx_up, Cx_up2))
-            else:
-                np.save('params_tx2', (bn, cdatar, data, Cx_up, Cx_up2))
+        FHTdatatx = ofdm.ifft(cdatary, self.Ncarriers)
+        # Add cyclic prefix
+        FHTdata_cp = np.concatenate((FHTdatatx, FHTdatatx[:, 0:np.round(self.CP * self.Ncarriers)]), axis=1)
+        # Serialize
+        Cx = FHTdata_cp.reshape(FHTdata_cp.size, )
+        # print 'Clipping the signal...'
+        deviation = np.std(Cx)
+        Cx_clip = Cx.clip(min=-self.k_clip * deviation, max=self.k_clip * deviation)
+        # Resample
+        Cx_up = sgn.resample(Cx_clip, self.sps * Cx_clip.size)
+        # print G+ 'Upconversion...'
+        Cx_up2 = Cx_up.real * np.cos(2 * np.math.pi * fc * ttt) + Cx_up.imag * np.sin(2 * np.math.pi * fc * ttt)
 
-            return 0
+        if self.Preemphasis == 'True':
+            print('preemphasis...')
+            # Pre-emphasis (inverted gaussian) filter
+            sigma = self.BW_filter / (2 * np.sqrt(2 * np.log10(2)))
+            stepfs = self.fs / len(Cx_up2)
+            freq1 = np.arange(stepfs, self.fs / 2 - stepfs, stepfs)
+            freq2 = np.arange(-self.fs / 2, 0, stepfs)
+            freq = np.r_[freq1, 0, freq2, self.fs / 2 - stepfs]
+            emphfilt = np.exp(.5 * np.abs(freq / sigma) ** self.N_filter)  # Just a Gaussian filter inverted
+            Cx_up2 = np.real(np.fft.ifft(emphfilt * np.fft.fft(Cx_up2)))
 
-        except:
-            return -1
+        Cx_bias = Cx_up2 - np.min(Cx_up2)
+        Cx_LEIA = np.around(
+            Cx_bias / np.max(Cx_bias) * self.Qt - np.ceil(self.Qt / 2))  # Signal to download to LEIA_DAC
+        Cx_bias_up = Cx_up - np.min(Cx_up)
+        Cx_up = np.around(Cx_bias_up / np.max(Cx_bias_up) * self.Qt - np.ceil(self.Qt / 2))
+
+        print('Initializing LEIA...')
+        f = open(CLOCK_FILE, "w")
+        f.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
+        f = open(CLOCK_REF_FILE, "w")
+        f.write("10\n")  # 10MHz or 50MHz Ref frequency
+        np.savetxt(DAC_INPUTS_ENABLE_FILE, Cx_LEIA)  # .txt with the OFDM signal
+
+        if self.tx_ID == 0:
+            np.save('params_tx', (bn, cdatar, data, Cx_up, Cx_up2))
+        else:
+            np.save('params_tx2', (bn, cdatar, data, Cx_up, Cx_up2))

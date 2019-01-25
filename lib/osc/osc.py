@@ -9,6 +9,36 @@ import lib.ofdm as ofdm
 NUM_ITERATIONS = 5
 
 
+def acquire(channel_ID, npoints, fs):
+    """
+
+    :param channel_ID:
+    :param npoints:
+    :param fs:
+    :return:
+    """
+    dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
+    # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
+
+    dpo.write('HOR:MODE:RECO %d' % npoints)  # Set the record length to npoints
+    dpo.write('HOR:MODE:SAMPLER %d' % fs)  # Set the sample rate to fs
+
+    # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
+
+    dpo.write('DAT:SOU CH%d' % channel_ID)
+    dpo.write('DAT:ENC ASCII')
+    # dpo.write('DAT:ENC SFPbinary')
+    # print dpo.ask('DAT:ENC?')
+    dpo.write('DAT:STAR %d' % 1)
+    dpo.write('DAT:STOP %d' % npoints)
+
+    aux = dpo.ask('CURV?')
+
+    dpo.close()
+
+    return np.fromstring(aux, dtype=float, sep=',')
+
+
 class OSC:
     """
     This is a class for Oscilloscope configuration.
@@ -129,9 +159,9 @@ class OSC:
             Ncarriers_eq = self.Ncarriers
             print('adquire...')
             if self.rx_ID == 0:
-                data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)
+                data_acqT = acquire(1, R * self.nsamplesrx, self.f_DCO)
             else:
-                data_acqT = self.acquire(3, R * self.nsamplesrx, self.f_DCO)
+                data_acqT = acquire(3, R * self.nsamplesrx, self.f_DCO)
 
             data_acqT = data_acqT - np.mean(data_acqT)
             data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))
@@ -206,36 +236,12 @@ class OSC:
 
         BER = BERT / Runs
 
-        if BER > 4.6e-3:
-            return -1, None, BER
-        else:
-            return 0, None, BER
+        # TODO bluespace return SNR
+        SNR = None
 
-    def acquire(self, channel_ID, npoints, fs):
-        """
+        return SNR, BER
 
-        :param channel_ID:
-        :param npoints:
-        :param fs:
-        :return:
-        """
-        dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
-        # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
-
-        dpo.write('HOR:MODE:RECO %d' % npoints)  # Set the record length to npoints
-        dpo.write('HOR:MODE:SAMPLER %d' % fs)  # Set the sample rate to fs
-
-        # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
-
-        dpo.write('DAT:SOU CH%d' % channel_ID)
-        dpo.write('DAT:ENC ASCII')
-        # dpo.write('DAT:ENC SFPbinary')
-        # print dpo.ask('DAT:ENC?')
-        dpo.write('DAT:STAR %d' % 1)
-        dpo.write('DAT:STOP %d' % npoints)
-
-        aux = dpo.ask('CURV?')
-
-        dpo.close()
-
-        return np.fromstring(aux, dtype=float, sep=',')
+        # if BER > 4.6e-3:
+        #     return SNR, BER
+        # else:
+        #     return SNR, BER

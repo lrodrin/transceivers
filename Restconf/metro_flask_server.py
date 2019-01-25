@@ -1,6 +1,7 @@
 import time
 
-from flask import Flask, request
+import requests
+from flask import Flask, request, json
 from os import sys, path
 
 TIME_SLEEP = 5
@@ -10,12 +11,13 @@ IP_AMPLIFIER_1 = '10.1.1.15'
 IP_LASER = '10.1.1.7'
 LASER_ADDR = '11'
 SPEED_OF_LIGHT = 299792458
+URL = 'http://10.1.1.10:5000/api/'
+HEADERS = {"Content-Type": "application/json"}
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
-
 
 app = Flask(__name__)
 
@@ -34,7 +36,7 @@ def python_xc(cl, och):
     :type cl: str
     :type och: str
     """
-    print("Client " + cl + " assigned to optical channel " + och)
+    return "Client " + cl + " assigned to optical channel " + och
 
 
 @app.route('/api/vi/openconfig/local_assignment', methods=['POST'])
@@ -56,21 +58,20 @@ def local_assignment():
 
         responses:
             200:
-                description: (string) OK.
+                description: (string) Client was successfully assigned to optical channel.
             404:
-                description: (string) no_ok in case there is some error.
+                description: (string) Error message in case there is some error.
 
     """
     payload = request.json  # client, Och from agent
     try:
         python_xc(payload['client'], payload['Och'])
-        return "OK\n"
 
     except OSError as error:
-        return "no_ok: {} \n".format(error)
+        return "ERROR: {} \n".format(error)
 
 
-def python_f(och, freq, powL, modeA, modeB, powA, powB):
+def python_f(och, freq, powL, statL, modeA, modeB, powA, powB, statA, statB, params_dac, params_osc):
     """
     Terminal Optical Channel Configuration.
         - Laser configuration
@@ -82,50 +83,94 @@ def python_f(och, freq, powL, modeA, modeB, powA, powB):
     :param och: optical channel
     :param freq: frequency of the laser
     :param powL: power of the laser
-    :param modeA: mode of the amplifiers one
-    :param modeB: mode of the amplifiers two
-    :param powA_1: power of amplifier one
-    :param powA_2: power of amplifier two
+    :param statL: status of the laser
+    :param modeA: mode of the amplifiers A
+    :param modeB: mode of the amplifiers B
+    :param powA: power of amplifier A
+    :param powB: power of amplifier B
+    :param statA: status of the amplifier A
+    :param statB: status of the amplifier B
+    :param params_dac: {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
+    :param params_osc: {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
+    :type och: int
+    :type freq: str
+    :type powL: float
+    :type statL: bool
+    :type modeA: str
+    :type modeB: str
+    :type powA: float
+    :type powB: float
+    :type statA: bool
+    :type statB: bool
     """
     # Laser configuration
-    laser_configuration(freq, och, powL)
-    manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)
-    manlight_2 = Amplifier(IP_AMPLIFIER_2, AMPLIFIER_ADDR)
-    manlight_1.mode(modeA, powA)
-    manlight_2.mode(modeB, powB)
-    manlight_1.enable(True)
-    manlight_2.enable(True)
-    time.sleep(TIME_SLEEP)
-    print(manlight_1.status())
-    print(manlight_2.status())
-    print(manlight_1.test())
-    print(manlight_2.test())
-    manlight_1.close()
-    manlight_2.close()
+    lambda0 = (SPEED_OF_LIGHT / (freq * 1e6)) * 1e9  # Wavelength in nm
+    print(laser_startup(och, lambda0, powL, statL))
+    # Amplifiers configuration
+    print(amplifier_startup(IP_AMPLIFIER_1, AMPLIFIER_ADDR, modeA, powA, statA))
+    print(amplifier_startup(IP_AMPLIFIER_2, AMPLIFIER_ADDR, modeB, powB, statB))
+    # DAC configuration
+    request_dac = requests.post(URL + 'dac', headers=HEADERS, data=json.dumps(params_dac))
+    print(request_dac.content)
+    # OSC configuration
+    request_dac = requests.post(URL + 'dac', headers=HEADERS, data=json.dumps(params_osc))
+    print(request_dac.content)
 
 
-def laser_configuration(freq, och, pow):
+def laser_startup(och, lambda0, pow, stat):
     """
     Laser Configuration.
 
-    :param freq: frequency
     :param och: optical channel
+    :param lambda0: wavelength
     :param pow: power
-    :type freq: int
+    :param stat: enable/disable status
     :type och: int
+    :type lambda0: int
     :type pow: float
+    :type stat: bool
+    :return: laser configured or not
+    :rtype: str
     """
-    yenista = Laser(IP_LASER, LASER_ADDR)
-    print(yenista.test())
-    yenista.enable(och, True)  # Switch on channel och of the laser
-    # c = 3e8 # Speed of light in m/s
-    lambda0 = (SPEED_OF_LIGHT / (freq * 1e6)) * 1e9  # Wavelength in nm
-    yenista.wavelength(och, lambda0)
-    yenista.power(och, pow)
-    # if we use an OA in the setup after the MZM pow= pow+G, where G is the gain of the OA in dB
-    time.sleep(TIME_SLEEP)
-    print(yenista.status(och))
-    yenista.close()
+    try:
+        yenista = Laser(IP_LASER, LASER_ADDR)
+        yenista.wavelength(och, lambda0)
+        yenista.power(och, pow)
+        yenista.enable(och, stat)
+        time.sleep(TIME_SLEEP)
+        print(yenista.status(och))
+        print(yenista.test())
+        yenista.close()
+        return "Laser {} was successfully configured\n".format(IP_LASER)
+
+    except OSError as error:
+        return "ERROR: {} \n".format(error)
+
+
+def amplifier_startup(ip, addr, mode, pow, stat):
+    """
+    Amplifier configuration.
+
+    :param ip: ip address
+    :param addr: addr address
+    :param mode: mode
+    :param pow: power
+    :param stat: enable/disable status
+    :return: amplifier configured or not
+    :rtype: str
+    """
+    try:
+        manligh = Amplifier(ip, addr)
+        manligh.mode(mode, pow)
+        manligh.enable(stat)
+        time.sleep(5)
+        print(manligh.status())
+        print(manligh.test())
+        manligh.close()
+        return "Amplifier {} was successfully configured\n".format(ip)
+
+    except OSError as error:
+        return "ERROR: {} \n".format(error)
 
 
 @app.route('/api/vi/openconfig/optical_channel', methods=['POST'])
@@ -153,18 +198,22 @@ def optical_channel_configuration():
 
         responses:
             200:
-                description: (string) OK.
+                description: (string) Optical Channel was successfully configured.
             404:
-                description: (string) no_ok in case there is some error.
+                description: (string) Error message in case there is some error.
 
     """
-    payload = request.json  # Och, freq, pow and mode from agent
+    payload = request.json  # Och, freq, powL, statL, modeA, modeB, powA, powB, statA, statB from agent
+    # params_dac = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
+    # params_osc = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
     try:
-        python_f(payload['Och'], payload['freq'], payload['pow'], payload['mode'])
-        return "OK\n"
+        python_f(payload['Och'], payload['freq'], payload['powL'], payload['statL'], payload['modeA'], payload['modeB'],
+                 payload['powA'], payload['powB'], payload['statA'], payload['statB'], payload['params_dac'],
+                 payload['params_osc'])
+        return "Optical Channel was successfully configured\n"
 
     except OSError as error:
-        return "no_ok: {} \n".format(error)
+        return "ERROR: {} \n".format(error)
 
 
 if __name__ == '__main__':

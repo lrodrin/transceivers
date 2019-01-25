@@ -9,6 +9,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC, DAC_INPUTS_ENABLE_FILE, SLEEP_TIME
 from lib.osc.osc import OSC
 
+OPTIMAL_BER = 4.6e-3
 DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
                                      '-nodesktop -r '"Leia_DAC_down; "  # TODO link to file
 
@@ -67,24 +68,25 @@ def dac_startup():
 
         responses:
             200:
-                description: (int) 0 for OK.
+                description: (string, int, int) DAC was successfully configured. And the type of configuration done.
             404:
-                description: (int) -1 in case there is some error.
+                description: (string) Error message in case there is some error.
 
     """
     payload = request.json  # trx_mode, tx_ID, FEC, bps, pps values from agent
     scenario = payload['trx_mode']
     tx_id = payload['tx_ID']
     fec = payload['FEC']
-    bps = payload['bps']    # always 2 value from METRO
+    bps = payload['bps']  # always 2 value from METRO
     pps = payload['pps']
 
     tx = DAC(scenario, tx_id, fec, bps, pps)
     f = open(DAC_INPUTS_ENABLE_FILE, "w")
     file_uploaded_message = 'Leia initialized and SPI file uploaded'
+    ok_message = "DAC was successfully configured. Configuration type: {}, {}\n".format(scenario, tx_id)
     if scenario == 0:  # Configuration 1
         try:
-            ack = tx.transmitter()
+            tx.transmitter()
             if tx_id == 0:  # Configuration 1a
                 f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
@@ -95,7 +97,7 @@ def dac_startup():
 
             time.sleep(SLEEP_TIME)
             print(file_uploaded_message)
-            return "DAC ACK {}\n".format(ack)
+            return ok_message
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
@@ -103,21 +105,22 @@ def dac_startup():
     elif scenario == 1:  # Configuration 2
         try:
             if tx_id == 0:
-                # TODO extract method dac_configuration_2
-                ack = tx.transmitter()
+                # TODO extract method run_dac_configuration
+                tx.transmitter()
                 f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
                 time.sleep(SLEEP_TIME)
                 print(file_uploaded_message)
-                return "DAC ACK {}\n".format(ack)
+                return ok_message
+
             try:
                 if tx_id == 1:
-                    ack = tx.transmitter()
+                    tx.transmitter()
                     f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                     os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
                     time.sleep(SLEEP_TIME)
                     print(file_uploaded_message)
-                    return "DAC ACK {}\n".format(ack)
+                    return ok_message
 
             except OSError as error:
                 return "ERROR: {} \n".format(error)
@@ -160,11 +163,11 @@ def osc_startup():
         responses:
             200:
                 description:
-                    - (int) 0 for OK.
+                    - (string, int, int) OSC was successfully configured. And the type of configuration done.
                     - (float array of 512 positions) that contains the estimated SNR per subcarrier.
                     - (float) the BER of received data.
             404:
-                description: (int) -1 in case there is some error.
+                description: (string) Error message in case there is some error.
 
     """
     payload = request.json  # trx_mode, rx_ID, FEC, bps, pps values from agent
@@ -174,11 +177,16 @@ def osc_startup():
     bps = payload['bps']
     pps = payload['pps']
 
+    is_optimal = False
     rx = OSC(scenario, rx_id, fec, bps, pps)
     if scenario == 0:
         try:
             result = rx.receiver()
-            return "Oscilloscope ACK {} BER {}\n".format(result[0], result[2])
+            if result[1] > OPTIMAL_BER:
+                is_optimal = True
+                return print_ok_message(is_optimal, result, rx_id, scenario)
+            else:  # TODO this case?
+                return print_ok_message(is_optimal, result, rx_id, scenario)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
@@ -186,13 +194,21 @@ def osc_startup():
     elif scenario == 1:
         try:
             if rx_id == 0:
-                # TODO extract method osc_configuration_2
+                # TODO extract method run_osc_configuration
                 result = rx.receiver()
-                return "Oscilloscope ACK {} BER {}\n".format(result[0], result[2])
+                if result[1] > OPTIMAL_BER:
+                    is_optimal = True
+                    return print_ok_message(is_optimal, result, rx_id, scenario)
+                else:
+                    return print_ok_message(is_optimal, result, rx_id, scenario)
             try:
                 if rx_id == 1:
                     result = rx.receiver()
-                    return "Oscilloscope ACK {} BER {}\n".format(result[0], result[2])
+                    if result[1] > OPTIMAL_BER:
+                        is_optimal = True
+                        return print_ok_message(is_optimal, result, rx_id, scenario)
+                    else:
+                        return print_ok_message(is_optimal, result, rx_id, scenario)
 
             except OSError as error:
                 return "ERROR: {} \n".format(error)
@@ -200,13 +216,39 @@ def osc_startup():
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
-    elif scenario == 2:
+    elif scenario == 2:  # bluespace
         try:
             result = rx.receiver()
-            return "Oscilloscope ACK {} SNR {} BER {}\n".format(result[0], result[1], result[2])
+            if result[1] > OPTIMAL_BER:
+                is_optimal = True
+                return print_ok_message(is_optimal, result, rx_id, scenario)
+            else:
+                return print_ok_message(is_optimal, result, rx_id, scenario)
 
         except OSError as error:
             return "ERROR: {} \n".format(error)
+
+
+def print_ok_message(is_optimal, result, rx_id, scenario):
+    """
+    Print the ouput from receiver method.
+
+    :param is_optimal: optimal BER
+    :param result: SNR and BER
+    :param rx_id: receiver id
+    :param scenario: type of configuration
+    :type is_optimal: bool
+    :type result: list
+    :type rx_id: int
+    :type scenario: int
+    :return: Ok message
+    :rtype: str
+    """
+    message = "Oscilloscope was successfully configured with SNR {} and {} BER {}\n Configuration type: {}, {}\n"
+    if is_optimal:
+        return message.format(result[0], "optimal", result[1], scenario, rx_id)
+    else:
+        return message.format(result[0], "no optimal", result[1], scenario, rx_id)
 
 
 if __name__ == '__main__':
