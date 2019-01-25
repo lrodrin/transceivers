@@ -82,8 +82,8 @@ wstx_config_filename = "SN042561.wsconfig"
 # print(bps)
 # print(pps)
 
-# url = 'http://10.1.1.10:5000/api/'  # REAL
-url = 'http://127.0.0.1:5000/api/'  # TEST
+url = 'http://10.1.1.10:5000/api/'  # REAL
+# url = 'http://127.0.0.1:5000/api/'  # TEST
 headers = {"Content-Type": "application/json"}
 
 request = requests.get(url + 'hello', headers=headers)

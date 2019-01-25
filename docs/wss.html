@@ -19,9 +19,8 @@
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
-</td><td width="25%" valign=top><a href="time.html">time</a><br>
-</td><td width="25%" valign=top><a href="lib.wsapi.html">lib.wsapi</a><br>
-</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+</td><td width="25%" valign=top><a href="lib.wss.wsapi.html">lib.wss.wsapi</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -41,32 +40,32 @@
 <td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;Waveshaper&nbsp;configuration.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="Wss-__init__"><strong>__init__</strong></a>(self, name, configfile)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;<a href="#Wss">Wss</a>&nbsp;class.<br>
+<dl><dt><a name="Wss-__init__"><strong>__init__</strong></a>(self, name, configfile)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;Waveshaper&nbsp;class.<br>
 &nbsp;<br>
-Initializes&nbsp;the&nbsp;<a href="#Wss">Wss</a>&nbsp;default&nbsp;parameters:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;name<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;configuration&nbsp;file<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;wavelength<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;bandwidth<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;phase<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;attenuation<br>
+Initialize&nbsp;the&nbsp;Waveshaper&nbsp;default&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;wavelength.&nbsp;1528'773&nbsp;to&nbsp;1566'723&nbsp;nm.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;bandwidth.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;attenuation.<br>
 &nbsp;<br>
 :param&nbsp;name:&nbsp;name&nbsp;of&nbsp;the&nbsp;waveshaper<br>
 :param&nbsp;configfile:&nbsp;configuration&nbsp;file&nbsp;of&nbsp;the&nbsp;waveshaper<br>
 :type&nbsp;name:&nbsp;str<br>
 :type&nbsp;configfile:&nbsp;str</tt></dd></dl>
 
-<dl><dt><a name="Wss-check_profile"><strong>check_profile</strong></a>(self)</dt><dd><tt>Check&nbsp;the&nbsp;loaded&nbsp;profile<br>
+<dl><dt><a name="Wss-check_profile"><strong>check_profile</strong></a>(self)</dt><dd><tt>Check&nbsp;the&nbsp;loaded&nbsp;profile.<br>
 &nbsp;<br>
-:return:&nbsp;bandwidth&nbsp;and&nbsp;attenuation&nbsp;checked</tt></dd></dl>
+:return:&nbsp;bandwidth&nbsp;and&nbsp;attenuation<br>
+:rtype:&nbsp;list</tt></dd></dl>
 
-<dl><dt><a name="Wss-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;waveshaper</tt></dd></dl>
+<dl><dt><a name="Wss-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;Waveshaper.</tt></dd></dl>
 
-<dl><dt><a name="Wss-execute"><strong>execute</strong></a>(self)</dt><dd><tt>Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;specifications</tt></dd></dl>
+<dl><dt><a name="Wss-execute"><strong>execute</strong></a>(self)</dt><dd><tt>Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;Waveshaper&nbsp;specifications.</tt></dd></dl>
 
-<dl><dt><a name="Wss-execute_wss"><strong>execute_wss</strong></a>(self, profile)</dt><dd><tt>Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;specifications</tt></dd></dl>
+<dl><dt><a name="Wss-execute_wss"><strong>execute_wss</strong></a>(self, profile)</dt><dd><tt>Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;Waveshaper&nbsp;specifications.</tt></dd></dl>
 
-<dl><dt><a name="Wss-open"><strong>open</strong></a>(self)</dt><dd><tt>Create&nbsp;and&nbsp;open&nbsp;the&nbsp;waveshaper</tt></dd></dl>
+<dl><dt><a name="Wss-open"><strong>open</strong></a>(self)</dt><dd><tt>Create&nbsp;and&nbsp;open&nbsp;the&nbsp;Waveshaper.</tt></dd></dl>
 
 </td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -75,13 +74,8 @@ Initializes&nbsp;the&nbsp;<a href="#Wss">Wss</a>&nbsp;default&nbsp;parameters:<b
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>__author__</strong> = 'Laura Rodriguez Navas &lt;laura.rodriguez@cttc.cat&gt;'<br>
-<strong>__copyright__</strong> = 'Copyright 2018, CTTC'</td></tr></table><p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#7799ee">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
-    
-<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%">Laura&nbsp;Rodriguez&nbsp;Navas&nbsp;&lt;laura.rodriguez@cttc.cat&gt;</td></tr></table>
+<td width="100%"><strong>FREQUENCY_END</strong> = 196.274<br>
+<strong>FREQUENCY_START</strong> = 191.25<br>
+<strong>SPEED_OF_LIGHT</strong> = 299792.458<br>
+<strong>STEP</strong> = 0.001</td></tr></table>
 </body></html>
