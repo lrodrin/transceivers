@@ -20,8 +20,8 @@ def acquire(channel_ID, npoints, fs):
     dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
     # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
 
-    dpo.write('HOR:MODE:RECO %d' % npoints)  # Set the record length to npoints
-    dpo.write('HOR:MODE:SAMPLER %d' % fs)  # Set the sample rate to fs
+    dpo.write('HOR:mode:RECO %d' % npoints)  # Set the record length to npoints
+    dpo.write('HOR:mode:SAMPLER %d' % fs)  # Set the sample rate to fs
 
     # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
 
@@ -81,7 +81,7 @@ class OSC:
             - name: f_DCO.
               description: OSC sampling frequency.
               type: int
-            - name: Loading_algorithm.
+            - name: loading_algorithm.
               description: 0 == Rate adaptiv if SNR_estimation==True:e , 1 == Margin adaptive.
               type: string
             - name: Niter.

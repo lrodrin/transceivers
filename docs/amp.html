@@ -10,7 +10,9 @@
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>amp</strong></big></big></font></td
 ><td align=right valign=bottom
 ><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/root/restAPI/lib/amp/amp.py">/root/restAPI/lib/amp/amp.py</a></font></td></tr></table>
-    <p></p>
+    <p><tt>This&nbsp;is&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;module.<br>
+&nbsp;<br>
+This&nbsp;module&nbsp;does&nbsp;stuff.</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -19,9 +21,8 @@
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="socket.html">socket</a><br>
-</td><td width="25%" valign=top><a href="string.html">string</a><br>
 </td><td width="25%" valign=top><a href="time.html">time</a><br>
-</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -38,14 +39,14 @@
 <font color="#000000" face="helvetica, arial"><a name="Amplifier">class <strong>Amplifier</strong></a></font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;configuration.<br>&nbsp;</tt></td></tr>
+<td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;module.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="Amplifier-__init__"><strong>__init__</strong></a>(self, ip, addr)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;class.<br>
+<dl><dt><a name="Amplifier-__init__"><strong>__init__</strong></a>(self, ip, addr)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;class.<br>
 &nbsp;<br>
 :param&nbsp;ip:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET<br>
-:param&nbsp;addr:&nbsp;GPIB&nbsp;address<br>
 :type&nbsp;ip:&nbsp;str<br>
+:param&nbsp;addr:&nbsp;GPIB&nbsp;address<br>
 :type&nbsp;addr:&nbsp;str</tt></dd></dl>
 
 <dl><dt><a name="Amplifier-checkerror"><strong>checkerror</strong></a>(self)</dt><dd><tt>Check&nbsp;system&nbsp;errors&nbsp;in&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>.<br>
@@ -53,6 +54,15 @@
 :return:&nbsp;s</tt></dd></dl>
 
 <dl><dt><a name="Amplifier-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;connection.</tt></dd></dl>
+
+<dl><dt><a name="Amplifier-connect_and_initialization"><strong>connect_and_initialization</strong></a>(self)</dt><dd><tt>Connect&nbsp;to&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;and&nbsp;initialize&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;default&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;mode&nbsp;(str):&nbsp;Set&nbsp;mode&nbsp;as&nbsp;CONTROLLER.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;addr_GPIB&nbsp;(str):&nbsp;Set&nbsp;GPIB&nbsp;address.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;read_after_write&nbsp;(str):&nbsp;Turn&nbsp;off&nbsp;read_after_write&nbsp;to&nbsp;avoid&nbsp;"Query&nbsp;Unterminated"&nbsp;errors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;read_timeout&nbsp;(str):&nbsp;Read&nbsp;timeout&nbsp;is&nbsp;500&nbsp;ms.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eos_3&nbsp;(str):&nbsp;Do&nbsp;not&nbsp;append&nbsp;CR&nbsp;or&nbsp;LF&nbsp;to&nbsp;GPIB&nbsp;data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eoi_1&nbsp;(str):&nbsp;Assert&nbsp;eoi_1&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
 
 <dl><dt><a name="Amplifier-enable"><strong>enable</strong></a>(self, stat<font color="#909090">=False</font>)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>.<br>
 &nbsp;<br>
@@ -65,18 +75,9 @@ The&nbsp;range&nbsp;of&nbsp;power&nbsp;in&nbsp;mode&nbsp;APC&nbsp;takes&nbsp;0&n
 The&nbsp;range&nbsp;of&nbsp;current&nbsp;in&nbsp;mode&nbsp;ACC&nbsp;takes&nbsp;0&nbsp;to&nbsp;1210&nbsp;mA.<br>
 &nbsp;<br>
 :param&nbsp;mod:&nbsp;mode&nbsp;type<br>
-:param&nbsp;param:&nbsp;power&nbsp;or&nbsp;gain<br>
 :type&nbsp;mod:&nbsp;string<br>
+:param&nbsp;param:&nbsp;power&nbsp;or&nbsp;gain<br>
 :type&nbsp;param:&nbsp;int</tt></dd></dl>
-
-<dl><dt><a name="Amplifier-open"><strong>open</strong></a>(self)</dt><dd><tt>Connect&nbsp;to&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;and&nbsp;initialize&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;default&nbsp;parameters:<br>
-&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;mode&nbsp;as&nbsp;CONTROLLER.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;GPIB&nbsp;address.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Turn&nbsp;off&nbsp;READ_AFTER_WRITE&nbsp;to&nbsp;avoid&nbsp;"Query&nbsp;Unterminated"&nbsp;errors.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Read&nbsp;timeout&nbsp;is&nbsp;500&nbsp;ms.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Do&nbsp;not&nbsp;append&nbsp;CR&nbsp;or&nbsp;LF&nbsp;to&nbsp;GPIB&nbsp;data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Assert&nbsp;EOI_1&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
 
 <dl><dt><a name="Amplifier-status"><strong>status</strong></a>(self)</dt><dd><tt>Check&nbsp;and&nbsp;return&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;configured&nbsp;parameters:<br>
 &nbsp;<br>
@@ -86,25 +87,30 @@ The&nbsp;range&nbsp;of&nbsp;current&nbsp;in&nbsp;mode&nbsp;ACC&nbsp;takes&nbsp;0
 :return:&nbsp;status,&nbsp;mode,&nbsp;power<br>
 :rtype&nbsp;list</tt></dd></dl>
 
-<dl><dt><a name="Amplifier-test"><strong>test</strong></a>(self)</dt><dd><tt>Just&nbsp;as&nbsp;test,&nbsp;ask&nbsp;for&nbsp;instrument&nbsp;ID&nbsp;according&nbsp;to&nbsp;SCPI&nbsp;API<br>
+<dl><dt><a name="Amplifier-test"><strong>test</strong></a>(self)</dt><dd><tt>Just&nbsp;as&nbsp;test,&nbsp;ask&nbsp;for&nbsp;instrument&nbsp;ID&nbsp;according&nbsp;to&nbsp;SCPI&nbsp;API.<br>
 &nbsp;<br>
-:return:&nbsp;amplifier&nbsp;type,&nbsp;band&nbsp;type&nbsp;and&nbsp;software&nbsp;release&nbsp;(e.g&nbsp;EDFA&nbsp;C&nbsp;Band,V2.1)<br>
+:return:&nbsp;amplifier&nbsp;type,&nbsp;band&nbsp;type&nbsp;and&nbsp;software&nbsp;release&nbsp;(e.g&nbsp;EDFA&nbsp;C&nbsp;Band,&nbsp;V2.1)<br>
 :rtype:&nbsp;str</tt></dd></dl>
 
-</td></tr></table></td></tr></table><p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#55aa55">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
-    
-<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>BUFSIZE</strong> = 100<br>
-<strong>CONNECTION_PORT</strong> = 1234<br>
-<strong>CONNECTION_TIMEOUT</strong> = 2<br>
-<strong>EOI_1</strong> = '++eoi 1<font color="#c040c0">\n</font>'<br>
-<strong>EOS_3</strong> = '++eos 3<font color="#c040c0">\n</font>'<br>
-<strong>MODE</strong> = '++mode 1<font color="#c040c0">\n</font>'<br>
-<strong>READ_AFTER_WRITE</strong> = '++auto 0<font color="#c040c0">\n</font>'<br>
-<strong>READ_EOI</strong> = '++read eoi<font color="#c040c0">\n</font>'<br>
-<strong>TIMEOUT</strong> = '++read_tmo_ms 500<font color="#c040c0">\n</font>'</td></tr></table>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>buffer_size</strong> = 100</dl>
+
+<dl><dt><strong>connection_port</strong> = 1234</dl>
+
+<dl><dt><strong>connection_timeout</strong> = 2</dl>
+
+<dl><dt><strong>controller_mode</strong> = '++mode 1<font color="#c040c0">\n</font>'</dl>
+
+<dl><dt><strong>eoi_1</strong> = '++eoi 1<font color="#c040c0">\n</font>'</dl>
+
+<dl><dt><strong>eos_3</strong> = '++eos 3<font color="#c040c0">\n</font>'</dl>
+
+<dl><dt><strong>read_after_write</strong> = '++auto 0<font color="#c040c0">\n</font>'</dl>
+
+<dl><dt><strong>read_eoi</strong> = '++read eoi<font color="#c040c0">\n</font>'</dl>
+
+<dl><dt><strong>read_timeout</strong> = '++read_tmo_ms 500<font color="#c040c0">\n</font>'</dl>
+
+</td></tr></table></td></tr></table>
 </body></html>

@@ -1,74 +1,75 @@
+"""This is the Laser module.
+
+This module does stuff.
+"""
 import socket
-import string
 
-BUFSIZE = 100
-READ_EOI = "++read eoi\n"
-CONNECTION_PORT = 1234
-CONNECTION_TIMEOUT = 1
-EOI_1 = "++eoi 1\n"
-EOS_3 = "++eos 3\n"
-TIMEOUT = "++read_tmo_ms 500\n"
-READ_AFTER_WRITE = "++auto 0\n"
-MODE = "++mode 1\n"
 
-# TODO error control
+# import string
 
 
 class Laser:
     """
-    This is a class for Laser configuration.
-
+    This is a class for Laser module.
     """
+    buffer_size = 100
+    read_eoi = "++read eoi\n"
+    connection_port = 1234
+    connection_timeout = 1
+    eoi_1 = "++eoi 1\n"
+    eos_3 = "++eos 3\n"
+    read_timeout = "++read_tmo_ms 500\n"
+    read_after_write = "++auto 0\n"
+    mode = "++mode 1\n"
 
     def __init__(self, ip, addr):
         """
-        The constructor for Laser class.
+        The constructor for the Laser class.
 
         :param ip: IP address of GPIB-ETHERNET
-        :param addr: GPIB address
         :type ip: str
+        :param addr: GPIB address
         :type addr: str
         """
         self.ip = ip
         self.addr = addr
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
-        self.open()
+        self.connect_and_initialization()
 
-    def open(self):
+    def connect_and_initialization(self):
         """
-        Connect to Laser and initialize the Laser default parameters:
+        Connect to the Laser and initialize the Laser default parameters:
 
-            - Set MODE as CONTROLLER.
-            - Set GPIB address.
-            - Turn off READ_AFTER_WRITE to avoid "Query Unterminated" errors.
-            - Read timeout is 500 ms.
-            - Do not append CR or LF to GPIB data.
-            - Assert EOI_1 with last byte to indicate end of data.
-
+            - mode (str): Set mode as CONTROLLER.
+            - addr_GPIB (str): Set GPIB address.
+            - read_after_write (str): Turn off read_after_write to avoid "Query Unterminated" errors.
+            - read_timeout (str): Read timeout is 500 ms.
+            - eos_3 (str): Do not append CR or LF to GPIB data.
+            - eoi_1 (str): Assert eoi_1 with last byte to indicate end of data.
         """
         # connection
-        self.sock.settimeout(CONNECTION_TIMEOUT)
-        self.sock.connect((self.ip, CONNECTION_PORT))
+        self.sock.settimeout(Laser.connection_timeout)
+        self.sock.connect((self.ip, Laser.connection_port))
         # initialization
-        self.sock.send(MODE)
+        self.sock.send(Laser.mode)
         addr_GPIB = "++addr " + self.addr + "\n"
         self.sock.send(addr_GPIB)
-        self.sock.send(READ_AFTER_WRITE)
-        self.sock.send(TIMEOUT)
-        self.sock.send(EOS_3)
-        self.sock.send(EOI_1)
+        self.sock.send(Laser.read_after_write)
+        self.sock.send(Laser.read_timeout)
+        self.sock.send(Laser.eos_3)
+        self.sock.send(Laser.eoi_1)
 
     def test(self):
         """
-        Just as test, ask for instrument ID according to SCPI API
+        Just as test, ask for instrument ID according to SCPI API.
 
-        :return: instrument ID (e.g NetTest,OSICS,0,3.01)
+        :return: instrument ID (e.g NetTest, OSICS, 0, 3.01)
         :rtype: str
         """
         self.sock.send("*IDN?\n")
-        self.sock.send(READ_EOI)
+        self.sock.send(Laser.read_eoi)
         try:
-            instrument_id = self.sock.recv(BUFSIZE)
+            instrument_id = self.sock.recv(Laser.buffer_size)
 
         except socket.timeout:
             instrument_id = ""
@@ -81,8 +82,8 @@ class Laser:
         The range of wavelength takes 1527'55899 to 1565'544 nm.
 
         :param ch: channel
-        :param lambda0: wavelength
         :type ch: int
+        :param lambda0: wavelength
         :type lambda0: float
         """
         self.sock.send("CH%d:NM\n" % ch)  # set units in nm
@@ -94,8 +95,8 @@ class Laser:
         The range of power takes 6'03 to 14'50 dBm.
 
         :param ch: channel
-        :param power: power
         :type ch: int
+        :param power: power
         :type power: float
         """
         self.sock.send("CH%d:DBM\n" % ch)  # set units in dBm
@@ -131,36 +132,39 @@ class Laser:
 
         # Check status
         self.sock.send("CH%d:ENABLE?\n" % ch)
-        self.sock.send(READ_EOI)
+        self.sock.send(Laser.read_eoi)
         try:
-            s = self.sock.recv(BUFSIZE)
+            s = self.sock.recv(Laser.buffer_size)
         except socket.timeout:
             s = ""
 
-        if string.split(s, ":")[1] == "ENABLED\n":
+        # if string.split(s, ":")[1] == "ENABLED\n":
+        if s.split(":")[1] == "ENABLED\n":
             stat = True
         else:
             stat = False
 
         # Check wavelength
         self.sock.send("CH%d:L?\n" % ch)
-        self.sock.send(READ_EOI)
+        self.sock.send(Laser.read_eoi)
         try:
-            s = self.sock.recv(BUFSIZE)
+            s = self.sock.recv(Laser.buffer_size)
         except socket.timeout:
             s = ""
 
-        lambda0 = float(string.split(s, "=")[1])
+        # lambda0 = float(string.split(s, "=")[1])
+        lambda0 = float(s.split("=")[1])
 
         # Check power
         self.sock.send("CH%d:P?\n" % ch)
-        self.sock.send(READ_EOI)
+        self.sock.send(Laser.read_eoi)
         try:
-            s = self.sock.recv(BUFSIZE)
+            s = self.sock.recv(Laser.buffer_size)
         except socket.timeout:
             s = ""
         if stat:
-            power = float(string.split(s, "=")[1])
+            # power = float(string.split(s, "=")[1])
+            power = float(s.split("=")[1])
         else:
             power = -60
 
@@ -169,7 +173,6 @@ class Laser:
     def close(self):
         """
         Close and delete the Laser connection.
-
         """
         self.sock.close()
 
@@ -180,9 +183,9 @@ class Laser:
         :return: s
         """
         self.sock.send("SYST:ERR?\n")
-        self.sock.send(READ_EOI)
+        self.sock.send(Laser.read_eoi)
         try:
-            s = self.sock.recv(BUFSIZE)
+            s = self.sock.recv(Laser.buffer_size)
         except socket.timeout:
             s = ""
 
