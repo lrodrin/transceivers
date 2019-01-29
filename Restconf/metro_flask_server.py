@@ -11,7 +11,7 @@ IP_AMPLIFIER_1 = '10.1.1.15'
 IP_LASER = '10.1.1.7'
 LASER_ADDR = '11'
 SPEED_OF_LIGHT = 299792458
-URL = 'http://10.1.1.10:5000/api/'
+URL = 'http://0.0.0.0:5000/api/'
 HEADERS = {"Content-Type": "application/json"}
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -217,5 +217,4 @@ def optical_channel_configuration():
 
 
 if __name__ == '__main__':
-    # app.run(host='10.1.7.65', port=5000, debug=True)  # REAL
-    app.run(host='127.0.0.1', port=5000, debug=True)  # TEST
+    app.run(host='0.0.0.0', port=5000, debug=True)

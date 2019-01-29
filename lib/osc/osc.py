@@ -76,10 +76,10 @@ class OSC:
               description: Samples per symbol.
               type: float
             - name: fs.
-              description: Sampling frequency DAC.
+              description: DAC sampling frequency.
               type: int
             - name: f_DCO.
-              description: Frew mostreig de OSC.
+              description: OSC sampling frequency.
               type: int
             - name: Loading_algorithm.
               description: 0 == Rate adaptiv if SNR_estimation==True:e , 1 == Margin adaptive.
@@ -88,7 +88,7 @@ class OSC:
               description: Number of iterations.
               type: int
             - name: nsamplesrx.
-              description:
+              description:length of the received signal
               type: int
 
 
@@ -143,7 +143,10 @@ class OSC:
 
         BWs = self.fs / self.sps  # BW electrical signal
         print('Signal bandwidth:', BWs / 1e9, 'GHz')
-
+        
+		if self.trx_mode==2:
+			bn=self.bps
+		
         R = self.f_DCO / self.fs  # ?
         fc = BWs / 2
         ttime2 = (1 / self.fs) * np.ones((self.nsamplesrx,))  # ?

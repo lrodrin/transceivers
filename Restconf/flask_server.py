@@ -32,27 +32,20 @@ def dac_startup():
     post:
         summary: DAC configuration.
         description: Startup DAC configuration.
-            - Configuration 1a:
+            - Configuration 1:
                 - To demonstrate bidirectionality.
                 - Simple scheme: An OpenConfig terminal device comprises BVTx+BVTRx of a single client.
-            - Configuration 1b:
-                - The S-BVT architecture is used for a single client creating a superchannel.
-                - Up to 2 slices can be enabled to increase data rate according to the bandwith requirements.
-                - The superchannel central wavelength is configured/set by the OpenConfig agent.
+                - There are two Openconfig Terminals (C1 and C2)
             - Configuration 2:
                 - The S-BVT consist of 2 clients (C1 and C2) that are part of a single OpenConfig terminal device.
-                - There is another S-BVT with 2 more clients (C3, C4) or a BVT with a single client C3 at another point
-                  of the network that corresponds to another OpenConfig terminal.
-                - The superchannel central wavelength is configured/set by the OpenConfig agent.
-                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels.
+                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels, creating a superchannel. The central wavelength of the superchannel is configured/set by the OpenConfig agent.
                 - We can not demonstrate bidirectionality due to hardware limitations.
-            - Configuration 3: # TODO bluespace
+            - Configuration 3: # bluespace
 
         attributes:
             - name: trx_mode
               description: Identify the configuration mode of the transceiver.
-              type: int (0 for configuration 1a and 1b scenario or 1 for configuration 1 scenario or 2 for
-              configuration 3).
+              type: int (0 for configuration/scenario 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE).
             - name: tx_ID
               description: Identify the channel of the DAC to be used and the local files to use for storing data.
               type: int (0 or 1)
@@ -76,7 +69,7 @@ def dac_startup():
     payload = request.json  # trx_mode, tx_ID, FEC, bps, pps values from agent
     scenario = payload['trx_mode']
     tx_id = payload['tx_ID']
-    fec = payload['FEC']
+    fec = payload['FEC']  
     bps = payload['bps']  # always 2 value from METRO
     pps = payload['pps']
 
@@ -84,14 +77,14 @@ def dac_startup():
     f = open(DAC_INPUTS_ENABLE_FILE, "w")
     file_uploaded_message = 'Leia initialized and SPI file uploaded'
     ok_message = "DAC was successfully configured. Configuration type: {}, {}\n".format(scenario, tx_id)
-    if scenario == 0:  # Configuration 1
+    if scenario == 0 or scenario == 2:  # Configuration 1 METRO and BLUESPACE
         try:
             tx.transmitter()
-            if tx_id == 0:  # Configuration 1a
+            if tx_id == 0:  
                 f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
 
-            else:  # Configuration 1b
+            else:  
                 f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
 
@@ -102,7 +95,7 @@ def dac_startup():
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
-    elif scenario == 1:  # Configuration 2
+    elif scenario == 1:  # Configuration 2 METRO
         try:
             if tx_id == 0:
                 # TODO extract method run_dac_configuration
@@ -128,9 +121,8 @@ def dac_startup():
         except OSError as error:
             return "ERROR: {} \n".format(error)
 
-    # elif scenario == 3: # Configuration 3 # TODO bluespace
 
-
+            
 @app.route('/api/osc', methods=['POST'])
 def osc_startup():
     """
@@ -252,5 +244,4 @@ def print_ok_message(is_optimal, result, rx_id, scenario):
 
 
 if __name__ == '__main__':
-    # app.run(host='10.1.1.10', port=5000, debug=True)  # REAL
-    app.run(host='127.0.0.1', port=5000, debug=True)  # TEST
+    app.run(host='0.0.0.0', port=5000, debug=True)

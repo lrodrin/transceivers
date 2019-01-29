@@ -132,31 +132,36 @@ class DAC:
         """
         BWs = self.fs / self.sps  # BW electrical signal
         print('Signal bandwidth:', BWs / 1e9, 'GHz')
+		if self.trx_mode==0 or self.trx_mode==1:
+			
+			BitRate = 0
+			En = np.array(np.zeros(self.Ncarriers))
+			bn = np.array(np.zeros(self.Ncarriers))
+			if not self.SNR_estimation:
+				print('Implementing loading algorithm...')
+				gap = 10 ** (self.gapdB / 10.)
+				if self.tx_ID == 0:
+					SNR_in = np.load('ChannelGain.npy')  # TODO link to file
+				else:
+					SNR_in = np.load('ChannelGain2.npy')  # TODO link to file
 
-        BitRate = 0
-        En = np.array(np.zeros(self.Ncarriers))
-        bn = np.array(np.zeros(self.Ncarriers))
-        if not self.SNR_estimation:
-            print('Implementing loading algorithm...')
-            gap = 10 ** (self.gapdB / 10.)
-            if self.tx_ID == 0:
-                SNR_in = np.load('ChannelGain.npy')  # TODO link to file
-            else:
-                SNR_in = np.load('ChannelGain2.npy')  # TODO link to file
+				Load = ofdm.Loading(self.Ncarriers, BWs)
+				if self.Loading_algorithm == 'LCMA_QAM':
+					BitRate = 20e9
+					(En, bn) = Load.LCMA_QAM(gap, BitRate / float(BWs), SNR_in)
+				if self.Loading_algorithm == 'LCRA_QAM':
+					(En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)
+				bps = np.sum(bn) / float(len(bn))
 
-            Load = ofdm.Loading(self.Ncarriers, BWs)
-            if self.Loading_algorithm == 'LCMA_QAM':
-                BitRate = 20e9
-                (En, bn) = Load.LCMA_QAM(gap, BitRate / float(BWs), SNR_in)
-            if self.Loading_algorithm == 'LCRA_QAM':
-                (En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)
-            bps = np.sum(bn) / float(len(bn))
-
-        else:
-            bn = self.bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
-            bps = np.sum(bn) / float(len(bn))
-            BitRate = BWs * bps  # Net data rate
-        print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', BWs / 1e9, 'GHz')
+			else:
+				bn = self.bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
+				bps = np.sum(bn) / float(len(bn))
+				BitRate = BWs * bps  # Net data rate
+			print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', BWs / 1e9, 'GHz')
+			
+		elif self.trx_mode==2:
+			bn=self.bps
+			En=self.pps
 
         fc = BWs / 2
         ttime = (1 / self.fs) * np.ones(
