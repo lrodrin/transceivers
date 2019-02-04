@@ -2,41 +2,14 @@ import numpy as np
 import scipy.signal as sgn
 import visa
 
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 import lib.constellationV2 as modulation
 import lib.ofdm as ofdm
 
-# TODO error control
-NUM_ITERATIONS = 5
-
-
-def acquire(channel_ID, npoints, fs):
-    """
-
-    :param channel_ID:
-    :param npoints:
-    :param fs:
-    :return:
-    """
-    dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
-    # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
-
-    dpo.write('HOR:mode:RECO %d' % npoints)  # Set the record length to npoints
-    dpo.write('HOR:mode:SAMPLER %d' % fs)  # Set the sample rate to fs
-
-    # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
-
-    dpo.write('DAT:SOU CH%d' % channel_ID)
-    dpo.write('DAT:ENC ASCII')
-    # dpo.write('DAT:ENC SFPbinary')
-    # print dpo.ask('DAT:ENC?')
-    dpo.write('DAT:STAR %d' % 1)
-    dpo.write('DAT:STOP %d' % npoints)
-
-    aux = dpo.ask('CURV?')
-
-    dpo.close()
-
-    return np.fromstring(aux, dtype=float, sep=',')
+from lib.dac.dac import DAC
 
 
 class OSC:
@@ -125,7 +98,7 @@ class OSC:
         self.f_DCO = 100e9
         # self.Tx_success = False
         self.Loading_algorithm = 'LCRA_QAM'
-        self.Niter = NUM_ITERATIONS
+        self.Niter = DAC.Niters
 
         self.nsamplesrx = 2 * self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers))
         # nsamplesrx must be multiple of 4
@@ -143,10 +116,10 @@ class OSC:
 
         BWs = self.fs / self.sps  # BW electrical signal
         print('Signal bandwidth:', BWs / 1e9, 'GHz')
-        
-		if self.trx_mode==2:
-			bn=self.bps
-		
+
+        if self.trx_mode == 2:
+            bn = self.bps
+
         R = self.f_DCO / self.fs  # ?
         fc = BWs / 2
         ttime2 = (1 / self.fs) * np.ones((self.nsamplesrx,))  # ?
@@ -162,9 +135,9 @@ class OSC:
             Ncarriers_eq = self.Ncarriers
             print('adquire...')
             if self.rx_ID == 0:
-                data_acqT = acquire(1, R * self.nsamplesrx, self.f_DCO)
+                data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)
             else:
-                data_acqT = acquire(3, R * self.nsamplesrx, self.f_DCO)
+                data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)
 
             data_acqT = data_acqT - np.mean(data_acqT)
             data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))
@@ -248,3 +221,33 @@ class OSC:
         #     return SNR, BER
         # else:
         #     return SNR, BER
+
+    @staticmethod
+    def acquire(channel_ID, npoints, fs):
+        """
+
+        :param channel_ID:
+        :param npoints:
+        :param fs:
+        :return:
+        """
+        dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
+        # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
+
+        dpo.write('HOR:mode:RECO %d' % npoints)  # Set the record length to npoints
+        dpo.write('HOR:mode:SAMPLER %d' % fs)  # Set the sample rate to fs
+
+        # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
+
+        dpo.write('DAT:SOU CH%d' % channel_ID)
+        dpo.write('DAT:ENC ASCII')
+        # dpo.write('DAT:ENC SFPbinary')
+        # print dpo.ask('DAT:ENC?')
+        dpo.write('DAT:STAR %d' % 1)
+        dpo.write('DAT:STOP %d' % npoints)
+
+        aux = dpo.ask('CURV?')
+
+        dpo.close()
+
+        return np.fromstring(aux, dtype=float, sep=',')

@@ -6,27 +6,37 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.amp.amp import Amplifier
 
-AMPLIFIER_ADDR = '3'
-SECS = 5
-IP_AMPLIFIER_2 = '10.1.1.16'
-IP_AMPLIFIER_1 = '10.1.1.15'
 
+def amplifier_startup(ip, addr, mode, power, status):
+    """
+    Amplifier startup.
 
-def amplifier_startup(modeA, powA, modeB, powB, statA, statB):
-    manlight_1 = Amplifier(IP_AMPLIFIER_1, AMPLIFIER_ADDR)
-    manlight_2 = Amplifier(IP_AMPLIFIER_2, AMPLIFIER_ADDR)
-    manlight_1.mode(modeA, powA)
-    manlight_2.mode(modeB, powB)
-    manlight_1.enable(statA)
-    manlight_2.enable(statB)
-    time.sleep(SECS)
-    print(manlight_1.status())
-    print(manlight_2.status())
-    print(manlight_1.test())
-    print(manlight_2.test())
-    manlight_1.close()
-    manlight_2.close()
+    :param ip: IP address of GPIB-ETHERNET
+    :type ip: str
+    :param addr: GPIB address
+    :type addr: str
+    :param mode: mode
+    :type mode:str
+    :param power: power
+    :type power: float
+    :param status: if True is enable otherwise is disable
+    :type status: bool
+    """
+    print("Amplifier startup")
+    try:
+        manlight = Amplifier(ip, addr)
+        manlight.mode(mode, power)
+        time.sleep(1)
+        manlight.enable(status)
+        result = manlight.status()
+        print("Amplifier - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
+        # print(manlight.test())
+        manlight.close()
+    except Exception as e:
+        print("ERROR {}".format(e))
 
 
 if __name__ == '__main__':
-    amplifier_startup("APC", 5, "APC", 3, True, True)
+    ip = '10.1.1.16'
+    addr = '3'
+    amplifier_startup(ip, addr, "APC", 7.5, True)

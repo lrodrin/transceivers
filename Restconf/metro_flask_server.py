@@ -1,30 +1,92 @@
+import logging
 import time
+from logging.handlers import RotatingFileHandler
 
 import requests
-from flask import Flask, request, json
+from flask import Flask, request, json, Response
 from os import sys, path
 
-TIME_SLEEP = 5
-AMPLIFIER_ADDR = '3'
-IP_AMPLIFIER_2 = '10.1.1.16'
-IP_AMPLIFIER_1 = '10.1.1.15'
-IP_LASER = '10.1.1.7'
-LASER_ADDR = '11'
 SPEED_OF_LIGHT = 299792458
-URL = 'http://0.0.0.0:5000/api/'
-HEADERS = {"Content-Type": "application/json"}
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
 
+URL = 'http://10.1.1.10:5000/api/'
+HEADERS = {"Content-Type": "application/json"}
+
 app = Flask(__name__)
 
 
 @app.route('/api/hello', methods=['GET'])
 def hello_world():  # TODO esborrar quan fucnioni tot
-    return 'Hello, World!'
+    log.info('This is a info message!')
+    log.debug('This is a debug message!')
+    log.error('This is a error message!')
+    log.warning('This is a warning message!')
+    return Response(response=json.dumps('Hello, World!'), status=200, mimetype='application/json')
+
+
+def laser_startup(ip, addr, ch, lambda0, power, status):
+    """
+    Laser startup.
+
+    :param ip: IP address of GPIB-ETHERNET
+    :type ip: str
+    :param addr: GPIB address
+    :type addr: str
+    :param ch: channel
+    :type ch: int
+    :param lambda0: wavelength
+    :type lambda0: float
+    :param power: power
+    :type power: float
+    :param status: if True is enable otherwise is disable
+    :type status: bool
+    """
+    print("Laser startup")
+    try:
+        yenista = Laser(ip, addr)
+        yenista.wavelength(ch, lambda0)
+        yenista.power(ch, power)
+        yenista.enable(ch, status)
+        time.sleep(5)
+        result = yenista.status(ch)
+        log.debug("Laser - status: {}, wavelength: {}, power: {}".format(result[0], result[1], result[2]))
+        # print(yenista.test())
+        yenista.close()
+    except Exception as e:
+        log.debug("ERROR {}".format(e))
+
+
+def amplifier_startup(ip, addr, mode, power, status):
+    """
+    Amplifier startup.
+
+    :param ip: IP address of GPIB-ETHERNET
+    :type ip: str
+    :param addr: GPIB address
+    :type addr: str
+    :param mode: mode
+    :type mode:str
+    :param power: power
+    :type power: float
+    :param status: if True is enable otherwise is disable
+    :type status: bool
+    """
+    print("Amplifier startup")
+    try:
+        manlight = Amplifier(ip, addr)
+        manlight.mode(mode, power)
+        time.sleep(5)
+        manlight.enable(status)
+        result = manlight.status()
+        log.debug("Amplifier - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
+        # print(manlight.test())
+        manlight.close()
+    except Exception as e:
+        log.debug("ERROR {}".format(e))
 
 
 def python_xc(cl, och):
@@ -32,11 +94,56 @@ def python_xc(cl, och):
     Show the client assigned to the optical channel.
 
     :param cl: client
+    :type cl: int
     :param och: optical channel assigned
-    :type cl: str
-    :type och: str
+    :type och: int
     """
-    return "Client " + cl + " assigned to optical channel " + och
+    return log.debug("Client %s assigned to optical channel %s" % (cl, och))
+
+
+def python_f(och, freq, power, mode):
+    """
+    Terminal Optical Channel Configuration.
+        - Laser configuration
+        - Amplifiers configuration.
+        - DAC configuration.
+        - OSC configuration.
+
+    :param och: optical channel id
+    :type och: int
+    :param freq: frequency of the laser
+    :type freq: float
+    :param power: power of the Laser
+    :type power: float
+    :param mode: operational mode for the optical channel
+    :type mode: int
+    """
+    # Laser configuration
+    lambda0 = (SPEED_OF_LIGHT / (freq * 1e6)) * 1e9  # Wavelength in nm
+    power = power + 9  # comptant les perdues per culpa de la modulacio optica # TODO cas modulacio optica ?
+    # channel 1 - 193.4e6 = 1550.119
+    # channel 2 - 193.3e6 = 1550.918
+    if freq == 193.4e6:
+        laser_startup('10.1.1.7', '11', 1, lambda0, power, True)
+    elif freq == 193.3e6:
+        laser_startup('10.1.1.7', '11', 2, lambda0, power, True)
+
+    # Amplifiers configuration
+    # TODO passar params
+    amplifier_startup('10.1.1.16', '3', "APC", 3.20, True)  # 3.20 uniform loading
+    amplifier_startup('10.1.1.15', '3', "APC", 0.4, True)   # 0.4 ?
+
+    # DAC configuration
+    # TODO passar params
+    params_dac = {'trx_mode': 0, 'tx_ID': 1, 'FEC': 'SD-FEC', 'bps': 2, 'pps': 0}
+    request_dac = requests.post(URL + 'dac', headers=HEADERS, data=json.dumps(params_dac))
+    print(request_dac.content)
+
+    # OSC configuration
+    # TODO passar params
+    params_osc = {'trx_mode': 0, 'rx_ID': 1, 'FEC': 'SD-FEC', 'bps': 2, 'pps': 0}
+    request_dac = requests.post(URL + 'osc', headers=HEADERS, data=json.dumps(params_osc))
+    print(request_dac.content)
 
 
 @app.route('/api/vi/openconfig/local_assignment', methods=['POST'])
@@ -61,113 +168,11 @@ def local_assignment():
                 description: (string) Client was successfully assigned to optical channel.
             404:
                 description: (string) Error message in case there is some error.
-
     """
     payload = request.json  # client, Och from agent
     try:
-        python_xc(payload['client'], payload['Och'])
-
-    except OSError as error:
-        return "ERROR: {} \n".format(error)
-
-
-def python_f(och, freq, powL, statL, modeA, modeB, powA, powB, statA, statB, params_dac, params_osc):
-    """
-    Terminal Optical Channel Configuration.
-        - Laser configuration
-        - Amplifiers configuration.
-        - Waveshaper configuration.
-        - DAC configuration.
-        - OSC configuration.
-
-    :param och: optical channel
-    :param freq: frequency of the laser
-    :param powL: power of the laser
-    :param statL: status of the laser
-    :param modeA: mode of the amplifiers A
-    :param modeB: mode of the amplifiers B
-    :param powA: power of amplifier A
-    :param powB: power of amplifier B
-    :param statA: status of the amplifier A
-    :param statB: status of the amplifier B
-    :param params_dac: {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-    :param params_osc: {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-    :type och: int
-    :type freq: str
-    :type powL: float
-    :type statL: bool
-    :type modeA: str
-    :type modeB: str
-    :type powA: float
-    :type powB: float
-    :type statA: bool
-    :type statB: bool
-    """
-    # Laser configuration
-    lambda0 = (SPEED_OF_LIGHT / (freq * 1e6)) * 1e9  # Wavelength in nm
-    print(laser_startup(och, lambda0, powL, statL))
-    # Amplifiers configuration
-    print(amplifier_startup(IP_AMPLIFIER_1, AMPLIFIER_ADDR, modeA, powA, statA))
-    print(amplifier_startup(IP_AMPLIFIER_2, AMPLIFIER_ADDR, modeB, powB, statB))
-    # DAC configuration
-    request_dac = requests.post(URL + 'dac', headers=HEADERS, data=json.dumps(params_dac))
-    print(request_dac.content)
-    # OSC configuration
-    request_dac = requests.post(URL + 'dac', headers=HEADERS, data=json.dumps(params_osc))
-    print(request_dac.content)
-
-
-def laser_startup(och, lambda0, pow, stat):
-    """
-    Laser Configuration.
-
-    :param och: optical channel
-    :param lambda0: wavelength
-    :param pow: power
-    :param stat: enable/disable status
-    :type och: int
-    :type lambda0: int
-    :type pow: float
-    :type stat: bool
-    :return: laser configured or not
-    :rtype: str
-    """
-    try:
-        yenista = Laser(IP_LASER, LASER_ADDR)
-        yenista.wavelength(och, lambda0)
-        yenista.power(och, pow)
-        yenista.enable(och, stat)
-        time.sleep(TIME_SLEEP)
-        print(yenista.status(och))
-        print(yenista.test())
-        yenista.close()
-        return "Laser {} was successfully configured\n".format(IP_LASER)
-
-    except OSError as error:
-        return "ERROR: {} \n".format(error)
-
-
-def amplifier_startup(ip, addr, mode, pow, stat):
-    """
-    Amplifier configuration.
-
-    :param ip: ip address
-    :param addr: addr address
-    :param mode: mode
-    :param pow: power
-    :param stat: enable/disable status
-    :return: amplifier configured or not
-    :rtype: str
-    """
-    try:
-        manligh = Amplifier(ip, addr)
-        manligh.mode(mode, pow)
-        manligh.enable(stat)
-        time.sleep(5)
-        print(manligh.status())
-        print(manligh.test())
-        manligh.close()
-        return "Amplifier {} was successfully configured\n".format(ip)
+        s = python_xc(payload['client'], payload['och'])
+        return s
 
     except OSError as error:
         return "ERROR: {} \n".format(error)
@@ -203,18 +208,30 @@ def optical_channel_configuration():
                 description: (string) Error message in case there is some error.
 
     """
-    payload = request.json  # Och, freq, powL, statL, modeA, modeB, powA, powB, statA, statB from agent
-    # params_dac = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-    # params_osc = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
+    payload = request.json  # Och, freq, power, mode values from agent
     try:
-        python_f(payload['Och'], payload['freq'], payload['powL'], payload['statL'], payload['modeA'], payload['modeB'],
-                 payload['powA'], payload['powB'], payload['statA'], payload['statB'], payload['params_dac'],
-                 payload['params_osc'])
-        return "Optical Channel was successfully configured\n"
+        python_f(payload['och'], payload['freq'], payload['power'], payload['mode'])
+        return log.debug("Optical Channel was successfully configured\n")
 
     except OSError as error:
-        return "ERROR: {} \n".format(error)
+        return log.debug("ERROR: {} \n".format(error))
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # File Handler
+    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
+    # Stream Handler
+    streamHandler = logging.StreamHandler()
+    # Create a Formatter for formatting the log messages
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")
+    # TODO Add formatter
+    # Add the Formatter to the Handler
+    # fileHandler.setFormatter(formatter)
+    # streamHandler.setFormatter(formatter)
+    # Create the Logger
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.DEBUG)
+    # Add Handlers to the Logger
+    log.addHandler(fileHandler)
+    log.addHandler(streamHandler)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

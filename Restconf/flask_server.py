@@ -1,27 +1,42 @@
+import logging
 import os
 import time
 
-from flask import Flask, request
+from logging.handlers import RotatingFileHandler
+
+from flask import Flask, request, json, Response, redirect, url_for
 from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from lib.dac.dac import DAC, DAC_INPUTS_ENABLE_FILE, SLEEP_TIME
+from lib.dac.dac import DAC
 from lib.osc.osc import OSC
 
-OPTIMAL_BER = 4.6e-3
+OPTIMAL_BER = 4.6e-3  # HD-FEC
 DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
-                                     '-nodesktop -r '"Leia_DAC_down; "  # TODO link to file
+                                     '-nodesktop -r '"Leia_DAC_down;"  # TODO link to file
 
 DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
-                                   '-nodesktop -r '"Leia_DAC_up; "  # TODO link to file
+                                   '-nodesktop -r '"Leia_DAC_up;"  # TODO link to file
 
 app = Flask(__name__)
 
 
+# -r "cd(fullfile('/Users/Jules/Dropbox/CODES/Matlab/')), coverGUI_AL_FOV"
+
+
 @app.route('/api/hello', methods=['GET'])
 def hello_world():  # TODO esborrar quan fucnioni tot
-    return 'Hello, World!'
+    log.info('This is a info message!')
+    log.debug('This is a debug message!')
+    log.error('This is a error message!')
+    log.warning('This is a warning message!')
+    return Response(response=json.dumps('Hello, World!'), status=200, mimetype='application/json')
+
+
+@app.route('/api/hello2', methods=['GET'])
+def hello_world2():  # TODO esborrar quan fucnioni tot
+    return redirect(url_for('hello_world'))
 
 
 @app.route('/api/dac', methods=['POST'])
@@ -38,14 +53,16 @@ def dac_startup():
                 - There are two Openconfig Terminals (C1 and C2)
             - Configuration 2:
                 - The S-BVT consist of 2 clients (C1 and C2) that are part of a single OpenConfig terminal device.
-                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels, creating a superchannel. The central wavelength of the superchannel is configured/set by the OpenConfig agent.
+                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels,
+                creating a superchannel. The central wavelength of the superchannel is configured/set by the OpenConfig
+                agent.
                 - We can not demonstrate bidirectionality due to hardware limitations.
-            - Configuration 3: # bluespace
+            - Configuration 3: # TODO bluespace
 
         attributes:
             - name: trx_mode
               description: Identify the configuration mode of the transceiver.
-              type: int (0 for configuration/scenario 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE).
+              type: int (0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE).
             - name: tx_ID
               description: Identify the channel of the DAC to be used and the local files to use for storing data.
               type: int (0 or 1)
@@ -61,68 +78,61 @@ def dac_startup():
 
         responses:
             200:
-                description: (string, int, int) DAC was successfully configured. And the type of configuration done.
+                description: (str, int, int) DAC was successfully configured. And the type of configuration done.
             404:
-                description: (string) Error message in case there is some error.
-
+                description: (str) Error message in case there is some error.
     """
+    # TODO extreure metode amb codi repetit
     payload = request.json  # trx_mode, tx_ID, FEC, bps, pps values from agent
-    scenario = payload['trx_mode']
+    trx_mode = payload['trx_mode']
     tx_id = payload['tx_ID']
-    fec = payload['FEC']  
-    bps = payload['bps']  # always 2 value from METRO
+    fec = payload['FEC']
+    bps = payload['bps']
     pps = payload['pps']
 
-    tx = DAC(scenario, tx_id, fec, bps, pps)
-    f = open(DAC_INPUTS_ENABLE_FILE, "w")
-    file_uploaded_message = 'Leia initialized and SPI file uploaded'
-    ok_message = "DAC was successfully configured. Configuration type: {}, {}\n".format(scenario, tx_id)
-    if scenario == 0 or scenario == 2:  # Configuration 1 METRO and BLUESPACE
+    tx = DAC()
+    temp_file = open(DAC.temp_file, "w")
+    ok_message = "DAC was successfully configured. Configuration mode: {}, {}\n".format(trx_mode, tx_id)
+    if trx_mode == 0 or trx_mode == 2:  # Configuration 1 METRO and configuration 3 BLUESPACE
         try:
-            tx.transmitter()
-            if tx_id == 0:  
-                f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+            tx.transmitter(trx_mode, tx_id, fec, bps, pps)
+            if tx_id == 0:
+                temp_file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
-
-            else:  
-                f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+            elif tx_id == 1:
+                temp_file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
 
-            time.sleep(SLEEP_TIME)
-            print(file_uploaded_message)
-            return ok_message
+            time.sleep(DAC.sleep_time)
+            return log.debug(ok_message)
 
         except OSError as error:
-            return "ERROR: {} \n".format(error)
+            return log.debug("ERROR: {} \n".format(error))
 
-    elif scenario == 1:  # Configuration 2 METRO
+    elif trx_mode == 1:  # Configuration 2 METRO
         try:
             if tx_id == 0:
-                # TODO extract method run_dac_configuration
-                tx.transmitter()
-                f.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                tx.transmitter(trx_mode, tx_id, fec, bps, pps)
+                temp_file.write("1\n 0\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                 os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
-                time.sleep(SLEEP_TIME)
-                print(file_uploaded_message)
-                return ok_message
+                time.sleep(DAC.sleep_time)
+                return log.debug(ok_message)
 
             try:
                 if tx_id == 1:
-                    tx.transmitter()
-                    f.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
+                    tx.transmitter(trx_mode, tx_id, fec, bps, pps)
+                    temp_file.write("0\n 1\n 0\n 0\n")  # Hi_en, Hq_en, Vi_en, Vq_en
                     os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
-                    time.sleep(SLEEP_TIME)
-                    print(file_uploaded_message)
-                    return ok_message
+                    time.sleep(DAC.sleep_time)
+                    return log.debug(ok_message)
 
             except OSError as error:
-                return "ERROR: {} \n".format(error)
+                return log.debug("ERROR: {} \n".format(error))
 
         except OSError as error:
-            return "ERROR: {} \n".format(error)
+            return log.debug("ERROR: {} \n".format(error))
 
 
-            
 @app.route('/api/osc', methods=['POST'])
 def osc_startup():
     """
@@ -160,7 +170,6 @@ def osc_startup():
                     - (float) the BER of received data.
             404:
                 description: (string) Error message in case there is some error.
-
     """
     payload = request.json  # trx_mode, rx_ID, FEC, bps, pps values from agent
     scenario = payload['trx_mode']
@@ -175,50 +184,56 @@ def osc_startup():
         try:
             result = rx.receiver()
             if result[1] > OPTIMAL_BER:
-                is_optimal = True
                 return print_ok_message(is_optimal, result, rx_id, scenario)
-            else:  # TODO this case?
+            else:
+                is_optimal = True
                 return print_ok_message(is_optimal, result, rx_id, scenario)
 
         except OSError as error:
-            return "ERROR: {} \n".format(error)
+            return log.debug("ERROR: {} \n".format(error))
 
     elif scenario == 1:
         try:
             if rx_id == 0:
-                # TODO extract method run_osc_configuration
                 result = rx.receiver()
                 if result[1] > OPTIMAL_BER:
-                    is_optimal = True
                     return print_ok_message(is_optimal, result, rx_id, scenario)
                 else:
+                    is_optimal = True
                     return print_ok_message(is_optimal, result, rx_id, scenario)
             try:
                 if rx_id == 1:
                     result = rx.receiver()
                     if result[1] > OPTIMAL_BER:
-                        is_optimal = True
                         return print_ok_message(is_optimal, result, rx_id, scenario)
                     else:
+                        is_optimal = True
                         return print_ok_message(is_optimal, result, rx_id, scenario)
 
             except OSError as error:
-                return "ERROR: {} \n".format(error)
+                return log.debug("ERROR: {} \n".format(error))
 
         except OSError as error:
-            return "ERROR: {} \n".format(error)
+            return log.debug("ERROR: {} \n".format(error))
 
     elif scenario == 2:  # bluespace
         try:
             result = rx.receiver()
             if result[1] > OPTIMAL_BER:
-                is_optimal = True
                 return print_ok_message(is_optimal, result, rx_id, scenario)
             else:
+                is_optimal = True
                 return print_ok_message(is_optimal, result, rx_id, scenario)
 
         except OSError as error:
-            return "ERROR: {} \n".format(error)
+            return log.debug("ERROR: {} \n".format(error))
+
+
+@app.route('/api/dac_and_osc_configuration', methods=['POST'])
+def dac_and_osc_configuration():
+    # TODO passar els paramatres
+    redirect(url_for('dac_startup'))
+    redirect(url_for('osc_startup'))
 
 
 def print_ok_message(is_optimal, result, rx_id, scenario):
@@ -238,10 +253,26 @@ def print_ok_message(is_optimal, result, rx_id, scenario):
     """
     message = "Oscilloscope was successfully configured with SNR {} and {} BER {}\n Configuration type: {}, {}\n"
     if is_optimal:
-        return message.format(result[0], "optimal", result[1], scenario, rx_id)
+        return log.debug(message.format(result[0], "optimal", result[1], scenario, rx_id))
     else:
-        return message.format(result[0], "no optimal", result[1], scenario, rx_id)
+        return log.debug(message.format(result[0], "no optimal", result[1], scenario, rx_id))
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # File Handler
+    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
+    # Stream Handler
+    streamHandler = logging.StreamHandler()
+    # Create a Formatter for formatting the log messages
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")
+    # TODO Add formatter
+    # Add the Formatter to the Handler
+    # fileHandler.setFormatter(formatter)
+    # streamHandler.setFormatter(formatter)
+    # Create the Logger
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.DEBUG)
+    # Add Handlers to the Logger
+    log.addHandler(fileHandler)
+    log.addHandler(streamHandler)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

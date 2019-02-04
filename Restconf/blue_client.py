@@ -8,8 +8,7 @@ SECS = 5
 AMPLIFIER_ADDR = '3'
 IP_AMPLIFIER_2 = '10.1.1.16'
 IP_AMPLIFIER_1 = '10.1.1.15'
-IP_LASER = '10.1.1.7'
-LASER_ADDR = '11'
+
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 

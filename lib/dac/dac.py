@@ -8,21 +8,23 @@ import scipy.signal as sgn
 import lib.constellationV2 as modulation
 import lib.ofdm as ofdm
 
+# TODO import logging
+
 
 class DAC:
     """
     This is the class for DAC module.
     """
-    clock_ref_file = "CLK_ref.txt"
+    clock_ref_file = "CLK_ref.txt"  # TODO moure a carpeta X els fitxers txt
     clock_file = "CLK.txt"
     temp_file = "TEMP.txt"
-    sleep_time = 100
+    sleep_time = 130
 
-    SNR_estimation = 'True'
-    preemphasis = 'True'
+    SNR_estimation = False  # TODO passar com a param
+    preemphasis = True
     BW_filter = 25e9
     N_filter = 2
-    gapdB = 9.8
+    gapdB = 9.6
     loading_algorithm = 'LCRA_QAM'
     Ncarriers = 512
     constellation = 'QAM'
@@ -33,42 +35,43 @@ class DAC:
     fs = 64e9
     k_clip = 2.8
     Qt = 255
+    Niters = 10
 
-    def __init__(self, trx_mode, tx_ID, FEC, bps, pps):
-        """
-        The constructor for the DAC class.
+    # def __init__(self, trx_mode, tx_ID, FEC, bps, pps):
+    #     """
+    #     The constructor for the DAC class.
+    #
+    #     :param trx_mode: (0 or 1), for identifying the mode of the transceiver: 0 for estimation mode and 1 for
+    #     transmission mode.
+    #     :type trx_mode: int
+    #     :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
+    #     :type tx_ID: int
+    #     :param FEC: (HD-FEC, SD-FEC), in order to identifiy the channel encoding to be used (TBI).
+    #     :type FEC: string
+    #     :param bps: array of 512 positions. It contains the bits per symbol per subcarrier.
+    #     :type bps:int array
+    #     :param pps: array of 512 positions. It contains the power per subcarrier figure.
+    #     :type pps: float array
+    #     """
+    #     self.trx_mode = trx_mode
+    #     self.tx_ID = tx_ID
+    #     self.FEC = FEC
+    #     # self.bps = 2
+    #     self.bps = bps
+    #     self.pps = pps
+    #     self.initialization()
 
-        :param trx_mode: (0 or 1), for identifying the mode of the transceiver: 0 for estimation mode and 1 for
-        transmission mode.
-        :type trx_mode: int
-        :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
-        :type tx_ID: int
-        :param FEC: (HD-FEC, SD-FEC), in order to identifiy the channel encoding to be used (TBI).
-        :type FEC: string
-        :param bps: array of 512 positions. It contains the bits per symbol per subcarrier.
-        :type bps:int array
-        :param pps: array of 512 positions. It contains the power per subcarrier figure.
-        :type pps: float array
-        """
-        self.trx_mode = trx_mode
-        self.tx_ID = tx_ID
-        self.FEC = FEC
-        # self.bps = 2
-        self.bps = bps
-        self.pps = pps
-        self.initialization()
-
-    def initialization(self):
+    def __init__(self):
         """
         Define and initialize the DAC default parameters:
 
-            - SNR_estimation (str):
-            - preemphasis (str):
+            - SNR_estimation (str): ?
+            - preemphasis (str): ?
             - Preemphasis parameters:
                 - BW_filter (int): Set preemphasis filter bandwidth.
                 - N_filter (int): Set preemphasis filter order.
 
-            - loading_algorithm parameters:
+            - Loading algorithm parameters:
                 - gapdB (float): Set SNR gap.
                 - loading_algorithm (str): Set loading algorithm type (e.g. LC_RA or LC_MA).
 
@@ -111,23 +114,35 @@ class DAC:
         self.fs = DAC.fs
         self.k_clip = DAC.k_clip
         self.Qt = DAC.Qt
+        self.Niters = DAC.Niters
 
-    def transmitter(self):
+    def transmitter(self, trx_mode, tx_ID, FEC, bps, pps):
         """
         Generate a multi BitStream and creates the OFDM signal to be uploaded into the DAC. It also implements
         bit/power loading_algorithm.
+
+        :param trx_mode: Identify the mode of the transceiver. 0 for estimation mode and 1 for transmission mode.
+        :type trx_mode: int
+        :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
+        :type tx_ID: int
+        :param FEC: HD-FEC or SD-FEC). Identify the channel encoding to be used (TBI).
+        :type FEC: str
+        :param bps: Array of 512 positions that contains the bits per symbol per subcarrier.
+        :type bps:int array
+        :param pps: Array of 512 positions that contains the power per subcarrier figure.
+        :type pps: float array
         """
         BWs = self.fs / self.sps  # BW electrical signal
         print('Signal bandwidth:', BWs / 1e9, 'GHz')
 
-        if self.trx_mode == 0 or self.trx_mode == 1:
+        if trx_mode == 0 or trx_mode == 1:
             BitRate = 0
             En = np.array(np.zeros(self.Ncarriers))
             bn = np.array(np.zeros(self.Ncarriers))
             if not self.SNR_estimation:
                 print('Implementing loading algorithm...')
                 gap = 10 ** (self.gapdB / 10.)
-                if self.tx_ID == 0:
+                if tx_ID == 0:
                     SNR_in = np.load('ChannelGain.npy')  # TODO link to file
                 else:
                     SNR_in = np.load('ChannelGain2.npy')  # TODO link to file
@@ -139,23 +154,24 @@ class DAC:
                 if self.loading_algorithm == 'LCRA_QAM':
                     (En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)
                 bps = np.sum(bn) / float(len(bn))
+                self.Niters = 5
 
             else:
-                bn = self.bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
+                bn = bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
                 bps = np.sum(bn) / float(len(bn))
                 BitRate = BWs * bps  # Net data rate
             print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', BWs / 1e9, 'GHz')
 
-        elif self.trx_mode == 2:
-            bn = self.bps
-            En = self.pps
+        elif trx_mode == 2:
+            bn = bps
+            En = pps
 
         fc = BWs / 2
         ttime = (1 / self.fs) * np.ones(
             (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
         ttt = ttime.cumsum()
 
-        if self.tx_ID == 0:
+        if tx_ID == 0:
             np.random.seed(42)
         else:
             np.random.seed(36)
@@ -173,7 +189,7 @@ class DAC:
             cdatar[:, k] = modulation.Modulator(BitStream[:, cumBit:cumBit + bn[k]], FormatM, bitOriginal, bn[k])
             cumBit = cumBit + bn[k]
 
-        if self.SNR_estimation == 'False':  # Power loading
+        if not self.SNR_estimation:  # Power loading
             cdatary = cdatar * np.sqrt(En)
         else:
             cdatary = cdatar
@@ -191,7 +207,7 @@ class DAC:
         # print G+ 'Upconversion...'
         Cx_up2 = Cx_up.real * np.cos(2 * np.math.pi * fc * ttt) + Cx_up.imag * np.sin(2 * np.math.pi * fc * ttt)
 
-        if self.preemphasis == 'True':
+        if self.preemphasis:
             print('preemphasis...')
             # Pre-emphasis (inverted gaussian) filter
             sigma = self.BW_filter / (2 * np.sqrt(2 * np.log10(2)))
@@ -215,7 +231,7 @@ class DAC:
         f.write("10\n")  # 10MHz or 50MHz Ref frequency
         np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
 
-        if self.tx_ID == 0:
+        if tx_ID == 0:
             np.save('params_tx', (bn, cdatar, data, Cx_up, Cx_up2))
         else:
             np.save('params_tx2', (bn, cdatar, data, Cx_up, Cx_up2))

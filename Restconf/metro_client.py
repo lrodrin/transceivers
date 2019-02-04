@@ -1,5 +1,5 @@
 import requests
-# import json
+import json
 import time
 
 from os import sys, path
@@ -71,18 +71,18 @@ wstx_name = "wstx"
 wstx_config_filename = "SN042561.wsconfig"
 # wss_startup(wstx_name, wstx_config_filename, 0.0, 0.0, 25, 1550.12)
 
-url = 'http://0.0.0.0:5000/api/'  # TEST
+url = 'http://10.1.7.64:5000/api/'
 headers = {"Content-Type": "application/json"}
 
-request = requests.get(url + 'hello', headers=headers)
-print(request.content)
+request = requests.get(url + 'hello2', headers=headers)
+print(request.status_code, request.content)
 
 # DAC configuration
-# params = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-# request = requests.post(url + 'blue/dac', headers=headers, data=json.dumps(params))
+# params = {'trx_mode': 0, 'tx_ID': 0, 'FEC': 'SD-FEC', 'bps': 2, 'pps': 0}
+# request = requests.post(url + 'dac', headers=headers, data=json.dumps(params))
 # print(request.content)
 
 # OSC configuration
-# params = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-# request = requests.post(url + 'blue/osc', headers=headers, data=json.dumps(params))
+# params = {'trx_mode': 0, 'rx_ID': 0, 'FEC': 'SD-FEC', 'bps': 2, 'pps': 0}
+# request = requests.post(url + 'osc', headers=headers, data=json.dumps(params))
 # print(request.content)
