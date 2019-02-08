@@ -10,9 +10,7 @@
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>laser</strong></big></big></font></td
 ><td align=right valign=bottom
 ><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/root/restAPI/lib/laser/laser.py">/root/restAPI/lib/laser/laser.py</a></font></td></tr></table>
-    <p><tt>This&nbsp;is&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;module.<br>
-&nbsp;<br>
-This&nbsp;module&nbsp;does&nbsp;stuff.</tt></p>
+    <p><tt>This&nbsp;is&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;module.</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -20,8 +18,10 @@ This&nbsp;module&nbsp;does&nbsp;stuff.</tt></p>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="socket.html">socket</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="socket.html">socket</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -50,28 +50,31 @@ This&nbsp;module&nbsp;does&nbsp;stuff.</tt></p>
 
 <dl><dt><a name="Laser-checkerror"><strong>checkerror</strong></a>(self)</dt><dd><tt>Check&nbsp;system&nbsp;errors&nbsp;in&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;<br>
-:return:&nbsp;s</tt></dd></dl>
+:return:&nbsp;error&nbsp;message<br>
+:rtype:&nbsp;str</tt></dd></dl>
 
-<dl><dt><a name="Laser-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;connection.</tt></dd></dl>
+<dl><dt><a name="Laser-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;connection&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.</tt></dd></dl>
 
-<dl><dt><a name="Laser-connect_and_initialization"><strong>connect_and_initialization</strong></a>(self)</dt><dd><tt>Connect&nbsp;to&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;and&nbsp;initialize&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;default&nbsp;parameters:<br>
+<dl><dt><a name="Laser-connection_and_initialization"><strong>connection_and_initialization</strong></a>(self)</dt><dd><tt>Open&nbsp;TCP&nbsp;connection&nbsp;to&nbsp;connection&nbsp;port&nbsp;of&nbsp;<a href="#Laser">Laser</a>&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET&nbsp;and&nbsp;initialize&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;default<br>
+parameters:<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;mode&nbsp;(str):&nbsp;Set&nbsp;mode&nbsp;as&nbsp;CONTROLLER.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;addr_GPIB&nbsp;(str):&nbsp;Set&nbsp;GPIB&nbsp;address.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;read_after_write&nbsp;(str):&nbsp;Turn&nbsp;off&nbsp;read_after_write&nbsp;to&nbsp;avoid&nbsp;"Query&nbsp;Unterminated"&nbsp;errors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;read_after_write&nbsp;(str):&nbsp;Turn&nbsp;off&nbsp;read-after-write&nbsp;to&nbsp;avoid&nbsp;"Query&nbsp;Unterminated"&nbsp;errors.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;read_timeout&nbsp;(str):&nbsp;Read&nbsp;timeout&nbsp;is&nbsp;500&nbsp;ms.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eos_3&nbsp;(str):&nbsp;Do&nbsp;not&nbsp;append&nbsp;CR&nbsp;or&nbsp;LF&nbsp;to&nbsp;GPIB&nbsp;data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eoi_1&nbsp;(str):&nbsp;Assert&nbsp;eoi_1&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eoi_1&nbsp;(str):&nbsp;Assert&nbsp;EOI&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
 
 <dl><dt><a name="Laser-enable"><strong>enable</strong></a>(self, ch, stat<font color="#909090">=False</font>)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
-:param&nbsp;stat:&nbsp;status<br>
 :type&nbsp;ch:&nbsp;int<br>
+:param&nbsp;stat:&nbsp;if&nbsp;True&nbsp;is&nbsp;enable&nbsp;otherwise&nbsp;is&nbsp;disable<br>
 :type&nbsp;stat:&nbsp;bool</tt></dd></dl>
 
-<dl><dt><a name="Laser-power"><strong>power</strong></a>(self, ch, power)</dt><dd><tt>Define&nbsp;power&nbsp;in&nbsp;dBm.<br>
-The&nbsp;range&nbsp;of&nbsp;power&nbsp;takes&nbsp;6'03&nbsp;to&nbsp;14'50&nbsp;dBm.<br>
+<dl><dt><a name="Laser-power"><strong>power</strong></a>(self, ch, power)</dt><dd><tt>Define&nbsp;the&nbsp;power&nbsp;in&nbsp;dBm.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;The&nbsp;range&nbsp;of&nbsp;power&nbsp;takes&nbsp;6'03&nbsp;to&nbsp;14'50&nbsp;dBm.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :type&nbsp;ch:&nbsp;int<br>
@@ -81,7 +84,7 @@ The&nbsp;range&nbsp;of&nbsp;power&nbsp;takes&nbsp;6'03&nbsp;to&nbsp;14'50&nbsp;d
 <dl><dt><a name="Laser-status"><strong>status</strong></a>(self, ch)</dt><dd><tt>Check&nbsp;and&nbsp;return&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;configured&nbsp;parameters:<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;status&nbsp;(enable/disable)&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'stat'&nbsp;(True/False).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;wavelength&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'lambda0'&nbsp;in&nbsp;nm.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;wavelength&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'wavelength'&nbsp;in&nbsp;nm.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;power&nbsp;and&nbsp;put&nbsp;it&nbsp;into&nbsp;the&nbsp;variable&nbsp;'power'&nbsp;in&nbsp;dBm&nbsp;(-60&nbsp;indicates&nbsp;DISABLED).<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
@@ -94,13 +97,36 @@ The&nbsp;range&nbsp;of&nbsp;power&nbsp;takes&nbsp;6'03&nbsp;to&nbsp;14'50&nbsp;d
 :return:&nbsp;instrument&nbsp;ID&nbsp;(e.g&nbsp;NetTest,&nbsp;OSICS,&nbsp;0,&nbsp;3.01)<br>
 :rtype:&nbsp;str</tt></dd></dl>
 
-<dl><dt><a name="Laser-wavelength"><strong>wavelength</strong></a>(self, ch, lambda0)</dt><dd><tt>Define&nbsp;wavelength&nbsp;in&nbsp;nm.<br>
-The&nbsp;range&nbsp;of&nbsp;wavelength&nbsp;takes&nbsp;1527'55899&nbsp;to&nbsp;1565'544&nbsp;nm.<br>
+<dl><dt><a name="Laser-wavelength"><strong>wavelength</strong></a>(self, ch, lambda0)</dt><dd><tt>Define&nbsp;the&nbsp;wavelength&nbsp;in&nbsp;nm.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;The&nbsp;range&nbsp;of&nbsp;wavelength&nbsp;takes&nbsp;1527'55899&nbsp;to&nbsp;1565'544&nbsp;nm.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :type&nbsp;ch:&nbsp;int<br>
 :param&nbsp;lambda0:&nbsp;wavelength<br>
 :type&nbsp;lambda0:&nbsp;float</tt></dd></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="Laser-startup"><strong>startup</strong></a>(ip, addr, ch, lambda0, power, status)</dt><dd><tt><a href="#Laser">Laser</a>&nbsp;startup:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;wavelength&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;the&nbsp;power&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Enable&nbsp;or&nbsp;disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;status,&nbsp;mode&nbsp;and&nbsp;power&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;and&nbsp;shows&nbsp;the&nbsp;values.<br>
+&nbsp;<br>
+:param&nbsp;ip:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET<br>
+:type&nbsp;ip:&nbsp;str<br>
+:param&nbsp;addr:&nbsp;GPIB&nbsp;address<br>
+:type&nbsp;addr:&nbsp;str<br>
+:param&nbsp;ch:&nbsp;channel<br>
+:type&nbsp;ch:&nbsp;int<br>
+:param&nbsp;lambda0:&nbsp;wavelength<br>
+:type&nbsp;lambda0:&nbsp;float<br>
+:param&nbsp;power:&nbsp;power<br>
+:type&nbsp;power:&nbsp;float<br>
+:param&nbsp;status:&nbsp;if&nbsp;True&nbsp;is&nbsp;enable&nbsp;otherwise&nbsp;is&nbsp;disable<br>
+:type&nbsp;status:&nbsp;bool</tt></dd></dl>
 
 <hr>
 Data and other attributes defined here:<br>
@@ -122,5 +148,14 @@ Data and other attributes defined here:<br>
 
 <dl><dt><strong>read_timeout</strong> = '++read_tmo_ms 500<font color="#c040c0">\n</font>'</dl>
 
-</td></tr></table></td></tr></table>
+<dl><dt><strong>time_sleep_enable</strong> = 5</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>logger</strong> = &lt;logging.Logger object&gt;</td></tr></table>
 </body></html>
