@@ -1,33 +1,31 @@
 """This is the DAC module.
-
-This module does stuff.
 """
+import logging
 import numpy as np
 import scipy.signal as sgn
 
 import lib.constellationV2 as modulation
 import lib.ofdm as ofdm
 
-# TODO import logging
+logger = logging.getLogger("DAC")
+logger.addHandler(logging.NullHandler())
 
 
 class DAC:
     """
     This is the class for DAC module.
     """
-    clock_ref_file = "CLK_ref.txt"  # TODO moure a carpeta X els fitxers txt
-    clock_file = "CLK.txt"
-    temp_file = "TEMP.txt"
-    sleep_time = 130
+    # TODO gestio de fitxers
+    clock_ref_file = "CLK_ref.txt"  # File to save the clock_ref for the DAC
+    clock_file = "CLK.txt"  # File to save the clock value for the DAC
+    temp_file = "TEMP.txt"  # File to save the OFDM signal that will be uploaded to LEIA DAC
+    sleep_time = 130  # Time needed to finish the processes of MATLAB before OSC startup
 
-    SNR_estimation = False  # TODO passar com a param
-    preemphasis = True
+    Preemphasis = True
     BW_filter = 25e9
     N_filter = 2
-    gapdB = 9.6
-    loading_algorithm = 'LCRA_QAM'
     Ncarriers = 512
-    constellation = 'QAM'
+    Constellation = 'QAM'
     CP = 0.019
     NTS = 4
     Nsymbols = 16 * 3 * 1024
@@ -35,76 +33,42 @@ class DAC:
     fs = 64e9
     k_clip = 2.8
     Qt = 255
-    Niters = 10
-
-    # def __init__(self, trx_mode, tx_ID, FEC, bps, pps):
-    #     """
-    #     The constructor for the DAC class.
-    #
-    #     :param trx_mode: (0 or 1), for identifying the mode of the transceiver: 0 for estimation mode and 1 for
-    #     transmission mode.
-    #     :type trx_mode: int
-    #     :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
-    #     :type tx_ID: int
-    #     :param FEC: (HD-FEC, SD-FEC), in order to identifiy the channel encoding to be used (TBI).
-    #     :type FEC: string
-    #     :param bps: array of 512 positions. It contains the bits per symbol per subcarrier.
-    #     :type bps:int array
-    #     :param pps: array of 512 positions. It contains the power per subcarrier figure.
-    #     :type pps: float array
-    #     """
-    #     self.trx_mode = trx_mode
-    #     self.tx_ID = tx_ID
-    #     self.FEC = FEC
-    #     # self.bps = 2
-    #     self.bps = bps
-    #     self.pps = pps
-    #     self.initialization()
+    bps = 2
 
     def __init__(self):
         """
+        The constructor for the DAC class.
         Define and initialize the DAC default parameters:
 
-            - SNR_estimation (str): ?
-            - preemphasis (str): ?
-            - Preemphasis parameters:
-                - BW_filter (int): Set preemphasis filter bandwidth.
-                - N_filter (int): Set preemphasis filter order.
-
-            - Loading algorithm parameters:
-                - gapdB (float): Set SNR gap.
-                - loading_algorithm (str): Set loading algorithm type (e.g. LC_RA or LC_MA).
-
-            - Parameters for the OFDM signal definition:
-                - Ncarriers (int): Set number of carriers.
-                - constellation (str): Set QAM.
-                - CP (float): Set cyclic prefix.
-                - NTS (int): Set number of training symbols.
-                - Nsymbols (float): Set number of symbols without TS.
-                - NsymbolsTS (float): Set number of symbols with TS.
-                - Nframes (float): Set number of OFDM symbols/frames.
-                - sps (float): Set samples per symbol.
-                - fs (int): Set sampling frequency.
-                - k_clip (float): Set clipping level.
-                    - 3.16 optimum for 256QAM.
-                    - 2.66 optimum for 32QAM.
-                    - 2.8 optimum for 64QAM.
-                - Qt (int): Set LEIA Quantization steps.
+            - Preemphasis (bool): Enable preemphasis.
+            - BW_filter (int): Set bandwidth of the preemphasis filter.
+            - N_filter (int): Set order of the preemphasis filter.
+            - Ncarriers (int): Set number of carriers.
+            - Constellation (str): Set modulation format.
+            - CP (float): Set cyclic prefix.
+            - NTS (int): Set number of training symbols.
+            - Nsymbols (int): Set number of generated symbols.
+            - NsymbolsTS (int): Set number of generated symbols without TS.
+            - Nframes (int): Set number of OFDM frames.
+            - sps (float): Set samples per symbol for the DAC.
+            - fs (int): Set DAC frequency sampling.
+            - k_clip (float): Set factor for clipping the OFDM signal.
+                - 3.16 optimum for 256 QAM.
+                - 2.66 optimum for 32 QAM.
+                - 2.8 optimum for 64 QAM.
+            - Qt (int): Set quantization steps.
+            - bps (int): Set number of bits per symbol.
+            - BWs (int): Set bandwidth of electrical signal.
         """
-        self.SNR_estimation = DAC.SNR_estimation
-        self.preemphasis = DAC.preemphasis
+        self.Preemphasis = DAC.Preemphasis
 
         # Preemphasis parameters
         self.BW_filter = DAC.BW_filter
         self.N_filter = DAC.N_filter
 
-        # loading_algorithm parameters
-        self.gapdB = DAC.gapdB
-        self.loading_algorithm = DAC.loading_algorithm
-
         # Parameters for the OFDM signal definition
         self.Ncarriers = DAC.Ncarriers
-        self.constellation = DAC.constellation
+        self.Constellation = DAC.Constellation
         self.CP = DAC.CP
         self.NTS = DAC.NTS
         self.Nsymbols = DAC.Nsymbols
@@ -114,124 +78,88 @@ class DAC:
         self.fs = DAC.fs
         self.k_clip = DAC.k_clip
         self.Qt = DAC.Qt
-        self.Niters = DAC.Niters
+        self.bps = DAC.bps
+        self.BWs = self.fs / self.sps
 
-    def transmitter(self, trx_mode, tx_ID, FEC, bps, pps):
+    def transmitter(self, tx_ID, bn, En):
         """
-        Generate a multi BitStream and creates the OFDM signal to be uploaded into the DAC. It also implements
-        bit/power loading_algorithm.
+        Generate a BitStream and creates the OFDM signal to be uploaded into the DAC.
 
-        :param trx_mode: Identify the mode of the transceiver. 0 for estimation mode and 1 for transmission mode.
-        :type trx_mode: int
-        :param tx_ID: Identify the channel of the DAC to be used and the local files to use for storing data.
-        :type tx_ID: int
-        :param FEC: HD-FEC or SD-FEC). Identify the channel encoding to be used (TBI).
-        :type FEC: str
-        :param bps: Array of 512 positions that contains the bits per symbol per subcarrier.
-        :type bps:int array
-        :param pps: Array of 512 positions that contains the power per subcarrier figure.
-        :type pps: float array
+        :param tx_ID: identify the channel of the DAC to be used and the local files to use for storing data
+        :type tx_ID: int (0 or 1)
+        :param bn: array of Ncarriers positions that contains the bits per symbol per subcarrier
+        :type bn: int array of 512 positions
+        :param En: array of Ncarriers positions that contains the power per subcarrier figure
+        :type En: float array of 512 positions
         """
-        BWs = self.fs / self.sps  # BW electrical signal
-        print('Signal bandwidth:', BWs / 1e9, 'GHz')
+        try:
+            f_clock = self.BWs / 2
+            tt = (1 / self.fs) * np.ones(
+                (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
+            ttt = tt.cumsum()
 
-        if trx_mode == 0 or trx_mode == 1:
-            BitRate = 0
-            En = np.array(np.zeros(self.Ncarriers))
-            bn = np.array(np.zeros(self.Ncarriers))
-            if not self.SNR_estimation:
-                print('Implementing loading algorithm...')
-                gap = 10 ** (self.gapdB / 10.)
-                if tx_ID == 0:
-                    SNR_in = np.load('ChannelGain.npy')  # TODO link to file
-                else:
-                    SNR_in = np.load('ChannelGain2.npy')  # TODO link to file
-
-                Load = ofdm.Loading(self.Ncarriers, BWs)
-                if self.loading_algorithm == 'LCMA_QAM':
-                    BitRate = 20e9
-                    (En, bn) = Load.LCMA_QAM(gap, BitRate / float(BWs), SNR_in)
-                if self.loading_algorithm == 'LCRA_QAM':
-                    (En, bn, BitRate) = Load.LCRA_QAM(gap, SNR_in)
-                bps = np.sum(bn) / float(len(bn))
-                self.Niters = 5
-
+            logger.debug('Generating data')
+            if tx_ID == 0:  # Generate data with different seed for the different users/clients
+                np.random.seed(42)
             else:
-                bn = bps * np.ones(self.Ncarriers)  # bn[240:240+30] = np.zeros(30)
-                bps = np.sum(bn) / float(len(bn))
-                BitRate = BWs * bps  # Net data rate
-            print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', BWs / 1e9, 'GHz')
+                np.random.seed(36)
 
-        elif trx_mode == 2:
-            bn = bps
-            En = pps
+            data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 
-        fc = BWs / 2
-        ttime = (1 / self.fs) * np.ones(
-            (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
-        ttt = ttime.cumsum()
+            logger.debug('Trainning symbols')
+            TS = np.random.randint(0, 2, self.NTS * self.bps * self.Ncarriers)
+            BitStream = np.r_[TS, data]
+            BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
+            cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
 
-        if tx_ID == 0:
-            np.random.seed(42)
-        else:
-            np.random.seed(36)
+            logger.debug('Mapping data')
+            cumBit = 0
+            for k in range(0, self.Ncarriers):
+                (FormatM, bitOriginal) = modulation.Format(self.Constellation, bn[k])
+                cdatar[:, k] = modulation.Modulator(BitStream[:, cumBit:cumBit + bn[k]], FormatM, bitOriginal, bn[k])
+                cumBit = cumBit + bn[k]
 
-        data = np.random.randint(0, 2, bps * self.Nsymbols)
-        TS = np.random.randint(0, 2, self.NTS * bps * self.Ncarriers)
-        # BitStream = np.array(np.zeros(self.Nframes * np.sum(bn)), int)
-        BitStream = np.r_[TS, data]
-        BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
-        cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
+            cdatary = cdatar * np.sqrt(En)  # Include power loading results
+            logger.debug('Implementing the IFFT')
+            FHTdatatx = ofdm.ifft(cdatary, self.Ncarriers)  # Perform the IFFT required in OFDM
+            logger.debug('Add cyclic prefix')
+            FHTdata_cp = np.concatenate((FHTdatatx, FHTdatatx[:, 0:np.round(self.CP * self.Ncarriers)]), axis=1)
 
-        cumBit = 0
-        for k in range(0, self.Ncarriers):
-            (FormatM, bitOriginal) = modulation.Format(self.constellation, bn[k])
-            cdatar[:, k] = modulation.Modulator(BitStream[:, cumBit:cumBit + bn[k]], FormatM, bitOriginal, bn[k])
-            cumBit = cumBit + bn[k]
+            Cx = FHTdata_cp.reshape(FHTdata_cp.size, )  # Serialize
+            logger.debug('Clipping the signal')
+            deviation = np.std(Cx)
+            Cx_clip = Cx.clip(min=-self.k_clip * deviation, max=self.k_clip * deviation)
+            Cx_up = sgn.resample(Cx_clip, self.sps * Cx_clip.size)  # Resample
+            Cx_up2 = Cx_up.real * np.cos(2 * np.math.pi * f_clock * ttt) + Cx_up.imag * np.sin(
+                2 * np.math.pi * f_clock * ttt)  # Upconvert the signal to create a real signal
 
-        if not self.SNR_estimation:  # Power loading
-            cdatary = cdatar * np.sqrt(En)
-        else:
-            cdatary = cdatar
+            if self.Preemphasis:
+                logger.debug('Preemphasis')
+                # Pre-emphasis (inverted gaussian) filter
+                sigma = self.BW_filter / (2 * np.sqrt(2 * np.log10(2)))
+                stepfs = self.fs / len(Cx_up2)
+                freq1 = np.arange(stepfs, self.fs / 2 - stepfs, stepfs)
+                freq2 = np.arange(-self.fs / 2, 0, stepfs)
+                freq = np.r_[freq1, 0, freq2, self.fs / 2 - stepfs]
+                emphfilt = np.exp(.5 * np.abs(freq / sigma) ** self.N_filter)  # Just a Gaussian filter inverted
+                Cx_up2 = np.real(np.fft.ifft(emphfilt * np.fft.fft(Cx_up2)))
 
-        FHTdatatx = ofdm.ifft(cdatary, self.Ncarriers)
-        # Add cyclic prefix
-        FHTdata_cp = np.concatenate((FHTdatatx, FHTdatatx[:, 0:np.round(self.CP * self.Ncarriers)]), axis=1)
-        # Serialize
-        Cx = FHTdata_cp.reshape(FHTdata_cp.size, )
-        # print 'Clipping the signal...'
-        deviation = np.std(Cx)
-        Cx_clip = Cx.clip(min=-self.k_clip * deviation, max=self.k_clip * deviation)
-        # Resample
-        Cx_up = sgn.resample(Cx_clip, self.sps * Cx_clip.size)
-        # print G+ 'Upconversion...'
-        Cx_up2 = Cx_up.real * np.cos(2 * np.math.pi * fc * ttt) + Cx_up.imag * np.sin(2 * np.math.pi * fc * ttt)
+            Cx_bias = Cx_up2 - np.min(Cx_up2)
+            # Quantize the OFDM signal
+            Cx_LEIA = np.around(
+                Cx_bias / np.max(Cx_bias) * self.Qt - np.ceil(self.Qt / 2))  # Signal to download to LEIA
 
-        if self.preemphasis:
-            print('preemphasis...')
-            # Pre-emphasis (inverted gaussian) filter
-            sigma = self.BW_filter / (2 * np.sqrt(2 * np.log10(2)))
-            stepfs = self.fs / len(Cx_up2)
-            freq1 = np.arange(stepfs, self.fs / 2 - stepfs, stepfs)
-            freq2 = np.arange(-self.fs / 2, 0, stepfs)
-            freq = np.r_[freq1, 0, freq2, self.fs / 2 - stepfs]
-            emphfilt = np.exp(.5 * np.abs(freq / sigma) ** self.N_filter)  # Just a Gaussian filter inverted
-            Cx_up2 = np.real(np.fft.ifft(emphfilt * np.fft.fft(Cx_up2)))
+            # Cx_bias_up = Cx_up - np.min(Cx_up)    # TODO esborrar variables
+            # Cx_up = np.around(Cx_bias_up / np.max(Cx_bias_up) * self.Qt - np.ceil(self.Qt / 2))
+            logger.debug("OFDM signal is created")
 
-        Cx_bias = Cx_up2 - np.min(Cx_up2)
-        Cx_LEIA = np.around(
-            Cx_bias / np.max(Cx_bias) * self.Qt - np.ceil(self.Qt / 2))  # Signal to download to LEIA_DAC
-        Cx_bias_up = Cx_up - np.min(Cx_up)
-        Cx_up = np.around(Cx_bias_up / np.max(Cx_bias_up) * self.Qt - np.ceil(self.Qt / 2))
+            logger.debug('Initializing LEIA')
+            f_clock = open(DAC.clock_file, "w")
+            f_clock.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
+            f_clock_ref = open(DAC.clock_ref_file, "w")
+            f_clock_ref.write("10\n")  # 10MHz or 50MHz Ref frequency
+            np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
 
-        print('Initializing LEIA...')
-        f = open(DAC.clock_file, "w")
-        f.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
-        f = open(DAC.clock_ref_file, "w")
-        f.write("10\n")  # 10MHz or 50MHz Ref frequency
-        np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
-
-        if tx_ID == 0:
-            np.save('params_tx', (bn, cdatar, data, Cx_up, Cx_up2))
-        else:
-            np.save('params_tx2', (bn, cdatar, data, Cx_up, Cx_up2))
+        except Exception as error:
+            logger.error("Tansmitter method, {}".format(error))
+            raise error

@@ -1,12 +1,21 @@
-from os import sys, path
+import json
+import logging
 
-sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
+import requests
 
-from lib.osc.osc import OSC
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
-    trx_mode = 0
-    rx_ID = 1
-    rx = OSC(trx_mode, rx_ID, None, 2, None)
-    ack = rx.receiver()
-    print('ACK = ', ack)
+    ip_server = '10.1.7.64'
+    params = {'conf_mode': 0, 'trx_mode': 1, 'rx_ID': 0, 'bn': 2, 'En': 0, 'eq': 0}
+    # test server
+    request = requests.get('http://%s:5000/api/' % ip_server + 'hello',
+                           headers={"Content-Type": "application/json"})
+    # test dac method from server
+    # request = requests.post('http://%s:5000/api/' % ip_flask_server + 'osc',
+    #                         headers={"Content-Type": "application/json"}, data=json.dumps(params))
+    if request:
+        data = request.json()
+        logging.debug(data)
+    else:
+        logging.error("OSC configuration not finished")

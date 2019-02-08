@@ -53,7 +53,7 @@ class Api:
     # def getNode(self, node_id):
     #     node_id_int = int(node_id, 16)
     #
-    #     http_json = 'http://' + self.ip + ':' + str(self.port) + '/stats/portdesc/' + str(node_id_int) + ''
+    #     http_json = 'http://' + self.ip_flask_server + ':' + str(self.port) + '/stats/portdesc/' + str(node_id_int) + ''
     #
     #     response = requests.get(http_json, auth=(self.user,
     #                             self.password))

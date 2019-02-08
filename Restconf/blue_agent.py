@@ -1,31 +1,53 @@
+import array
+
+import numpy as np
 import requests
-# import json
+import json
 import time
+import logging
 
 from os import sys, path
 
-SECS = 5
-AMPLIFIER_ADDR = '3'
-IP_AMPLIFIER_2 = '10.1.1.16'
-IP_AMPLIFIER_1 = '10.1.1.15'
-
-
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+logging.basicConfig(filename='agent.logs',level=logging.DEBUG)  # TODO fitxer de logs comu
 
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
 from lib.wss.wss import Wss
+from lib.dac.dac import DAC
+from lib.osc.osc import OSC
 
 
-def laser_startup(och, lambda0, pow, stat):
-    yenista = Laser(IP_LASER, LASER_ADDR)
-    yenista.wavelength(och, lambda0)
-    yenista.power(och, pow)
-    yenista.enable(och, stat)
-    time.sleep(SECS)
-    print(yenista.status(och))
-    print(yenista.test())
-    yenista.close()
+def laser_startup(ip, addr, ch, lambda0, power, status):
+    """
+    Laser startup.
+
+    :param ip: IP address of GPIB-ETHERNET
+    :type ip: str
+    :param addr: GPIB address
+    :type addr: str
+    :param ch: channel
+    :type ch: int
+    :param lambda0: wavelength
+    :type lambda0: float
+    :param power: power
+    :type power: float
+    :param status: if True is enable otherwise is disable
+    :type status: bool
+    """
+    log.debug("Laser startup")
+    try:
+        yenista = Laser(ip, addr)
+        yenista.wavelength(ch, lambda0)
+        yenista.power(ch, power)
+        yenista.enable(ch, status)
+        time.sleep(5)
+        result = yenista.status(ch)
+        log.debug("Laser - status: {}, wavelength: {}, power: {}".format(result[0], result[1], result[2]))
+        yenista.close()
+    except Exception as e:
+        log.debug("ERROR {}".format(e))
+
 
 
 def amplifier_startup(modeA, powA, modeB, powB, statA, statB):
@@ -69,17 +91,7 @@ def wss_startup(name, config_filename, att, phase, bw, lambda0):
 wstx_name = "wstx"
 wstx_config_filename = "SN042561.wsconfig"
 # wss_startup(wstx_name, wstx_config_filename, 0.0, 0.0, 25, 1550.12)
-
-# int and float arrays of 512 positions examples
-# bps = array.array('i', [0] * 512)
-# pps = array.array('f', [0] * 512)
-# print(bps)
-# print(pps)
-#
-# bps = [0] * 512
-# pps = [0.0] * 512
-# print(bps)
-# print(pps)
+# int and float arrays of 512 positions examples cas uniform
 
 url = 'http://0.0.0.0:5000/api/'
 headers = {"Content-Type": "application/json"}
@@ -88,11 +100,11 @@ request = requests.get(url + 'hello', headers=headers)
 print(request.content)
 
 # DAC configuration
-# params = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-# request = requests.post(url + 'blue/dac', headers=headers, data=json.dumps(params))
-# print(request.content)
+params = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bn': bn, 'En': En}
+request = requests.post(url + 'blue/dac', headers=headers, data=json.dumps(params))
+print(request.content)
 
 # OSC configuration
-# params = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bps': bps, 'pps': pps}
-# request = requests.post(url + 'blue/osc', headers=headers, data=json.dumps(params))
-# print(request.content)
+params = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bn': bn, 'En': En}
+request = requests.post(url + 'blue/osc', headers=headers, data=json.dumps(params))
+print(request.content)

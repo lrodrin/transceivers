@@ -1,15 +1,21 @@
-from os import sys, path
+import json
+import logging
 
-sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
+import requests
 
-from lib.dac.dac import DAC
-
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
-    trx_mode = 0
-    tx_ID = 0
-    tx = DAC(trx_mode, tx_ID, None, 2, None)
-    ack = tx.transmitter()
-    print('ACK = ', ack)
-
-
+    ip_server = '10.1.7.64'
+    params = {'conf_mode': 0, 'tx_ID': 0, 'bn': 2, 'En': 0}
+    # test server
+    request = requests.get('http://%s:5000/api/' % ip_server + 'hello',
+                           headers={"Content-Type": "application/json"})
+    # test dac method from server
+    # request = requests.post('http://%s:5000/api/' % ip_server + 'dac',
+    #                         headers={"Content-Type": "application/json"}, data=json.dumps(params))
+    if request:
+        data = request.json()
+        logging.debug(data)
+    else:
+        logging.error("DAC configuration not finished")

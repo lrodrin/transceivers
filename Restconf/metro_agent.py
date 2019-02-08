@@ -1,8 +1,13 @@
+import array
+
+import numpy as np
 import requests
 import json
 import time
 
 from os import sys, path
+
+from lib.dac.dac import DAC
 
 SECS = 5
 AMPLIFIER_ADDR = '3'
@@ -60,29 +65,29 @@ def wss_startup(name, config_filename, att, phase, bw, lambda0):
     wstx.close()
 
 
-# Laser configuration
-# laser_startup(3, 1560.12, 7.5, True)
+# int and float arrays of 512 positions examples cas uniform
+bn = np.array('i', [DAC.bps] * 512)
+En = np.array('f', [1] * 512)
+print(bn)
+print(En)
 
-# Amplifiers configuration
-# amplifier_startup("APC", 5, "APC", 3, True, True)
+BitRate = DAC.BWs * DAC.bps  # Net data rate
+print('BitRate = ', BitRate / 1e9, 'Gb/s', 'BW = ', DAC.BWs / 1e9, 'GHz')
 
-# Waveshaper configuration
-wstx_name = "wstx"
-wstx_config_filename = "SN042561.wsconfig"
-# wss_startup(wstx_name, wstx_config_filename, 0.0, 0.0, 25, 1550.12)
-
-url = 'http://10.1.7.64:5000/api/'
+url = 'http://0.0.0.0:5000/api/'
 headers = {"Content-Type": "application/json"}
 
-request = requests.get(url + 'hello2', headers=headers)
-print(request.status_code, request.content)
+request = requests.get(url + 'hello', headers=headers)
+print(request.content)
 
 # DAC configuration
-# params = {'trx_mode': 0, 'tx_ID': 0, 'FEC': 'SD-FEC', 'bps': 2, 'pps': 0}
-# request = requests.post(url + 'dac', headers=headers, data=json.dumps(params))
-# print(request.content)
+# ALERT trx_mode always 0 loading algorithm is not implemented as it requires communication between rx and tx and Openconfig model does not support this parameter exchange
+params = {'tx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bn': bn, 'En': En}
+request = requests.post(url + 'blue/dac', headers=headers, data=json.dumps(params))
+print(request.content)
 
 # OSC configuration
-# params = {'trx_mode': 0, 'rx_ID': 0, 'FEC': 'SD-FEC', 'bps': 2, 'pps': 0}
-# request = requests.post(url + 'osc', headers=headers, data=json.dumps(params))
-# print(request.content)
+params = {'rx_ID': 0, 'trx_mode': 0, 'FEC': 'SD-FEC', 'bn': bn, 'En': En}
+request = requests.post(url + 'blue/osc', headers=headers, data=json.dumps(params))
+print(request.content)
+

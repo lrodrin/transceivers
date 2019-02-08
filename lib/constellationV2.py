@@ -54,9 +54,9 @@ def Format(constellation, bn):
             # np.exp(1j*6.*np.pi/7.),np.exp(1j*8.*np.pi/7.), np.exp(1j*10.*np.pi/7.), np.exp(1j*12.*np.pi/7.),
             # 0]) #circular 8QAM enhanced performance for flexi optical networks the best performance (LMS eq)
             mapped = np.sqrt(1. / 5.5) * np.array([-3, -1 + 1j, 3 * 1j, -1 - 1j, 1 - 1j, -3 * 1j, 1 + 1j, 3],
-                                                  complex)  # 8QAM(4,4) PAM-PSK constellation
+                                                  complex)  # 8QAM(4,4) PAM-PSK Constellation
             # mapped=np.sqrt(1./0.636)*np.array([1j,3*1j,1-1j,1+1j,-3*1j,-1+1j,-1-1j,-1j]) #8QAM Sadjadpour's
-            # constellation
+            # Constellation
         # mapped=np.sqrt(1./6.)*np.array([1-1j,-1-1j,-3-1j,3-1j,3+1j,1+1j,-1+1j,-3+1j]) #rectangular Agrawal
         # mapped=np.sqrt(1./6.)*np.array([-1-1j,-1,-1+1j,-1j,1-1j,1,1+1j,1j]) #rectangular
         elif bn == 4:

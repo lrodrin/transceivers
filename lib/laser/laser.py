@@ -1,19 +1,18 @@
 """This is the Laser module.
-
-This module does stuff.
 """
+import logging
 import socket
+import time
 
-# TODO import logging
+logger = logging.getLogger("LASER")
+logger.addHandler(logging.NullHandler())
 
 
 class Laser:
     """
     This is a class for Laser module.
     """
-    # TODO Laia's review
-    # TODO documentar variables de la classe
-    # TODO es podria fer un constants.py
+    # TODO documentar variables constants de la classe
     connection_port = 1234
     connection_timeout = 1
     mode = "++mode 1\n"
@@ -24,6 +23,7 @@ class Laser:
 
     buffer_size = 100
     read_eoi = "++read eoi\n"
+    time_sleep_enable = 5  # Time needed to enable/disable the Laser before check the status
 
     def __init__(self, ip, addr):
         """
@@ -37,9 +37,9 @@ class Laser:
         self.ip = ip
         self.addr = addr
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
-        self.connect_and_initialization()
+        self.connection_and_initialization()
 
-    def connect_and_initialization(self):
+    def connection_and_initialization(self):
         """
         Open TCP connection to connection port of Laser IP address of GPIB-ETHERNET and initialize the Laser default
         parameters:
@@ -57,13 +57,14 @@ class Laser:
         port = Laser.connection_port
         try:
             self.sock.connect((ip, port))
-            print("Connection to laser {} on port {} opened".format(ip, port))
-        except socket.error as e:
-            print("ERROR: connection to laser refused, {}".format(e))
+            logger.debug("Connection to Laser {} on port {} opened".format(ip, port))
+
+        except socket.error as error:
+            logger.error("Connection to Laser refused, {}".format(error))
+            raise error
 
         # Initialization
         try:
-            print("Init default parameters")
             self.sock.send(Laser.mode)
             addr_GPIB = "++addr " + self.addr + "\n"
             self.sock.send(addr_GPIB)
@@ -71,8 +72,11 @@ class Laser:
             self.sock.send(Laser.read_timeout)
             self.sock.send(Laser.eos_3)
             self.sock.send(Laser.eoi_1)
-        except socket.error as e:
-            print("ERROR: in initialization default parameters, {}".format(e))
+            logger.debug("Default parameters of the Laser initialized")
+
+        except socket.error as error:
+            logger.error("Default parameters of the Laser not initialized, {}".format(error))
+            raise error
 
     def test(self):
         """
@@ -85,13 +89,16 @@ class Laser:
             self.sock.send("*IDN?\n")
             self.sock.send(Laser.read_eoi)
             return self.sock.recv(Laser.buffer_size)
-        except socket.error as e:
-            print("ERROR: testing, {}".format(e))
+
+        except socket.error as error:
+            logger.error("Laser test, {}".format(error))
+            raise error
 
     def wavelength(self, ch, lambda0):
         """
-        Define the wavelength of the Laser in nm.
-        The range of wavelength takes 1527'55899 to 1565'544 nm.
+        Define the wavelength in nm.
+
+            - The range of wavelength takes 1527'55899 to 1565'544 nm.
 
         :param ch: channel
         :type ch: int
@@ -99,16 +106,19 @@ class Laser:
         :type lambda0: float
         """
         try:
-            print("Set wavelength %s" % lambda0)
+            logger.debug("Set wavelength %s" % lambda0)
             self.sock.send("CH%d:NM\n" % ch)  # set units in nm
             self.sock.send("CH%d:L=%.3f\n" % (ch, lambda0))
-        except socket.error as e:
-            print("ERROR: wavelength not configured, {}".format(e))
+
+        except socket.error as error:
+            logger.error("Wavelength not configured, {}".format(error))
+            raise error
 
     def power(self, ch, power):
         """
-        Define the power of the Laser in dBm.
-        The range of power takes 6'03 to 14'50 dBm.
+        Define the power in dBm.
+
+            - The range of power takes 6'03 to 14'50 dBm.
 
         :param ch: channel
         :type ch: int
@@ -116,11 +126,13 @@ class Laser:
         :type power: float
         """
         try:
-            print("Set power %s" % power)
+            logger.debug("Set power %s" % power)
             self.sock.send("CH%d:DBM\n" % ch)  # set units in dBm
             self.sock.send("CH%d:P=%.3f\n" % (ch, power))
-        except socket.error as e:
-            print("ERROR: power not configured, {}".format(e))
+
+        except socket.error as error:
+            logger.error("Power not configured, {}".format(error))
+            raise error
 
     def enable(self, ch, stat=False):
         """
@@ -128,39 +140,41 @@ class Laser:
 
         :param ch: channel
         :type ch: int
-        :param stat: status
+        :param stat: if True is enable otherwise is disable
         :type stat: bool
         """
-        msg = "Set status %s"
+        logger.debug("Set status %s" % stat)
         if stat:
-            print(msg % stat)
             try:
                 self.sock.send("CH%d:ENABLE\n" % ch)
-            except socket.error as e:
-                print("ERROR: can't enable, {}".format(e))
+                time.sleep(Laser.time_sleep_enable)
+
+            except socket.error as error:
+                logger.error("Can't enable, {}".format(error))
+                raise error
         else:
-            print(msg % stat)
             try:
                 self.sock.send("CH%d:DISABLE\n" % ch)
-            except socket.error as e:
-                print("ERROR: can't disable, {}".format(e))
+                time.sleep(Laser.time_sleep_enable)
+
+            except socket.error as error:
+                logger.error("Can't disable, {}".format(error))
+                raise error
 
     def status(self, ch):
         """
         Check and return the Laser configured parameters:
 
-            - Check status (enable/disable) and put it into the variable 'status' (True/False).
+            - Check status (enable/disable) and put it into the variable 'stat' (True/False).
             - Check wavelength and put it into the variable 'wavelength' in nm.
             - Check power and put it into the variable 'power' in dBm (-60 indicates DISABLED).
 
         :param ch: channel
         :type ch: int
-        :return: status, wavelength, power oh the Laser
+        :return: status, wavelength, power
         :rtype: list
         """
-        status = False
-        wavelength = 0.00
-        power = 0.00
+        stat = False
 
         # Check status
         try:
@@ -168,9 +182,11 @@ class Laser:
             self.sock.send(Laser.read_eoi)
             s = self.sock.recv(Laser.buffer_size)
             if s.split(":")[1] == "ENABLED\n":
-                status = True
-        except socket.error as e:
-            print("ERROR: checking status, {}".format(e))
+                stat = True
+
+        except socket.error as error:
+            logger.error("Checking status, {}".format(error))
+            raise error
 
         # Check wavelength
         try:
@@ -178,44 +194,89 @@ class Laser:
             self.sock.send(Laser.read_eoi)
             s = self.sock.recv(Laser.buffer_size)
             wavelength = float(s.split("=")[1])
-        except socket.error as e:
-            print("ERROR: checking wavelength, {}".format(e))
+
+        except socket.error as error:
+            logger.error("Checking wavelength, {}".format(error))
+            raise error
 
         # Check power
         try:
             self.sock.send("CH%d:P?\n" % ch)
             self.sock.send(Laser.read_eoi)
             s = self.sock.recv(Laser.buffer_size)
-            if status:
+            if stat:
                 power = float(s.split("=")[1])
             else:
                 power = -60
-        except socket.error as e:
-            print("ERROR: checking power, {}".format(e))
 
-        return [status, wavelength, power]
+        except socket.error as error:
+            logger.error("Checking wavelength, {}".format(error))
+            raise error
+
+        return [stat, wavelength, power]
 
     def close(self):
         """
         Close and delete connection of the Laser.
         """
         try:
-            print("Connection to laser closed")
+            logger.debug("Connection to Laser closed")
             self.sock.close()
-        except socket.error as e:
-            print("ERROR: connection not closed, {}".format(e))
+
+        except socket.error as error:
+            logger.error("Connection to Laser not closed, {}".format(error))
+            raise error
 
     def checkerror(self):
         """
         Check system errors in the Laser.
 
-        # TODO define return
-        :return: ?
+        :return: error message
         :rtype: str
         """
         try:
             self.sock.send("SYST:ERR?\n")
             self.sock.send(Laser.read_eoi)
             return self.sock.recv(Laser.buffer_size)
-        except socket.error as e:
-            print("ERROR: system error, {}".format(e))
+
+        except socket.error as error:
+            logger.error("System error, {}".format(error))
+            raise error
+
+    @staticmethod
+    def startup(ip, addr, ch, lambda0, power, status):
+        """
+        Laser startup:
+
+            - Set wavelength of the Laser.
+            - Set the power of the Laser.
+            - Enable or disable the Laser.
+            - Check status, mode and power of the Laser and shows the values.
+
+        :param ip: IP address of GPIB-ETHERNET
+        :type ip: str
+        :param addr: GPIB address
+        :type addr: str
+        :param ch: channel
+        :type ch: int
+        :param lambda0: wavelength
+        :type lambda0: float
+        :param power: power
+        :type power: float
+        :param status: if True is enable otherwise is disable
+        :type status: bool
+        """
+        try:
+            yenista = Laser(ip, addr)
+            yenista.wavelength(ch, lambda0)
+            yenista.power(ch, power)
+            yenista.enable(ch, status)
+            params = yenista.status(ch)
+            logger.debug(
+                "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
+
+            yenista.close()
+
+        except Exception as error:
+            logger.error("Laser startup, {}".format(error))
+            raise error
