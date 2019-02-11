@@ -1,9 +1,9 @@
 import logging
-import requests
-
-from flask import Flask, request, json, Response, jsonify
 from logging.handlers import RotatingFileHandler
 from os import sys, path
+
+import requests
+from flask import Flask, request, json, jsonify
 
 ADDR_AMPLIFIER = '3'
 IP_AMPLIFIER_2 = '10.1.1.15'
@@ -11,7 +11,7 @@ IP_AMPLIFIER_1 = '10.1.1.16'
 ADDR_LASER = '11'
 IP_LASER = '10.1.1.7'
 SPEED_OF_LIGHT = 299792458
-URL_TX_AND_RX_SERVER = 'http://10.1.7.64:5000/api/'
+URL_DAC_OSC_SERVER = 'http://10.1.7.64:5000/api/'
 HEADERS = {"Content-Type": "application/json"}
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -61,7 +61,7 @@ def local_assignment():
                 description: (str) Error message in case there is some error.
     """
     if request.method == 'POST':
-        params = request.json  # client, och values from agent
+        params = request.json
         if params is not None:
             cl = params['client']
             och = params['och']
@@ -108,7 +108,7 @@ def optical_channel_configuration():
 
     """
     if request.method == 'POST':
-        params = request.json  # och, freq, power, mode values from agent
+        params = request.json
         och = params['och']
         freq = params['freq']
         power = params['power']
@@ -155,31 +155,25 @@ def python_f(och, freq, power, mode):
     # TODO
     # if power == x:
     # elif power == y:
-    Laser.startup(IP_LASER, ADDR_LASER, och, lambda0, power, vars['laser'])
+    Laser.configuration(IP_LASER, ADDR_LASER, och, lambda0, power, vars['laser'])
     logger.debug("Laser configuration finished")
 
     logger.debug("Amplifiers configuration started")
-    Amplifier.startup(IP_AMPLIFIER_1, ADDR_AMPLIFIER, vars['amplifier'][0], vars['amplifier'][1], vars['amplifier'][2])
-    Amplifier.startup(IP_AMPLIFIER_2, ADDR_AMPLIFIER, vars['amplifier'][0], vars['amplifier'][1], vars['amplifier'][2])
+    Amplifier.configuration(IP_AMPLIFIER_1, ADDR_AMPLIFIER, vars['amplifier'][0], vars['amplifier'][1],
+                            vars['amplifier'][2])
+    Amplifier.configuration(IP_AMPLIFIER_2, ADDR_AMPLIFIER, vars['amplifier'][0], vars['amplifier'][1],
+                            vars['amplifier'][2])
     logger.debug("Amplifiers configuration finished")
 
     logger.debug("DAC configuration started")
-    request_dac = requests.post(URL_TX_AND_RX_SERVER + 'dac', headers=HEADERS, data=json.dumps(vars['dac']))
-    if request_dac:
-        data = request_dac.json()
+    request = requests.post(URL_DAC_OSC_SERVER + 'dac_osc_configuration', headers=HEADERS,
+                            data=json.dumps(vars['dac_osc']))
+    if request:
+        data = request.json()
         logger.debug(data)
-        logger.debug("DAC configuration finished")
+        logger.debug("DAC and OSC configuration finished")
     else:
-        logger.error("DAC configuration not finished")
-
-    logger.debug("OSC configuration started")
-    request_osc = requests.post(URL_TX_AND_RX_SERVER + 'osc', headers=HEADERS, data=json.dumps(vars['osc']))
-    if request_osc:
-        data = request_osc.json()
-        logger.debug(data)
-        logger.debug("OSC configuration finished")
-    else:
-        logger.error("OSC configuration not finished")
+        logger.error("DAC and OSC configuration not finished")
 
 
 def init_variables():
@@ -188,20 +182,19 @@ def init_variables():
     :return:
     :rtype: dict
     """
-    params_dac = {'conf_mode': 0, 'tx_ID': 0, 'bn': 2, 'En': 0}
-    params_osc = {'conf_mode': 0, 'trx_mode': 1, 'rx_ID': 0, 'bn': 2, 'En': 0, 'eq': 0}
+    params_dac_osc = {'conf_mode': 0, 'trx_mode': 1, 'tx_ID': 0, 'rx_ID': 0, 'bn': 2, 'En': 0, 'eq': 0}
     d = {
         'laser': True,
         'amplifier': ["APC", 7.5, True],
-        'dac': params_dac,
-        'osc': params_osc
+        'dac_osc': params_dac_osc
     }
     return d
 
 
 if __name__ == '__main__':
     # File Handler
-    fileHandler = RotatingFileHandler('metro-haul/server.log', maxBytes=10000000, backupCount=5)
+    # fileHandler = RotatingFileHandler('metro-haul/server.log', maxBytes=10000000, backupCount=5)
+    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
     # Stream Handler
     streamHandler = logging.StreamHandler()
     # Create a Formatter for formatting the logs messages

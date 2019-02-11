@@ -1,11 +1,11 @@
 import logging
 import os
-import subprocess
 import time
-
-from flask import Flask, request, redirect, url_for, jsonify
 from logging.handlers import RotatingFileHandler
 from os import sys, path
+
+from flask import Flask, request, jsonify
+from flasgger import Swagger
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
@@ -20,16 +20,21 @@ DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matla
                                    '-nodesktop -r '"Leia_DAC_up;"  # TODO
 
 app = Flask(__name__)
+Swagger(app)
+
+
+# TODO Laia and Josep Maria review
 
 
 @app.route('/api/hello', methods=['GET'])
-def hello_world():  # TODO delete route
+def hello_world(params):  # TODO delete route
     if request.method == 'GET':
         try:
             logger.info('This is a info message!')
             logger.debug('This is a debug message!')
             logger.error('This is a error message!')
             logger.warning('This is a warning message!')
+            print(params, params['conf_mode'])
             return jsonify('Hello, World!', 200)
 
         except Exception as e:
@@ -41,7 +46,61 @@ def hello_world():  # TODO delete route
 def hello_world2():  # TODO delete route
     if request.method == 'GET':
         try:
-            return redirect(url_for('hello_world'))
+            hello_world(request.json)
+            return jsonify('Hello, World 2!', 200)
+
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+
+@app.route('/api/dac_osc_configuration', methods=['POST'])
+def dac_osc_configuration():
+    """
+    DAC and OSC configuration.
+    ---
+    post:
+        summary: DAC and OSC configuration. # TODO
+        description: DAC and OSC configuration. # TODO
+        parameters:
+            - name: conf_mode
+              description: |
+                Identify the configuration mode of the transceiver.
+                0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE.
+              type: int
+            - name: trx_mode
+              description: Identify the mode for the transceiver of OSC. 0 for estimation mode or 1 for transmission mode.
+              type: int
+            - name: tx_ID
+              description: |
+                Identify the channel of the DAC to be used and the local files to use for storing data.
+                0 or 1. # TODO
+              type: int
+            - name: rx_ID
+              description: |
+                Identify the channel of the OSC to be used and the local files to use for storing data.
+                0 or 1. # TODO
+              type: int
+            - name: bn
+              description: Contains the bits per symbol per subcarrier.
+              type: int array of 512 positions
+            - name: En
+              description: Contains the power per subcarrier figure.
+              type: float array of 512 positions
+        responses:
+            200:
+                description: "Successful operation"
+                schema:
+                    type: str
+            405:
+                description: "Invalid operation"
+        """
+    if request.method == 'POST':
+        try:
+            params = request.json
+            dac_configuration(params)
+            osc_configuration(params)
+            return jsonify("DAC and OSC was successfully configured", 200)
 
         except Exception as e:
             logger.error(e)
@@ -49,48 +108,39 @@ def hello_world2():  # TODO delete route
 
 
 @app.route('/api/dac', methods=['POST'])
-def dac_startup():
+def dac_configuration(params):
     """
-    DAC route.
-
+    DAC configuration.
+    ---
     post:
-        summary: DAC configuration.
-        description: Startup DAC configuration.
-            - Configuration 1:
-                - To demonstrate bidirectionality.
-                - Simple scheme: An OpenConfig terminal device comprises BVTx+BVTRx of a single client.
-                - There are two Openconfig Terminals (C1 and C2).
-            - Configuration 2:
-                - The S-BVT consist of 2 clients (C1 and C2) that are part of a single OpenConfig terminal device.
-                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels,
-                creating a superchannel. The central wavelength of the superchannel is configured/set by the OpenConfig
-                agent.
-                - We can not demonstrate bidirectionality due to hardware limitations.
-            - Configuration 3: # TODO BLUESPACE
-
-        attributes:
+        summary: DAC configuration. # TODO
+        description: DAC configuration. # TODO
+        parameters:
             - name: conf_mode
-              description: Identify the configuration mode of the transceiver.
-              type: int (0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE).
+              description: |
+                Identify the configuration mode of the transceiver.
+                0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE.
+              type: int
             - name: tx_ID
-              description: Identify the channel of the DAC to be used and the local files to use for storing data.
-              type: int (0 or 1)
+              description: |
+                Identify the channel of the DAC to be used and the local files to use for storing data.
+                0 or 1. # TODO
+              type: int
             - name: bn
               description: Contains the bits per symbol per subcarrier.
               type: int array of 512 positions
             - name: En
               description: Contains the power per subcarrier figure.
               type: float array of 512 positions
-
         responses:
             200:
-                description: (str, int, int) DAC was successfully configured. Shows the type of configuration and the
-                channel of the DAC used.
-            500:
-                description: (str) Error message in case there is some error.
+                description: "Successful operation"
+                schema:
+                    type: str
+            405:
+                description: "Invalid operation"
     """
     if request.method == 'POST':
-        params = request.json  # conf_mode, tx_ID, bn, En values from agent
         if params is not None:
             configuration = params['conf_mode']
             tx_id = params['tx_ID']
@@ -191,36 +241,28 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
 
 
 @app.route('/api/osc', methods=['POST'])
-def osc_startup():
+def osc_configuration(params):
     """
-    OSC route.
-
+    OSC configuration.
+    ---
     post:
-        summary: OSC configuration.
-        description: Startup OSC configuration.
-            - Configuration 1:
-                - To demonstrate bidirectionality.
-                - Simple scheme: An OpenConfig terminal device comprises BVTx+BVTRx of a single client.
-                - There are two Openconfig Terminals (C1 and C2).
-            - Configuration 2:
-                - The S-BVT consist of 2 clients (C1 and C2) that are part of a single OpenConfig terminal device.
-                - Two clients are assigned to a single optical channel, corresponding to two logical optical channels,
-                creating a superchannel. The central wavelength of the superchannel is configured/set by the OpenConfig
-                agent.
-                - We can not demonstrate bidirectionality due to hardware limitations.
-            - Configuration 3: # TODO BLUESPACE
-
-        attributes:
+        summary: OSC configuration. # TODO
+        description: OSC configuration. # TODO
+        parameters:
             - name: conf_mode
-              description: Identify the configuration mode of the transceiver.
-              type: int (0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE)
+              description: |
+                Identify the configuration mode of the transceiver.
+                0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE.
+              type: int
             - name: trx_mode
-              description: Identify the mode of the transceiver.
-              type: int (0 for estimation mode or 1 for transmission mode)
+              description: Identify the mode of the transceiver. 0 for estimation mode or 1 for transmission mode.
+              type: int
             - name: rx_ID
-              description: Identify the channel of the OSC to be used and the local files to use for storing data.
-              type: int (0 or 1)
-             name: bn
+              description: |
+                Identify the channel of the OSC to be used and the local files to use for storing data.
+                0 or 1. # TODO
+              type: int
+            - name: bn
               description: Contains the bits per symbol per subcarrier.
               type: int array of 512 positions
             - name: En
@@ -229,19 +271,15 @@ def osc_startup():
             - name: eq
               description: # TODO
               type: # TODO
-
-        responses:
+        rresponses:
             200:
-                description:
-                    - (str, int, int) OSC was successfully configured.  Shows the type of configuration and the
-                    channel of the OSC used.
-                    - (float array of 512 positions) that contains the estimated SNR per subcarrier.
-                    - (float array of 512 positions) that contains the BER of received data.
-            500:
-                description: (str) Error message in case there is some error.
+                description: "Successful operation"
+                schema:
+                    type: str
+            405:
+                description: "Invalid operation"
     """
     if request.method == 'POST':
-        params = request.json  # conf_mode, trx_mode, rx_ID, bn, En, eq values from agent
         if params is not None:
             configuration = params['conf_mode']
             trx_mode = params['trx_mode']
@@ -255,9 +293,9 @@ def osc_startup():
                 configuration, rx_id)
 
             logger.debug("Running configuration mode {} with channel id {}".format(configuration, rx_id))
-            if configuration == 0:   # Configuration 1
+            if configuration == 0:  # Configuration 1
                 try:
-                    logger.debug("")   # TODO
+                    logger.debug("")  # TODO
                     result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
                     return jsonify(result, 200)
 
@@ -294,8 +332,7 @@ def osc_startup():
 
 def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
     """
-    Run OSC configuration.
-    # TODO more description
+    Run OSC configuration. # TODO
 
     :param rx: OSC object
     :type rx: OSC
@@ -323,7 +360,8 @@ def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
 
 if __name__ == '__main__':
     # File Handler
-    fileHandler = RotatingFileHandler('server/server.log', maxBytes=10000000, backupCount=5)
+    # fileHandler = RotatingFileHandler('server/server.log', maxBytes=10000000, backupCount=5)
+    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
     # Stream Handler
     streamHandler = logging.StreamHandler()
     # Create a Formatter for formatting the logs messages
