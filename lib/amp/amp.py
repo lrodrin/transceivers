@@ -228,7 +228,7 @@ class Amplifier:
             raise error
 
     @staticmethod
-    def startup(ip, addr, mode, power, status):
+    def configuration(ip, addr, mode, power, status):
         """
         Amplifier startup:
 

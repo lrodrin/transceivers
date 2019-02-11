@@ -15,4 +15,4 @@ if __name__ == '__main__':
     # channel 2 - lambda0 1550.9
     lambda0 = 1550.12
     power = 7.5
-    Laser.startup(ip, addr, channel, lambda0, power, True)
+    Laser.configuration(ip, addr, channel, lambda0, power, True)

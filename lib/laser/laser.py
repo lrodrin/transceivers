@@ -244,7 +244,7 @@ class Laser:
             raise error
 
     @staticmethod
-    def startup(ip, addr, ch, lambda0, power, status):
+    def configuration(ip, addr, ch, lambda0, power, status):
         """
         Laser startup:
 

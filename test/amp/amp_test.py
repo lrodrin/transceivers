@@ -13,5 +13,5 @@ if __name__ == '__main__':
     addr = '3'
     mode = "APC"
     power = 7.5
-    Amplifier.startup(ip_1, addr, mode, power, True)
-    Amplifier.startup(ip_2, addr, mode, power, True)
+    Amplifier.configuration(ip_1, addr, mode, power, True)
+    Amplifier.configuration(ip_2, addr, mode, power, True)

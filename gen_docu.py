@@ -23,9 +23,9 @@ if __name__ == '__main__':
             for root, dirs, files in os.walk(LIBPATH + dir + "/"):
                 for filename in files:
                     if filename.endswith(".py") and not filename.startswith("_"):
-                        print("pydoc -w " + LIBPATH + dir + "/" + filename)
+                        print("pydoc3 -w " + LIBPATH + dir + "/" + filename)
                         try:
-                            os.system("pydoc -w " + LIBPATH + dir + "/" + filename)
+                            os.system("pydoc3 -w " + LIBPATH + dir + "/" + filename)
                         except:
                             pass
                             # TODO

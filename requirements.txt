@@ -1,3 +1,4 @@
+flasgger
 scipy
 matplotlib
 numpy

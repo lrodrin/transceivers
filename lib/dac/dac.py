@@ -149,8 +149,6 @@ class DAC:
             Cx_LEIA = np.around(
                 Cx_bias / np.max(Cx_bias) * self.Qt - np.ceil(self.Qt / 2))  # Signal to download to LEIA
 
-            # Cx_bias_up = Cx_up - np.min(Cx_up)    # TODO esborrar variables
-            # Cx_up = np.around(Cx_bias_up / np.max(Cx_bias_up) * self.Qt - np.ceil(self.Qt / 2))
             logger.debug("OFDM signal is created")
 
             logger.debug('Initializing LEIA')
