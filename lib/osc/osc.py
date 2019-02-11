@@ -103,13 +103,14 @@ class OSC:
             Subzero = np.array(np.where(bn == 0))
             SNRT = 0
             BERT = 0
+            SNR = np.array(np.zeros(self.Ncarriers))
             cdatar = np.delete(cdatar, Subzero, axis=1)
             bn = np.delete(bn, Subzero)
             Runs = 0
             logger.debug('Iterating')
             for run in range(1, self.Niters + 1):
                 Ncarriers_eq = self.Ncarriers
-                logger.debug('Adquiring')
+
                 if rx_ID == 0:
                     data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
                 else:
@@ -192,7 +193,7 @@ class OSC:
                     Runs = Runs + 1
 
             BER = BERT / Runs
-            return SNR, BER  # TODO inicialitzar SNR
+            return SNR, BER
 
         except Exception as error:
             logger.error("Receiver method, {}".format(error))
@@ -201,25 +202,25 @@ class OSC:
     @staticmethod
     def acquire(channel_ID, npoints, fs):
         """
-        # TODO descripcio de que fa la funcio
+        This function acquires the transmitted data from the specified OSC channel.
 
         :param channel_ID: DPO channel used to adquire data
         :type channel_ID: int
         :param npoints: Number of points to adquire
-        :type npoints: # TODO int or float ?
+        :type npoints: int 
         :param fs: sampling frequency of the DPO
         :type: int
-        :return: # TODO que retorna ?
-        :rtype: # TODO quin tipus de variable retorna ?
+        :return: Adquired signal
+        :rtype: float array
         """
         try:
-            # TODO posar algun logger.debug
+
             dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
             # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
 
             dpo.write('HOR:mode:RECO %d' % npoints)  # Set the record length to npoints
             dpo.write('HOR:mode:SAMPLER %d' % fs)  # Set the sample rate to fs
-
+            logger.debug('Acquiring data...')
             # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
 
             dpo.write('DAT:SOU CH%d' % channel_ID)
@@ -247,7 +248,7 @@ class OSC:
         :type bn: int array of 512 positions
         :param En: array of Ncarriers positions that contains the power per subcarrier figure
         :type En: float array of 512 positions
-        :return: # TODO que retorna ?
+        :return: Mapped data, transmitted bitstream and OFDM signal
         :rtype: list
         """
         try:

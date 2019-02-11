@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--host', '-H', default=HOST, help="remote host address")
     parser.add_argument('--port', '-P', default=PORT, help="port")
     parser.add_argument('--user', '-u', default=USER, help="username")
-    parser.add_argument('--password', '-p', default=PASS, help="password")
+    parser.add_argument('--password', '-matlab', default=PASS, help="password")
     args = parser.parse_args()
 
     xml = read_file(args.topology)

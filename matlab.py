@@ -1,30 +1,29 @@
-import subprocess
+from subprocess import Popen, PIPE
+from threading import Timer
 
-p = subprocess.Popen(
-    ['C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe', '-nodisplay', '-nosplash', '-nodesktop', '-wait', '-r',
-     'Leia_DAC_up;'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
-try:
-    out, err = p.communicate()
-    print(out, err)
+def run(timeout_sec):
+    proc = Popen(['notepad.exe', r'C:\Users\cttc\Desktop\agent-bvt\server\Leia_DAC_up.m'], stdout=PIPE, stderr=PIPE)
+    # proc = Popen(
+    #     ['C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe', '-nodisplay', '-nosplash', '-nodesktop',
+    #      r'C:\Users\cttc\Desktop\agent-bvt\server\Leia_DAC_up.m'], stdout=PIPE, stderr=PIPE)
 
-except:
-    pass
+    timer = Timer(timeout_sec, proc.kill)
+    try:
+        timer.start()
+        stdout, stderr = proc.communicate()
+        print("retcode = ", proc.returncode)
+        print("res = ", stdout)
+        print("stderr = ", stderr)  # TODO error control
+    finally:
+        timer.cancel()
 
-# error que es quedi amb wait.
-try:
-    p.wait(timeout=0.1)
-except subprocess.TimeoutExpired:
-    p.kill()
-# try:
-#     out, err = p.communicate()
-#     if err:
-#         print("err", err)
-#     else:
-#         print("out", out)
-# except TimeoutError:
-#     p.kill()
-#     out, err = p.communicate()
-#
-# if p.returncode != 0:
-#     print("fail")
+    return proc.returncode
+
+
+if __name__ == '__main__':
+    rc = 0
+    while rc != 1:
+        rc = run(10)  # timeout happens at 10 second
+        print(rc)
+
