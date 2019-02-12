@@ -1,29 +1,31 @@
 import logging
+import requests
 from logging.handlers import RotatingFileHandler
 from os import sys, path
 
-import requests
 from flask import Flask, request, json, jsonify
-
-ADDR_AMPLIFIER = '3'
-IP_AMPLIFIER_2 = '10.1.1.15'
-IP_AMPLIFIER_1 = '10.1.1.16'
-ADDR_LASER = '11'
-IP_LASER = '10.1.1.7'
-SPEED_OF_LIGHT = 299792458
-URL_DAC_OSC_SERVER = 'http://10.1.7.64:5000/api/'
-HEADERS = {"Content-Type": "application/json"}
+from flasgger import Swagger
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
 
+IP_LASER = '10.1.1.7'
+IP_AMPLIFIER_1 = '10.1.1.16'
+IP_AMPLIFIER_2 = '10.1.1.15'
+ADDR_LASER = '11'
+ADDR_AMPLIFIER = '3'
+SPEED_OF_LIGHT = 299792458
+URL_DAC_OSC_SERVER = 'http://10.1.7.64:5000/api/'
+HEADERS = {"Content-Type": "application/json"}
+
 app = Flask(__name__)
+Swagger(app)
 
 
 @app.route('/api/vi/openconfig/hello', methods=['GET'])
-def hello_world():  # TODO delete
+def hello_world():  # TODO delete route
     if request.method == 'GET':
         try:
             logger.info('This is a info message!')
@@ -41,24 +43,26 @@ def hello_world():  # TODO delete
 def local_assignment():
     """
     # TODO
-
-    post: # TODO
-        summary: # TODO
-        description: Reference to the line-side optical channel that should carry the current logical channel element.
-        Use this reference to exit the logical element stage.
-        attributes:
-            - name: client
-              description: Identify the client to be used.
-              type: string (0 for C1 or 1 for C2)
-            - name: och
-              description: Identify the optical channel to be used.
-              type: string
-
-        responses:
-            200:
-                description: (str) Client was successfully assigned to optical channel.
-            500:
-                description: (str) Error message in case there is some error.
+    ---
+    post:
+    description: |
+        Reference to the line-side optical channel that should carry the current logical channel element. Use this
+        reference to exit the logical element stage
+    parameters:
+    - name: client
+      in: body
+      type: integer
+      description: Identify the client to be used
+      example: 0 for C1 or 1 for C2
+    - name: och
+      in: body
+      type: integer
+      description: Identify the optical channel to be used
+    responses:
+        200:
+            description: "Successful operation"
+        405:
+            description: "Invalid input"
     """
     if request.method == 'POST':
         params = request.json
@@ -80,40 +84,46 @@ def local_assignment():
 @app.route('/api/vi/openconfig/optical_channel', methods=['POST'])
 def optical_channel_configuration():
     """
-    Optical Channel Configuration route.
-
+    Optical Channel Configuration
+    ---
     post:
-        summary: Configuration of the terminal optical channel (och).
-        description: Configure the optical channel och by setting frequency, power and mode.
-        attributes:
-            - name: och
-              description: Optical channel.
-              type: str
-            - name: freq
-              description: Frequency of the Laser, expressed in MHz.
-              type: int
-            - name: pow
-              description: Power of the Laser, expressed in increments of 0.01 dBm.
-              type: int
-            - name: mode
-              description: Vendor-specific mode identifier -- sets the operational mode for the channel. The specified
-              operational mode must exist in the list of supported operational modes supplied by the device.
-              type: int
-
-        responses:
-            200:
-                description: (string) Optical Channel was successfully configured.
-           500:
-                description: (str) Error message in case there is some error.
-
+    description: Configuration of the optical channel by setting frequency, power and mode
+    parameters:
+    - name: och
+      in: body
+      type: integer
+      description: Optical channel id.
+      example: 1 or 2
+    - name: freq
+      in: body
+      type: integer
+      description: |
+        Frequency of the Laser expressed in MHz. 193.4e6 (1550.119) for channel 1 and 193.3e6 (1550.918) for channel 2
+      example: 193.3e6 or 193.4e6
+    - name: power
+      in: body
+      type: float
+      description: Power of the Laser expressed in increments of 0.01 dBm
+      example: 3.20 uniform loading or 0.4 loading
+    - name: mode
+      in: body
+      type: integer
+      description: |
+            Vendor-specific mode identifier. Sets the operational mode for the channel. The specified operational mode
+            must exist in the list of supported operational modes supplied by the device
+    responses:
+        200:
+            description: "Successful operation"
+        405:
+            description: "Invalid input"
     """
     if request.method == 'POST':
         params = request.json
-        och = params['och']
-        freq = params['freq']
-        power = params['power']
-        mode = params['mode']
         if params is not None:
+            och = params['och']
+            freq = params['freq']
+            power = params['power']
+            mode = params['mode']
             try:
                 logger.debug("Optical Channel configuration started")
                 python_f(och, freq, power, mode)
@@ -128,48 +138,44 @@ def optical_channel_configuration():
 
 def python_f(och, freq, power, mode):
     """
-    Terminal Optical Channel Configuration:
+    Run Optical Channel Configuration:
 
-        - Laser configuration.
-            - channel 1 = freq 193.4e6 = lambda0 1550.119
-            - channel 2 = freq 193.3e6 = lambda0 1550.918
-        - Amplifiers configuration.
-            - mode: APC, AGC or ACC.
-            - power: 3.20 uniform loading or 0.4 loading
-        - DAC configuration.
-        - OSC configuration.
+        - Run Laser configuration.
+        - Run Amplifiers configuration.
+        - Run DAC configuration.
+        - Run OSC configuration.
 
-    :param och: Laser channel id
+    :param och: Laser channel id. 1 for channel 1 and 2 for channel 2
     :type och: int
-    :param freq: frequency of the laser
-    :type freq: float
-    :param power: power of the Laser
+    :param freq: frequency of the Laser. 193.4e6 (1550.119) for channel 1 and 193.3e6 (1550.918) for channel 2
+    :type freq: int
+    :param power: power of the Laser. 3.20 uniform loading or 0.4 loading
     :type power: float
     :param mode: operational mode for the optical channel
     :type mode: int
     """
-    vars = init_variables()
+    params = init_variables()
     logger.debug("Laser configuration started")
     lambda0 = (SPEED_OF_LIGHT / (freq * 1e6)) * 1e9  # wavelength in nm
-    power = power + 9  # counting the losses because of optical modulation
+    power += 9  # counting the losses because the optical modulation
     # TODO
     # if power == x:
     # elif power == y:
-    Laser.configuration(IP_LASER, ADDR_LASER, och, lambda0, power, vars['laser'])
+    Laser.configuration(IP_LASER, ADDR_LASER, och, lambda0, power, params['laser_status'])
     logger.debug("Laser configuration finished")
 
     logger.debug("Amplifiers configuration started")
-    Amplifier.configuration(IP_AMPLIFIER_1, ADDR_AMPLIFIER, vars['amplifier'][0], vars['amplifier'][1],
-                            vars['amplifier'][2])
-    Amplifier.configuration(IP_AMPLIFIER_2, ADDR_AMPLIFIER, vars['amplifier'][0], vars['amplifier'][1],
-                            vars['amplifier'][2])
+    Amplifier.configuration(IP_AMPLIFIER_1, ADDR_AMPLIFIER, params['amplifier'][0], params['amplifier'][1],
+                            params['amplifier'][2])
+    Amplifier.configuration(IP_AMPLIFIER_2, ADDR_AMPLIFIER, params['amplifier'][0], params['amplifier'][1],
+                            params['amplifier'][2])
     logger.debug("Amplifiers configuration finished")
 
-    logger.debug("DAC configuration started")
-    request = requests.post(URL_DAC_OSC_SERVER + 'dac_osc_configuration', headers=HEADERS,
-                            data=json.dumps(vars['dac_osc']))
-    if request:
-        data = request.json()
+    logger.debug("DAC and OSC configuration started")
+    response = requests.post(URL_DAC_OSC_SERVER + 'dac_osc_configuration', headers=HEADERS,
+                             data=json.dumps(params['dac_osc']))
+    if response:
+        data = response.json()
         logger.debug(data)
         logger.debug("DAC and OSC configuration finished")
     else:
@@ -178,22 +184,27 @@ def python_f(och, freq, power, mode):
 
 def init_variables():
     """
-    # TODO
-    :return:
+    Initialization of the necessary variables for the configuration of an optical channel:
+
+        - Laser variables contains enable or disable status.
+        - Amplifiers variables contains mode, power and enable or disable status.
+        - DAC and OSC variables contains configuration mode, transceiver mode, transceiver id, receiver id,
+        bits per symbol per subcarrier, power per subcarrier figure and equalization.
+
+    :return: a dictionary with the variables of Laser, Amplifiers, DAC and OSC
     :rtype: dict
     """
-    params_dac_osc = {'conf_mode': 0, 'trx_mode': 1, 'tx_ID': 0, 'rx_ID': 0, 'bn': 2, 'En': 0, 'eq': 0}
     d = {
-        'laser': True,
+        'laser_status': True,
         'amplifier': ["APC", 7.5, True],
-        'dac_osc': params_dac_osc
+        'dac_osc': {'conf_mode': 0, 'trx_mode': 1, 'tx_ID': 0, 'rx_ID': 0, 'bn': 2, 'En': 0, 'eq': 0}
     }
     return d
 
 
 if __name__ == '__main__':
     # File Handler
-    # fileHandler = RotatingFileHandler('metro-haul/server.log', maxBytes=10000000, backupCount=5)
+    # fileHandler = RotatingFileHandler('server/server.log', maxBytes=10000000, backupCount=5)
     fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
     # Stream Handler
     streamHandler = logging.StreamHandler()
