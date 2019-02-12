@@ -12,7 +12,6 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC
 from lib.osc.osc import OSC
 
-OPTIMAL_BER = 4.6e-3
 DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
                                      '-nodesktop -r '"Leia_DAC_down;"  # TODO
 
@@ -21,9 +20,6 @@ DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matla
 
 app = Flask(__name__)
 Swagger(app)
-
-
-# TODO Laia and Josep Maria review
 
 
 @app.route('/api/hello', methods=['GET'])
@@ -57,44 +53,52 @@ def hello_world2():  # TODO delete route
 @app.route('/api/dac_osc_configuration', methods=['POST'])
 def dac_osc_configuration():
     """
-    DAC and OSC configuration.
+    DAC and OSC configuration
     ---
     post:
-        summary: DAC and OSC configuration. # TODO
-        description: DAC and OSC configuration. # TODO
-        parameters:
-            - name: conf_mode
-              description: |
-                Identify the configuration mode of the transceiver.
-                0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE.
-              type: int
-            - name: trx_mode
-              description: Identify the mode for the transceiver of OSC. 0 for estimation mode or 1 for transmission mode.
-              type: int
-            - name: tx_ID
-              description: |
-                Identify the channel of the DAC to be used and the local files to use for storing data.
-                0 or 1. # TODO
-              type: int
-            - name: rx_ID
-              description: |
-                Identify the channel of the OSC to be used and the local files to use for storing data.
-                0 or 1. # TODO
-              type: int
-            - name: bn
-              description: Contains the bits per symbol per subcarrier.
-              type: int array of 512 positions
-            - name: En
-              description: Contains the power per subcarrier figure.
-              type: float array of 512 positions
-        responses:
-            200:
-                description: "Successful operation"
-                schema:
-                    type: str
-            405:
-                description: "Invalid operation"
-        """
+    description: |
+        DAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal
+        DAC configuration creates an OFDM signal and uploads it to Leia DAC
+        OSC configuration adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream
+    consumes:
+    - application/json
+    produces:
+    - application/json
+    parameters:
+    - name: conf_mode
+      in: body
+      type: integer
+      description: Identify the configuration mode of the transceiver
+      example: 0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE
+    - name: trx_mode
+      in: body
+      type: integer
+      description: Identify the mode for the transceiver of OSC
+      example: 0 for estimation mode or 1 for transmission mode
+    - name: tx_ID
+      in: body
+      type: integer
+      description: Identify the channel of the DAC to be used and the local files to use for storing data of each client
+      example: 0 or 1 
+    - name: rx_ID
+      in: body
+      type: integer
+      description: Identify the channel of the OSC to be used and the local files to use for storing data of each client
+      example: 0 or 1 
+    - name: bn
+      in: body
+      type: array
+      description: Contains the bits per symbol per subcarrier
+    - name: En
+      in: body
+      type: array
+      description: Contains the power per subcarrier figure
+    responses:
+        200:
+            description: "Successful operation"
+        405:
+            description: "Invalid input"
+    """
     if request.method == 'POST':
         try:
             params = request.json
@@ -110,35 +114,39 @@ def dac_osc_configuration():
 @app.route('/api/dac', methods=['POST'])
 def dac_configuration(params):
     """
-    DAC configuration.
+    DAC configuration
     ---
     post:
-        summary: DAC configuration. # TODO
-        description: DAC configuration. # TODO
-        parameters:
-            - name: conf_mode
-              description: |
-                Identify the configuration mode of the transceiver.
-                0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE.
-              type: int
-            - name: tx_ID
-              description: |
-                Identify the channel of the DAC to be used and the local files to use for storing data.
-                0 or 1. # TODO
-              type: int
-            - name: bn
-              description: Contains the bits per symbol per subcarrier.
-              type: int array of 512 positions
-            - name: En
-              description: Contains the power per subcarrier figure.
-              type: float array of 512 positions
-        responses:
-            200:
-                description: "Successful operation"
-                schema:
-                    type: str
-            405:
-                description: "Invalid operation"
+    description: |
+        DAC configuration performs DSP to create an OFDM signal and creates an OFDM signal and uploads it to the LEIA DAC
+    consumes:
+    - application/json
+    produces:
+    - application/json
+    parameters:
+    - name: conf_mode
+      in: body
+      type: integer
+      description: Identify the configuration mode of the transceiver
+      example: 0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE
+    - name: tx_ID
+      in: body
+      type: integer
+      description: Identify the channel of the DAC to be used and the local files to use for storing data of each client
+      example: 0 or 1 
+    - name: bn
+      in: body
+      type: array
+      description: Contains the bits per symbol per subcarrier
+    - name: En
+      in: body
+      type: array
+      description: Contains the power per subcarrier figure
+    responses:
+        200:
+            description: "Successful operation"
+        405:
+            description: "Invalid input"
     """
     if request.method == 'POST':
         if params is not None:
@@ -206,7 +214,7 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
     """
     Run DAC configuration.
 
-        - Generate a BitStream and creates the OFDM signal to be uploaded into the DAC.
+        - Generate a BitStream and creates the OFDM signal to be uploaded into Leia DAC.
         - Enable the DAC channel.
         - Call MATLAB program to process ? # TODO
 
@@ -218,11 +226,11 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
     :type bn: int array of 512 positions
     :param En: power per subcarrier figure
     :type En: float array of 512 positions
-    :param temp_file: # TODO
-    :type temp_file: file
-    :param seq: # TODO
+    :param temp_file: file to save the generated OFDM signal to be uploaded to the Leia DAC
+    :type temp_file: file 
+    :param seq: sets 1 to the active Leia output and 0 to the remaining outputs
     :type seq: str
-    :param leia_file: # TODO
+    :param leia_file: variable to identify the active client/user and the corresponding enabled LEIA output
     :type leia_file: str
     """
     tx.transmitter(tx_id, bn, En)
@@ -243,41 +251,49 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
 @app.route('/api/osc', methods=['POST'])
 def osc_configuration(params):
     """
-    OSC configuration.
+    OSC configuration
     ---
     post:
-        summary: OSC configuration. # TODO
-        description: OSC configuration. # TODO
-        parameters:
-            - name: conf_mode
-              description: |
-                Identify the configuration mode of the transceiver.
-                0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE.
-              type: int
-            - name: trx_mode
-              description: Identify the mode of the transceiver. 0 for estimation mode or 1 for transmission mode.
-              type: int
-            - name: rx_ID
-              description: |
-                Identify the channel of the OSC to be used and the local files to use for storing data.
-                0 or 1. # TODO
-              type: int
-            - name: bn
-              description: Contains the bits per symbol per subcarrier.
-              type: int array of 512 positions
-            - name: En
-              description: Contains the power per subcarrier figure.
-              type: float array of 512 positions
-            - name: eq
-              description: # TODO
-              type: # TODO
-        rresponses:
-            200:
-                description: "Successful operation"
-                schema:
-                    type: str
-            405:
-                description: "Invalid operation"
+    description: |
+        OSC configuration adquires and process the OFDM signal. Runs the selected OSC configuration in order to process
+        the received OFDM signal and retrieve the original bitstream
+    consumes:
+    - application/json
+    produces:
+    - application/json
+    parameters:
+    - name: conf_mode
+      in: body
+      type: integer
+      description: Identify the configuration mode of the transceiver
+      example: 0 for configuration 1 METRO, 1 for configuration 2 METRO and 2 for configuration 3 BLUESPACE
+    - name: trx_mode
+      in: body
+      type: integer
+      description: Identify the mode of the transceiver. 0 for estimation mode or 1 for transmission mode
+    - name: rx_ID
+      in: body
+      type: integer
+      description: Identify the channel of the OSC to be used and the local files to use for storing data of each client
+      example: 0 or 1 
+    - name: bn
+      in: body
+      type: array
+      description: Contains the bits per symbol per subcarrier
+    - name: En
+      in: body
+      type: array
+      description: Contains the power per subcarrier figure
+    - name: eq
+      in: body
+      type: string
+      description: Identify the equalization type
+      example: MMSE or ZF
+    responses:
+        200:
+            description: "Successful operation"
+        405:
+            description: "Invalid input"
     """
     if request.method == 'POST':
         if params is not None:
@@ -292,10 +308,11 @@ def osc_configuration(params):
             msg = "OSC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
                 configuration, rx_id)
 
-            logger.debug("Running configuration mode {} with channel id {}".format(configuration, rx_id))
-            if configuration == 0:  # Configuration 1
+            logger.debug("Running configuration mode {} with OSC channel id {}".format(configuration, rx_id))
+            msg_log = "Processing received data of user {}".format(rx_id)
+            if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
                 try:
-                    logger.debug("")  # TODO
+                    logger.debug(msg_log)
                     result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
                     return jsonify(result, 200)
 
@@ -306,7 +323,7 @@ def osc_configuration(params):
             elif configuration == 1:
                 if rx_id == 0:
                     try:
-                        logger.debug("")  # TODO
+                        logger.debug(msg_log)
                         result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
                         return jsonify(result, 200)
 
@@ -316,23 +333,22 @@ def osc_configuration(params):
 
                 if rx_id == 1:
                     try:
-                        logger.debug("")  # TODO
+                        logger.debug(msg_log)
                         result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
                         return jsonify(result, 200)
 
                     except Exception as e:
                         logger.error(e)
                         return jsonify(e, 500)
-
-            elif configuration == 2:  # TODO BLUESPACE
-                pass
         else:
             raise ValueError('The parameters sended by the agent are not correct.')
 
 
 def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
     """
-    Run OSC configuration. # TODO
+    Run OSC configuration.
+    Adquires the OFDM signal and implents specific DSP to retrieve the original bitstream.
+    It calculates the BER and SNR in order to evaluate the system performance
 
     :param rx: OSC object
     :type rx: OSC
@@ -344,15 +360,15 @@ def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
     :type bn: int array of 512 positions
     :param En: power per subcarrier figure
     :type En: float array of 512 positions
-    :param eq: # TODO
-    :type eq: # TODO
+    :param eq: Identify the type of equalization (MMSE or ZF)
+    :type eq: str
     :param msg: print message
     :type msg: str
     :return: print message with estimated SNR per subcarrier and the BER of received data
     :rtype: str
     """
     snr, ber = rx.receiver(trx_mode, rx_id, bn, En, eq)
-    if ber > OPTIMAL_BER:
+    if ber > 4.6e-3:    # optimal BER
         return msg + "SNR = {} and not optimal BER = {}".format(snr, ber)
     else:
         return msg + "SNR = {} and optimal BER = {}".format(snr, ber)
