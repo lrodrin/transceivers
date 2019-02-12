@@ -320,7 +320,7 @@ def osc_configuration(params):
                     logger.error(e)
                     return jsonify(e, 500)
 
-            elif configuration == 1:
+            elif configuration == 1:    # Configuration 2
                 if rx_id == 0:
                     try:
                         logger.debug(msg_log)
