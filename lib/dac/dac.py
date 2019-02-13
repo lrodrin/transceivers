@@ -15,11 +15,12 @@ class DAC:
     """
     This is the class for DAC module.
     """
-    # TODO gestio de fitxers
-    clock_ref_file = "CLK_ref.txt"  # File to save the clock_ref for the DAC
-    clock_file = "CLK.txt"  # File to save the clock value for the DAC
-    temp_file = "TEMP.txt"  # File to save the OFDM signal that will be uploaded to LEIA DAC
-    sleep_time = 130  # Time needed to finish the processes of MATLAB before OSC startup
+    folder = "C:/Users/cttc/Desktop/agent-bvt/conf/"    # Folder that stores all the configuration files
+    clock_ref_file = folder + "CLK_ref.txt"  # File to save the clock_ref for the DAC
+    clock_file = folder + "CLK.txt"  # File to save the clock value for the DAC
+    temp_file = folder + "TEMP.txt"  # File to save the OFDM signal that will be uploaded to LEIA DAC
+    leia_up_filename = "Leia_DAC_up.m"  # TODO
+    leia_down_filename = "Leia_DAC_dowm.m"  # TODO
 
     Preemphasis = True
     BW_filter = 25e9

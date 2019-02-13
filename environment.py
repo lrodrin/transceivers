@@ -22,6 +22,10 @@ print(logger.name)
 
 logger.debug("HEHE")
 
+if "up" in "Leia_DAC_up.m":
+    print("YES")
+
+
 
 import requests
 
@@ -30,3 +34,4 @@ headers = {"Content-Type": "application/json"}
 
 request = requests.get(url + 'hello', headers=headers)
 print(request.status_code, request.content)
+

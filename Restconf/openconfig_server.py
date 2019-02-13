@@ -42,7 +42,7 @@ def hello_world():  # TODO delete route
 @app.route('/api/vi/openconfig/local_assignment', methods=['POST'])
 def local_assignment():
     """
-    # TODO
+    Function that assigns a client Cx to a optical channel Ochx 
     ---
     post:
     description: |
@@ -87,7 +87,7 @@ def optical_channel_configuration():
     Optical Channel Configuration
     ---
     post:
-    description: Configuration of the optical channel by setting frequency, power and mode
+    description: Configuration of the optical channel by setting frequency, optical power and operational mode
     parameters:
     - name: och
       in: body
@@ -98,19 +98,19 @@ def optical_channel_configuration():
       in: body
       type: integer
       description: |
-        Frequency of the Laser expressed in MHz. 193.4e6 (1550.119) for channel 1 and 193.3e6 (1550.918) for channel 2
+        Frequency of the optical channel expressed in MHz. 
       example: 193.3e6 or 193.4e6
     - name: power
       in: body
       type: float
-      description: Power of the Laser expressed in increments of 0.01 dBm
+      description: Target optical power of level of the optical channel expressed in increments of 0.01 dBm
       example: 3.20 uniform loading or 0.4 loading
     - name: mode
       in: body
       type: integer
       description: |
             Vendor-specific mode identifier. Sets the operational mode for the channel. The specified operational mode
-            must exist in the list of supported operational modes supplied by the device
+            must exist in the list of supported operational modes supplied by the device. Example: FEC mode (SD, HD, %OH)
     responses:
         200:
             description: "Successful operation"
@@ -147,20 +147,21 @@ def python_f(och, freq, power, mode):
 
     :param och: Laser channel id. 1 for channel 1 and 2 for channel 2
     :type och: int
-    :param freq: frequency of the Laser. 193.4e6 (1550.119) for channel 1 and 193.3e6 (1550.918) for channel 2
+    :param freq: Frequency of the optical channel expressed in MHz.  e.g. 193.4e6 (1550.119) for channel 1 and 193.3e6
+    (1550.918) for channel 2
     :type freq: int
-    :param power: power of the Laser. 3.20 uniform loading or 0.4 loading
+    :param power: Target optical power of level of the optical channel expressed in increments of 0.01 dBm.
+    (e.g. 3.20 uniform loading or 0.4 loading)
     :type power: float
-    :param mode: operational mode for the optical channel
+    :param mode: Operational mode for the optical channel
     :type mode: int
     """
     params = init_variables()
     logger.debug("Laser configuration started")
     lambda0 = (SPEED_OF_LIGHT / (freq * 1e6)) * 1e9  # wavelength in nm
-    power += 9  # counting the losses because the optical modulation
-    # TODO
-    # if power == x:
-    # elif power == y:
+    if params['dac_osc']['conf_mode'] == 0:
+        power += 9  # To take into account the losses of the modulation (MZM)
+
     Laser.configuration(IP_LASER, ADDR_LASER, och, lambda0, power, params['laser_status'])
     logger.debug("Laser configuration finished")
 

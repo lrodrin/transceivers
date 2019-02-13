@@ -1,22 +1,15 @@
 import logging
-import os
-import time
 from logging.handlers import RotatingFileHandler
 from os import sys, path
+from subprocess import Popen, PIPE
 
-from flask import Flask, request, jsonify
 from flasgger import Swagger
+from flask import Flask, request, jsonify
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.dac.dac import DAC
 from lib.osc.osc import OSC
-
-DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
-                                     '-nodesktop -r '"Leia_DAC_down;"  # TODO
-
-DAC_MATLAB_CALL_WITH_LEIA_DAC_UP = '"C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe" -nodisplay -nosplash ' \
-                                   '-nodesktop -r '"Leia_DAC_up;"  # TODO
 
 app = Flask(__name__)
 Swagger(app)
@@ -118,7 +111,8 @@ def dac_configuration(params):
     ---
     post:
     description: |
-        DAC configuration performs DSP to create an OFDM signal and creates an OFDM signal and uploads it to the LEIA DAC
+        DAC configuration performs DSP to create an OFDM signal and creates an OFDM signal and uploads
+        it to the LEIA DAC
     consumes:
     - application/json
     produces:
@@ -166,7 +160,7 @@ def dac_configuration(params):
                     try:
                         logger.debug("Enable Hi DAC channel")
                         seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, "UP")
+                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_up_filename)
                         return jsonify(msg, 200)
 
                     except Exception as e:
@@ -177,7 +171,7 @@ def dac_configuration(params):
                     try:
                         logger.debug("Enable Hq DAC channel")
                         seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, "DOWN")
+                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_down_filename)
                         return jsonify(msg, 200)
 
                     except Exception as e:
@@ -189,7 +183,7 @@ def dac_configuration(params):
                     try:
                         logger.debug("Enable Hi DAC channel")
                         seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, "UP")
+                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_up_filename)
                         return jsonify(msg, 200)
 
                     except Exception as e:
@@ -200,7 +194,7 @@ def dac_configuration(params):
                     try:
                         logger.debug("Enable Hq DAC channel")
                         seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, "DOWN")
+                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_down_filename)
                         return jsonify(msg, 200)
 
                     except Exception as e:
@@ -216,7 +210,7 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
 
         - Generate a BitStream and creates the OFDM signal to be uploaded into Leia DAC.
         - Enable the DAC channel.
-        - Call MATLAB program to process ? # TODO
+        - Call MATLAB program to process the OFDM signal uploaded to the Leia DAC.
 
     :param tx: DAC object
     :type tx: DAC
@@ -230,21 +224,24 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
     :type temp_file: file 
     :param seq: sets 1 to the active Leia output and 0 to the remaining outputs
     :type seq: str
-    :param leia_file: variable to identify the active client/user and the corresponding enabled LEIA output
-    :type leia_file: str
+    :param leia_file: file with the generated OFDM signal to be uploaded to the LEIA DAC
+    :type leia_file: str (Leia_DAC_up.m or Leia_DAC_down.m)
     """
     tx.transmitter(tx_id, bn, En)
+    temp_file.write(seq)
+    matlab = 'C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe'
+    options = '-nodisplay -nosplash -nodesktop -wait'
     try:
-        temp_file.write(seq)
-        if leia_file == "UP":  # TODO change to subprocess
-            os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_UP)  # MATLAB call with file Leia_DAC_up.m
+        cmd = """{} {} -r "cd(fullfile('{}')), {}" """.format(matlab, options, DAC.folder, leia_file)
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)  # MATLAB call with file Leia_DAC_up.m or Leia_DAC_down.m
+        out, err = p.communicate()
+        if p.returncode == 0:
+            logger.debug("Command {} succeeded, exit-code = {} returned".format(cmd, p.returncode))
         else:
-            os.system(DAC_MATLAB_CALL_WITH_LEIA_DAC_DOWN)  # MATLAB call with file Leia_DAC_down.m
+            logger.error("Command {} failed, exit-code = {} returned, error = {}".format(cmd, p.returncode, str(err)))
 
-        time.sleep(DAC.sleep_time)
-
-    except Exception as error:
-        logger.error(error)
+    except OSError as error:
+        logger.error("Failed to execute MATLAB, %s" % error)
         raise error
 
 

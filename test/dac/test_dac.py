@@ -9,7 +9,6 @@ from lib.dac.dac import DAC
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
-    ip_server = '10.1.7.64'
     params = {'tx_ID': 0, 'bn': 2, 'En': 0}
     tx = DAC()
     tx.transmitter(params['tx_ID'], params['bn'], params['En'])
