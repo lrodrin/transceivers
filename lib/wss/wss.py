@@ -51,7 +51,7 @@ class Wss:
 
     def open(self):
         """
-        Create and Open the Waveshaper.
+        Create and open the Waveshaper.
         """
         name = self.name
         filename = self.filename
@@ -135,23 +135,24 @@ class Wss:
         """
         Check the loaded profile.
 
-        :return: bandwidth and attenuation
+        :return: bandwidth and port attenuation
         :rtype: list
         """
         profiletext = ""
         check_BW_wss = 0
         check_att = []
-        for frequency in np.arange(FREQUENCY_START, FREQUENCY_END, STEP, dtype=float):
+        for frequency in np.arange(Wss.frequency_start, Wss.frequency_end, Wss.step, dtype=float):
             for k in range(1):
                 profiletext = profiletext + "%.3f\t60.0\t0.0\t0\n" % frequency
 
+        # TODO treure rc per try and except pero s'ha de modificar la llibreria wsapi
+        # TODO logger
         rc = wsapi.ws_get_profile(self.name, profiletext, len(profiletext))  # TODO ws_get_profile not implemented
         if rc < 0:
             print(wsapi.ws_get_result_description(rc))
 
         profiletext_out = profiletext.split("\n")
         profile_wss = np.array(np.zeros(len(profiletext_out) * 4)).reshape((len(profiletext_out), 4))
-        # profile_wss = profile_wss.reshape((len(profiletext_out), 4))
         for index in range(0, len(profiletext_out) - 1):
             profile_wss[index] = profiletext_out[index].split("\t")
 
@@ -165,6 +166,6 @@ class Wss:
             plot(profile_wss[:, 0], profile_wss[:, 1])
             show()
         else:
-            print('ERROR: All the attenuation values are set to 60dB')
+            logger.error('ERROR: All the attenuation values are set to 60dB')
 
-        return check_BW_wss, check_att
+        return [check_BW_wss, check_att]
