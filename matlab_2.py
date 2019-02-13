@@ -17,4 +17,4 @@ def run(timeout_sec):
 
 
 if __name__ == '__main__':
-    run(60)  # timeout happens at 5 second
+    run(10)  # timeout happens at 5 second

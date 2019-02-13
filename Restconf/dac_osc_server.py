@@ -35,7 +35,8 @@ def hello_world(params):  # TODO delete route
 def hello_world2():  # TODO delete route
     if request.method == 'GET':
         try:
-            hello_world(request.json)
+            params = request.json
+            hello_world(params)
             return jsonify('Hello, World 2!', 200)
 
         except Exception as e:
@@ -142,66 +143,65 @@ def dac_configuration(params):
         405:
             description: "Invalid input"
     """
-    if request.method == 'POST':
-        if params is not None:
-            configuration = params['conf_mode']
-            tx_id = params['tx_ID']
-            bn = params['bn']
-            En = params['En']
+    if params is not None:
+        configuration = params['conf_mode']
+        tx_id = params['tx_ID']
+        bn = params['bn']
+        En = params['En']
 
-            tx = DAC()
-            temp_file = open(DAC.temp_file, "w")
-            msg = "DAC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
-                configuration, tx_id)
+        tx = DAC()
+        temp_file = open(DAC.temp_file, "w")
+        msg = "DAC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
+            configuration, tx_id)
 
-            logger.debug("Running configuration mode {} with DAC channel id {}".format(configuration, tx_id))
-            if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
-                if tx_id == 0:
-                    try:
-                        logger.debug("Enable Hi DAC channel")
-                        seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_up_filename)
-                        return jsonify(msg, 200)
+        logger.debug("Running configuration mode {} with DAC channel id {}".format(configuration, tx_id))
+        if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
+            if tx_id == 0:
+                try:
+                    logger.debug("Enable Hi DAC channel")
+                    seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                    run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_up_filename)
+                    return jsonify(msg, 200)
 
-                    except Exception as e:
-                        logger.error(e)
-                        return jsonify(e, 500)
+                except Exception as e:
+                    logger.error(e)
+                    return jsonify(e, 500)
 
-                elif tx_id == 1:
-                    try:
-                        logger.debug("Enable Hq DAC channel")
-                        seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_down_filename)
-                        return jsonify(msg, 200)
+            elif tx_id == 1:
+                try:
+                    logger.debug("Enable Hq DAC channel")
+                    seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                    run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_down_filename)
+                    return jsonify(msg, 200)
 
-                    except Exception as e:
-                        logger.error(e)
-                        return jsonify(e, 500)
+                except Exception as e:
+                    logger.error(e)
+                    return jsonify(e, 500)
 
-            elif configuration == 1:  # Configuration 2
-                if tx_id == 0:
-                    try:
-                        logger.debug("Enable Hi DAC channel")
-                        seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_up_filename)
-                        return jsonify(msg, 200)
+        elif configuration == 1:  # Configuration 2
+            if tx_id == 0:
+                try:
+                    logger.debug("Enable Hi DAC channel")
+                    seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                    run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_up_filename)
+                    return jsonify(msg, 200)
 
-                    except Exception as e:
-                        logger.error(e)
-                        return jsonify(e, 500)
+                except Exception as e:
+                    logger.error(e)
+                    return jsonify(e, 500)
 
-                if tx_id == 1:
-                    try:
-                        logger.debug("Enable Hq DAC channel")
-                        seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                        run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_down_filename)
-                        return jsonify(msg, 200)
+            if tx_id == 1:
+                try:
+                    logger.debug("Enable Hq DAC channel")
+                    seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                    run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, DAC.leia_down_filename)
+                    return jsonify(msg, 200)
 
-                    except Exception as e:
-                        logger.error(e)
-                        return jsonify(e, 500)
-        else:
-            raise ValueError('The parameters sended by the agent are not correct.')
+                except Exception as e:
+                    logger.error(e)
+                    return jsonify(e, 500)
+    else:
+        raise ValueError('The parameters sended by the agent are not correct.')
 
 
 def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
@@ -292,22 +292,32 @@ def osc_configuration(params):
         405:
             description: "Invalid input"
     """
-    if request.method == 'POST':
-        if params is not None:
-            configuration = params['conf_mode']
-            trx_mode = params['trx_mode']
-            rx_id = params['rx_ID']
-            bn = params['bn']
-            En = params['En']
-            eq = params['eq']
+    if params is not None:
+        configuration = params['conf_mode']
+        trx_mode = params['trx_mode']
+        rx_id = params['rx_ID']
+        bn = params['bn']
+        En = params['En']
+        eq = params['eq']
 
-            rx = OSC()
-            msg = "OSC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
-                configuration, rx_id)
+        rx = OSC()
+        msg = "OSC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
+            configuration, rx_id)
 
-            logger.debug("Running configuration mode {} with OSC channel id {}".format(configuration, rx_id))
-            msg_log = "Processing received data of user {}".format(rx_id)
-            if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
+        logger.debug("Running configuration mode {} with OSC channel id {}".format(configuration, rx_id))
+        msg_log = "Processing received data of user {}".format(rx_id)
+        if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
+            try:
+                logger.debug(msg_log)
+                result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
+                return jsonify(result, 200)
+
+            except Exception as e:
+                logger.error(e)
+                return jsonify(e, 500)
+
+        elif configuration == 1:    # Configuration 2
+            if rx_id == 0:
                 try:
                     logger.debug(msg_log)
                     result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
@@ -317,28 +327,17 @@ def osc_configuration(params):
                     logger.error(e)
                     return jsonify(e, 500)
 
-            elif configuration == 1:    # Configuration 2
-                if rx_id == 0:
-                    try:
-                        logger.debug(msg_log)
-                        result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
-                        return jsonify(result, 200)
+            if rx_id == 1:
+                try:
+                    logger.debug(msg_log)
+                    result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
+                    return jsonify(result, 200)
 
-                    except Exception as e:
-                        logger.error(e)
-                        return jsonify(e, 500)
-
-                if rx_id == 1:
-                    try:
-                        logger.debug(msg_log)
-                        result = run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg)
-                        return jsonify(result, 200)
-
-                    except Exception as e:
-                        logger.error(e)
-                        return jsonify(e, 500)
-        else:
-            raise ValueError('The parameters sended by the agent are not correct.')
+                except Exception as e:
+                    logger.error(e)
+                    return jsonify(e, 500)
+    else:
+        raise ValueError('The parameters sended by the agent are not correct.')
 
 
 def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
