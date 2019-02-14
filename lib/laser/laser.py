@@ -246,7 +246,7 @@ class Laser:
     @staticmethod
     def configuration(ip, addr, ch, lambda0, power, status):
         """
-        Laser startup:
+        Laser configuration:
 
             - Set wavelength of the Laser.
             - Set the power of the Laser.
@@ -278,5 +278,5 @@ class Laser:
             yenista.close()
 
         except Exception as error:
-            logger.error("Laser startup, {}".format(error))
+            logger.error("Laser configuration, {}".format(error))
             raise error

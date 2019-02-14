@@ -230,7 +230,7 @@ class Amplifier:
     @staticmethod
     def configuration(ip, addr, mode, power, status):
         """
-        Amplifier startup:
+        Amplifier configuration:
 
             - Set mode of the Amplifier
             - Enable or disable the Amplifier.
@@ -259,5 +259,5 @@ class Amplifier:
             manlight.close()
 
         except Exception as error:
-            logger.error("Amplifier startup, {}".format(error))
+            logger.error("Amplifier configuration, {}".format(error))
             raise error
