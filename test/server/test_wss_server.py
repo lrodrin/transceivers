@@ -10,17 +10,17 @@ logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
     ip_server = '10.1.1.8'
-    params = {'name': "wss_tx", 'configfile': "SN042561.wsconfig", 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0,
-              'bandwidth': 25}
+    headers = {"Content-Type": "application/json"}
+    params = {'name': "wss_tx", 'configfile': "C:/Users/CTTC/Desktop/agent-bvt/conf/SN042561.wsconfig", 'lambda0': 1550.12, 'att': 0, 'phase': 0,
+              'bw': 25}
     # test server
-    # request = requests.get('http://%s:5000/api/' % ip_server + 'hello',  # TODO delete
-    #                        headers={"Content-Type": "application/json"}, data=json.dumps(params))
+    # request = requests.get('http://%s:5000/api/' % ip_server + 'hello', headers=headers, data=json.dumps(params))
 
     # test wss server
-    request = requests.post('http://%s:5000/api/' % ip_server + 'wss_configuration',
-                            headers={"Content-Type": "application/json"}, data=json.dumps(params))
+    request = requests.post('http://%s:5000/api/' % ip_server + 'wss_configuration', headers=headers, data=json.dumps(params))
+
     if request:
         data = request.json()
         logging.debug(data)
     else:
-        logging.error("The request could not be performed")
+        logging.error("The request was wrongly formulated")

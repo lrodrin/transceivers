@@ -2,15 +2,13 @@
 """
 import logging
 import time
-
+import wsapi
 import numpy as np
 
 from matplotlib.pyplot import figure, plot, show
 
 logger = logging.getLogger("WSS")
 logger.addHandler(logging.NullHandler())
-
-from lib.wss import wsapi
 
 
 class Wss:
@@ -103,12 +101,13 @@ class Wss:
         stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # strop frequency in THz
         # TODO extract * 0.5 * 1e-3
 
-        for frequency in np.arange(startfreq, stopfreq, Wss.step, dtype=float):
+        for frequency in np.arange(Wss.frequency_start, Wss.frequency_end, Wss.step, dtype=float):
             for k in range(1):
                 if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
-                    profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, self.attenuation[k], self.phase[k], k + 1)
+                    profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (
+                    frequency, self.attenuation[k], self.phase[k], k + 1)
                 else:
-                    profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
+                    profiletext = profiletext + "%.3f\t60.0\t0.0\t0\n" % frequency
 
         logger.debug("WSS profile created")  # TODO try and except
         rc = wsapi.ws_load_profile(self.name, profiletext)
@@ -126,7 +125,7 @@ class Wss:
         """
         profiletext = ""
         for frequency in np.arange(Wss.frequency_start, Wss.frequency_end, Wss.step, dtype=float):
-            profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
+            profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
         logger.debug("WSS profile created")  # TODO try and except
         rc = wsapi.ws_load_profile(self.name, profiletext)
@@ -206,9 +205,10 @@ class Wss:
             wss_tx.execute()
             time.sleep(Wss.time_sleep)
             params = wss_tx.check_profile()
-            logger.debug("WaveShaper parameters - BW = {}, ATT = {}".format(params[0], params[1]))
+            print('BW = ', params[0])
+            # logger.debug("WaveShaper parameters - BW = {}, ATT = {}".format(params[0], params[1]))
             wss_tx.close()
 
         except Exception as error:
-            logger.error("WaveShaper configuration, {}".format(error))
+            logger.error("WaveShaper configuration method, {}".format(error))
             raise error

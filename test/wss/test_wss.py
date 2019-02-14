@@ -9,5 +9,5 @@ from lib.wss.wss import Wss
 
 if __name__ == '__main__':
     wss_tx = "wss_tx"
-    wss_tx_configfile = "SN042561.wsconfig"
+    wss_tx_configfile = "C:/Users/CTTC/Desktop/agent-bvt/conf/SN042561.wsconfig"
     Wss.configuration(wss_tx, wss_tx_configfile, 1550.12, 0.0, 0.0, 25)

@@ -1,10 +1,8 @@
 from ctypes import *
 
-TEST_LIBRARY_PATH = "C:/Users/cttc/Desktop/local_bluespace/lib"
-
 wsapi = None
 
-dllnames = ["wstestapi.dll", "wsapi.dll", "libwstestapi.so", "libwsapi.so"]  # TODO link the file
+dllnames = ["wstestapi.dll", "C:/Users/CTTC/Desktop/agent-bvt/conf/wsapi.dll", "libwstestapi.so", "libwsapi.so"]
 
 if wsapi is None:
     for dllname in dllnames:

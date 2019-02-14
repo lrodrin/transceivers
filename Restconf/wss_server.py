@@ -27,10 +27,10 @@ def hello_world():  # TODO delete route
 
         except Exception as e:
             logger.error(e)
-            raise e
+            return jsonify('ERROR: %s' % e, 200)
 
 
-@app.route('/api/wss', methods=['POST'])
+@app.route('/api/wss_configuration', methods=['POST'])
 def wss_configuration():
     """
     WaveShaper configuration
@@ -73,15 +73,15 @@ def wss_configuration():
 
             except Exception as e:
                 logger.error(e)
-                raise e
+                return jsonify(e, 405)
     else:
-        raise ValueError('The parameters sended by the agent are not correct.')
+        return jsonify('The parameters sended by the agent are not correct.', 405)
 
 
 if __name__ == '__main__':
     # File Handler
     # fileHandler = RotatingFileHandler('server/server.log', maxBytes=10000000, backupCount=5)
-    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
+    fileHandler = RotatingFileHandler('ws.log', maxBytes=10000000, backupCount=5)
     # Stream Handler
     streamHandler = logging.StreamHandler()
     # Create a Formatter for formatting the logs messages
@@ -96,4 +96,4 @@ if __name__ == '__main__':
     # Add Handlers to the Logger
     logger.addHandler(fileHandler)
     logger.addHandler(streamHandler)
-    app.run(host='0.0.0.0', port=5001, debug=True, threaded=False)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

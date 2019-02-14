@@ -16,32 +16,18 @@ Swagger(app)
 
 
 @app.route('/api/hello', methods=['GET'])
-def hello_world(params):  # TODO delete route
+def hello_world():  # TODO delete route
     if request.method == 'GET':
         try:
             logger.info('This is a info message!')
             logger.debug('This is a debug message!')
             logger.error('This is a error message!')
             logger.warning('This is a warning message!')
-            print(params, params['conf_mode'])
             return jsonify('Hello, World!', 200)
 
         except Exception as e:
             logger.error(e)
-            raise e
-
-
-@app.route('/api/hello2', methods=['GET'])
-def hello_world2():  # TODO delete route
-    if request.method == 'GET':
-        try:
-            params = request.json
-            hello_world(params)
-            return jsonify('Hello, World 2!', 200)
-
-        except Exception as e:
-            logger.error(e)
-            raise e
+            return jsonify('ERROR: %s' % e, 200)
 
 
 @app.route('/api/dac_osc_configuration', methods=['POST'])
@@ -102,10 +88,10 @@ def dac_osc_configuration():
 
         except Exception as e:
             logger.error(e)
-            raise e
+            return jsonify("DAC and OSC was not successfully configured {}".format(e), 405)
 
 
-@app.route('/api/dac', methods=['POST'])
+@app.route('/api/dac_configuration', methods=['POST'])
 def dac_configuration(params):
     """
     DAC configuration
@@ -165,7 +151,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 500)
+                    return jsonify(e, 405)
 
             elif tx_id == 1:
                 try:
@@ -176,7 +162,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 500)
+                    return jsonify(e, 405)
 
         elif configuration == 1:  # Configuration 2
             if tx_id == 0:
@@ -188,7 +174,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 500)
+                    return jsonify(e, 405)
 
             if tx_id == 1:
                 try:
@@ -199,9 +185,9 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 500)
+                    return jsonify(e, 405)
     else:
-        raise ValueError('The parameters sended by the agent are not correct.')
+        return jsonify('The parameters sended by the agent are not correct.', 405)
 
 
 def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
@@ -245,7 +231,7 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
         raise error
 
 
-@app.route('/api/osc', methods=['POST'])
+@app.route('/api/osc_configuration', methods=['POST'])
 def osc_configuration(params):
     """
     OSC configuration
@@ -314,9 +300,9 @@ def osc_configuration(params):
 
             except Exception as e:
                 logger.error(e)
-                return jsonify(e, 500)
+                return jsonify(e, 405)
 
-        elif configuration == 1:    # Configuration 2
+        elif configuration == 1:  # Configuration 2
             if rx_id == 0:
                 try:
                     logger.debug(msg_log)
@@ -325,7 +311,7 @@ def osc_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 500)
+                    return jsonify(e, 405)
 
             if rx_id == 1:
                 try:
@@ -335,9 +321,9 @@ def osc_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 500)
+                    return jsonify(e, 405)
     else:
-        raise ValueError('The parameters sended by the agent are not correct.')
+        return jsonify('The parameters sended by the agent are not correct.', 405)
 
 
 def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
@@ -364,7 +350,7 @@ def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
     :rtype: str
     """
     snr, ber = rx.receiver(trx_mode, rx_id, bn, En, eq)
-    if ber > 4.6e-3:    # optimal BER
+    if ber > 4.6e-3:  # optimal BER
         return msg + "SNR = {} and not optimal BER = {}".format(snr, ber)
     else:
         return msg + "SNR = {} and optimal BER = {}".format(snr, ber)
