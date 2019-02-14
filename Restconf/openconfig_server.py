@@ -48,6 +48,10 @@ def local_assignment():
     description: |
         Reference to the line-side optical channel that should carry the current logical channel element. Use this
         reference to exit the logical element stage
+    consumes:
+    - application/json
+    produces:
+    - application/json
     parameters:
     - name: client
       in: body
@@ -88,6 +92,10 @@ def optical_channel_configuration():
     ---
     post:
     description: Configuration of the optical channel by setting frequency, optical power and operational mode
+    consumes:
+    - application/json
+    produces:
+    - application/json
     parameters:
     - name: och
       in: body
@@ -178,7 +186,6 @@ def python_f(och, freq, power, mode):
     if response:
         data = response.json()
         logger.debug(data)
-        logger.debug("DAC and OSC configuration finished")
     else:
         logger.error("DAC and OSC configuration not finished")
 
