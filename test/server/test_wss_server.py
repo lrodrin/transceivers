@@ -1,26 +1,16 @@
 import json
-import logging
-from os import sys, path
-
 import requests
 
-sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
-
-logging.basicConfig(level=logging.DEBUG)
-
 if __name__ == '__main__':
-    ip_server = '10.1.1.8'
+    wss_id = 1  # 1 or 2
     headers = {"Content-Type": "application/json"}
-    params = {'name': "wss_tx", 'configfile': "C:/Users/CTTC/Desktop/agent-bvt/conf/SN042561.wsconfig", 'lambda0': 1550.12, 'att': 0, 'phase': 0,
-              'bw': 25}
-    # test server
-    # request = requests.get('http://%s:5000/api/' % ip_server + 'hello', headers=headers, data=json.dumps(params))
+    params = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25},
+              {'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25},
+              {'port_in': 3, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25},
+              {'port_in': 4, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
 
-    # test wss server
-    request = requests.post('http://%s:5000/api/' % ip_server + 'wss_configuration', headers=headers, data=json.dumps(params))
+    request = requests.post('http://10.1.7.64:5001/api/wss', headers=headers, data=json.dumps(params))
+    print(request.content)
 
-    if request:
-        data = request.json()
-        logging.debug(data)
-    else:
-        logging.error("The request was wrongly formulated")
+    # request = requests.get('http://10.1.1.10:5001/api/wss/%s' % wss_id, headers=headers, data=json.dumps(params))
+    # print(request.content)

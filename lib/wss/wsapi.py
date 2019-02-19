@@ -2,7 +2,8 @@ from ctypes import *
 
 wsapi = None
 
-dllnames = ["wstestapi.dll", "C:/Users/CTTC/Desktop/agent-bvt/conf/wsapi.dll", "libwstestapi.so", "libwsapi.so"]
+folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
+dllnames = ["wstestapi.dll", folder + "wsapi.dll", "libwstestapi.so", "libwsapi.so"]
 
 if wsapi is None:
     for dllname in dllnames:

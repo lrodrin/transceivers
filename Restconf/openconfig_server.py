@@ -170,7 +170,7 @@ def python_f(och, freq, power, mode):
     if params['dac_osc']['conf_mode'] == 0:
         power += 9  # To take into account the losses of the modulation (MZM)
 
-    Laser.configuration(IP_LASER, ADDR_LASER, och, lambda0, power, params['laser_status'])
+    Laser.configuration(ADDR_LASER, och, lambda0, power, params['laser_status'])
     logger.debug("Laser configuration finished")
 
     logger.debug("Amplifiers configuration started")
@@ -205,7 +205,7 @@ def init_variables():
     d = {
         'laser_status': True,
         'amplifier': ["APC", 7.5, True],
-        'dac_osc': {'conf_mode': 0, 'trx_mode': 1, 'tx_ID': 0, 'rx_ID': 0, 'bn': 2, 'En': 0, 'eq': 0}
+        'dac_osc': {'conf_mode': 0, 'trx_mode': 1, 'tx_ID': 0, 'rx_ID': 0, 'bn': 2, 'En': 0, 'equalitzation': 0}
     }
     return d
 

@@ -14,20 +14,9 @@ from lib.osc.osc import OSC
 app = Flask(__name__)
 Swagger(app)
 
-
-@app.route('/api/hello', methods=['GET'])
-def hello_world():  # TODO delete route
-    if request.method == 'GET':
-        try:
-            logger.info('This is a info message!')
-            logger.debug('This is a debug message!')
-            logger.error('This is a error message!')
-            logger.warning('This is a warning message!')
-            return jsonify('Hello, World!', 200)
-
-        except Exception as e:
-            logger.error(e)
-            return jsonify('ERROR: %s' % e, 200)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('werkzeug')
+logger.setLevel(logging.DEBUG)
 
 
 @app.route('/api/dac_osc_configuration', methods=['POST'])
@@ -88,7 +77,7 @@ def dac_osc_configuration():
 
         except Exception as e:
             logger.error(e)
-            return jsonify("DAC and OSC was not successfully configured {}".format(e), 405)
+            return jsonify("ERROR: DAC and OSC was not successfully configured {}".format(e), 405)
 
 
 @app.route('/api/dac_configuration', methods=['POST'])
@@ -140,7 +129,8 @@ def dac_configuration(params):
         msg = "DAC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
             configuration, tx_id)
 
-        logger.debug("Running configuration mode {} with DAC channel id {}".format(configuration, tx_id))
+        logger.debug(
+            "DAC configuration started\nRunning configuration mode {} with channel id {}".format(configuration, tx_id))
         if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
             if tx_id == 0:
                 try:
@@ -151,7 +141,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 405)
+                    return jsonify('ERROR: %s' % e, 405)
 
             elif tx_id == 1:
                 try:
@@ -162,7 +152,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 405)
+                    return jsonify('ERROR: %s' % e, 405)
 
         elif configuration == 1:  # Configuration 2
             if tx_id == 0:
@@ -174,7 +164,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 405)
+                    return jsonify('ERROR: %s' % e, 405)
 
             if tx_id == 1:
                 try:
@@ -185,12 +175,15 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 405)
+                    return jsonify('ERROR: %s' % e, 405)
+
+        logger.debug("DAC configuration finished")
+
     else:
         return jsonify('The parameters sended by the agent are not correct.', 405)
 
 
-def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
+def run_dac_configuration(tx, tx_id, bn, En, temp_file, leia_sequence, leia_file):
     """
     Run DAC configuration.
 
@@ -208,27 +201,27 @@ def run_dac_configuration(tx, tx_id, bn, En, temp_file, seq, leia_file):
     :type En: float array of 512 positions
     :param temp_file: file to save the generated OFDM signal to be uploaded to the Leia DAC
     :type temp_file: file 
-    :param seq: sets 1 to the active Leia output and 0 to the remaining outputs
-    :type seq: str
+    :param leia_sequence: sets 1 to the active Leia output and 0 to the remaining outputs
+    :type leia_sequence: str
     :param leia_file: file with the generated OFDM signal to be uploaded to the LEIA DAC
     :type leia_file: str (Leia_DAC_up.m or Leia_DAC_down.m)
     """
     tx.transmitter(tx_id, bn, En)
-    temp_file.write(seq)
+    temp_file.write(leia_sequence)
     matlab = 'C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe'
     options = '-nodisplay -nosplash -nodesktop -wait'
     try:
-        cmd = """{} {} -r "cd(fullfile('{}')), {}" """.format(matlab, options, DAC.folder, leia_file)
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE)  # MATLAB call with file Leia_DAC_up.m or Leia_DAC_down.m
-        out, err = p.communicate()
-        if p.returncode == 0:
-            logger.debug("Command {} succeeded, exit-code = {} returned".format(cmd, p.returncode))
+        command = """{} {} -r "cd(fullfile('{}')), {}" """.format(matlab, options, DAC.folder, leia_file)
+        proc = Popen(command, stdout=PIPE, stderr=PIPE)  # MATLAB call with file Leia_DAC_up.m or Leia_DAC_down.m
+        out, err = proc.communicate()
+        if proc.returncode == 0:
+            logger.debug("MATLAB call {} succeeded, exit-code = {} returned".format(command, proc.returncode))
         else:
-            logger.error("Command {} failed, exit-code = {} returned, error = {}".format(cmd, p.returncode, str(err)))
+            logger.error(
+                "MATLAB call {} failed, exit-code = {} returned, error = {}".format(command, proc.returncode, str(err)))
 
     except OSError as error:
-        logger.error("Failed to execute MATLAB, %s" % error)
-        raise error
+        logger.error("Failed to execute MATLAB, error = %s" % error)
 
 
 @app.route('/api/osc_configuration', methods=['POST'])
@@ -267,7 +260,7 @@ def osc_configuration(params):
       in: body
       type: array
       description: Contains the power per subcarrier figure
-    - name: eq
+    - name: equalitzation
       in: body
       type: string
       description: Identify the equalization type
@@ -290,7 +283,9 @@ def osc_configuration(params):
         msg = "OSC was successfully configured. Configuration mode used: {}. Channel used: {}\n".format(
             configuration, rx_id)
 
-        logger.debug("Running configuration mode {} with OSC channel id {}".format(configuration, rx_id))
+        logger.debug(
+            "OSC configuration started\nRunning configuration mode {} with OSC channel id {}".format(configuration,
+                                                                                                     rx_id))
         msg_log = "Processing received data of user {}".format(rx_id)
         if configuration == 0 or configuration == 2:  # Configuration 1 or configuration 3
             try:
@@ -300,7 +295,7 @@ def osc_configuration(params):
 
             except Exception as e:
                 logger.error(e)
-                return jsonify(e, 405)
+                return jsonify('ERROR: %s' % e, 405)
 
         elif configuration == 1:  # Configuration 2
             if rx_id == 0:
@@ -311,7 +306,7 @@ def osc_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 405)
+                    return jsonify('ERROR: %s' % e, 405)
 
             if rx_id == 1:
                 try:
@@ -321,7 +316,10 @@ def osc_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify(e, 405)
+                    return jsonify('ERROR: %s' % e, 405)
+
+        logger.debug("OSC configuration finished")
+
     else:
         return jsonify('The parameters sended by the agent are not correct.', 405)
 
@@ -346,32 +344,36 @@ def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):
     :type eq: str
     :param msg: print message
     :type msg: str
-    :return: print message with estimated SNR per subcarrier and the BER of received data
-    :rtype: str
+    :return: estimated SNR per subcarrier and the BER of received data
+    :rtype: list
     """
-    snr, ber = rx.receiver(trx_mode, rx_id, bn, En, eq)
-    if ber > 4.6e-3:  # optimal BER
-        return msg + "SNR = {} and not optimal BER = {}".format(snr, ber)
+    params = rx.receiver(trx_mode, rx_id, bn, En, eq)
+    if params[1] > 4.6e-3:  # optimal BER
+        # logger.debug(msg + "SNR = {} and not optimal BER = {}".format(params[0], params[1]))
+        logger.debug(msg + "not optimal BER = {}".format(params[1]))
     else:
-        return msg + "SNR = {} and optimal BER = {}".format(snr, ber)
+        # logger.debug(msg + "SNR = {} and optimal BER = {}".format(params[0], params[1]))
+        logger.debug(msg + "optimal BER = {}".format(params[1]))
+
+    return params[1]
+
+
+def define_logger():
+    """
+    Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
+    """
+    fileHandler = RotatingFileHandler('dac_osc_server.log', maxBytes=10000000, backupCount=5)  # File Handler
+    streamHandler = logging.StreamHandler()  # Stream Handler
+    # Create a Formatter for formatting the logs messages
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")
+    # Add the Formatter to the Handlers
+    fileHandler.setFormatter(formatter)
+    streamHandler.setFormatter(formatter)
+    # Add Handlers to the logger
+    logger.addHandler(fileHandler)
+    logger.addHandler(streamHandler)
 
 
 if __name__ == '__main__':
-    # File Handler
-    # fileHandler = RotatingFileHandler('server/server.log', maxBytes=10000000, backupCount=5)
-    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
-    # Stream Handler
-    streamHandler = logging.StreamHandler()
-    # Create a Formatter for formatting the logs messages
-    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")
-    # TODO Add formatter
-    # Add the Formatter to the Handler
-    # fileHandler.setFormatter(formatter)
-    # streamHandler.setFormatter(formatter)
-    # Create the Logger
-    logger = logging.getLogger('werkzeug')
-    logger.setLevel(logging.DEBUG)
-    # Add Handlers to the Logger
-    logger.addHandler(fileHandler)
-    logger.addHandler(streamHandler)
+    define_logger()
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

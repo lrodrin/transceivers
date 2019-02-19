@@ -160,5 +160,4 @@ class DAC:
             np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
 
         except Exception as error:
-            logger.error("Tansmitter method, {}".format(error))
-            raise error
+            logger.error("DAC transmitter method, {}".format(error))

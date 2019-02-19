@@ -112,9 +112,9 @@ class OSC:
                 Ncarriers_eq = self.Ncarriers
 
                 if rx_ID == 0:
-                    data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
-                else:
                     data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
+                else:
+                    data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
 
                 data_acqT = data_acqT - np.mean(data_acqT)
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
@@ -188,16 +188,15 @@ class OSC:
                     logger.debug('Calculating BER')
                     Nerr = np.sum(np.sqrt(diff.real ** 2 + diff.imag ** 2))
                     BER = np.true_divide(Nerr, data.size)
-                    logger.debug('BER = ', BER, 'iteration = ', run)
+                    logger.debug('BER = {}, iteration = {}'.format(BER, run))
                     BERT = BERT + BER
                     Runs = Runs + 1
 
             BER = BERT / Runs
-            return SNR, BER
+            return [SNR, BER]
 
         except Exception as error:
-            logger.error("Receiver method, {}".format(error))
-            raise error
+            logger.error("OSC receiver method, {}".format(error))
 
     @staticmethod
     def acquire(channel_ID, npoints, fs):
@@ -235,8 +234,7 @@ class OSC:
             return np.fromstring(aux, dtype=float, sep=',')
 
         except Exception as error:
-            logger.error("Acquire method, {}".format(error))
-            raise error
+            logger.error("OSC acquire method, {}".format(error))
 
     def generated_data(self, rx_ID, bn, En):
         """
@@ -287,8 +285,7 @@ class OSC:
             Cx_bias_up = Cx_up - np.min(Cx_up)
             Cx_up = np.around(Cx_bias_up / np.max(Cx_bias_up) * self.Qt - np.ceil(self.Qt / 2))
 
-            return cdatar, data, Cx_up
+            return [cdatar, data, Cx_up]
 
         except Exception as error:
-            logger.error("Generated data method, {}".format(error))
-            raise error
+            logger.error("OSC generated_data method, {}".format(error))

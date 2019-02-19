@@ -63,10 +63,10 @@ print(t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology
 print(d.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
 
 print("TESTING OPTIMITZATION :D")
-# dir = etree.XML(etree.tostring(new_config))
+# d = etree.XML(etree.tostring(new_config))
 t_list = t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'})
 print(t.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
-# print(dir.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
+# print(d.xpath("///xmlns:node-id/text()", namespaces={'xmlns': 'urn:node-topology'}))
 data_list = d.findall(".//xmlns:node", namespaces={'xmlns': 'urn:node-topology'})
 
 for data in data_list:

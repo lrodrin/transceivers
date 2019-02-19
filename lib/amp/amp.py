@@ -13,6 +13,7 @@ class Amplifier:
     This is a class for Amplifier module.
     """
     # TODO documentar variables constants de la classe
+    addr = '3'  # GPIB address
     connection_port = 1234
     connection_timeout = 2
     controller_mode = "++mode 1\n"
@@ -26,17 +27,15 @@ class Amplifier:
     time_sleep_mode = 1  # Time needed to enable/disable the Amplifier after changing the mode
     time_sleep_enable = 7  # Time needed to enable/disable the Laser before check the status
 
-    def __init__(self, ip, addr):
+    def __init__(self, ip):
         """
         The constructor for the Amplifier class.
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
-        :param addr: GPIB address
-        :type addr: str
         """
         self.ip = ip
-        self.addr = addr
+        self.addr = Amplifier.addr
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         self.connection_and_initialization()
 
@@ -62,7 +61,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Connection to Amplifier refused, {}".format(error))
-            raise error
 
         # Initialization
         try:
@@ -77,7 +75,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Default parameters of the Amplifier not initialized, {}".format(error))
-            raise error
 
     def test(self):
         """
@@ -93,7 +90,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Amplifier test, {}".format(error))
-            raise error
 
     def enable(self, stat=False):
         """
@@ -110,7 +106,6 @@ class Amplifier:
 
             except socket.error as error:
                 logger.error("Can't enable the Amplifier, {}".format(error))
-                raise error
         else:
             try:
                 self.sock.send("POW:OFF\n")
@@ -118,7 +113,6 @@ class Amplifier:
 
             except socket.error as error:
                 logger.error("Can't disable the Amplifier, {}".format(error))
-                raise error
 
     def mode(self, mod, param=0):
         """
@@ -157,7 +151,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Mode not configured, {}".format(error))
-            raise error
 
     def status(self):
         """
@@ -183,7 +176,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Checking mode, {}".format(error))
-            raise error
 
         # Check status
         try:
@@ -195,7 +187,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Checking status, {}".format(error))
-            raise error
 
         return [stat, mod, power]
 
@@ -209,7 +200,6 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("Connection to Amplifier not closed, {}".format(error))
-            raise error
 
     def checkerror(self):
         """
@@ -225,10 +215,9 @@ class Amplifier:
 
         except socket.error as error:
             logger.error("System error, {}".format(error))
-            raise error
 
     @staticmethod
-    def configuration(ip, addr, mode, power, status):
+    def configuration(ip, mode, power, status):
         """
         Amplifier configuration:
 
@@ -238,8 +227,6 @@ class Amplifier:
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
-        :param addr: GPIB address
-        :type addr: str
         :param mode: mode
         :type mode: str
         :param power: power
@@ -247,9 +234,9 @@ class Amplifier:
         :param status: if True is enable otherwise is disable
         :type status: bool
         """
-        logger.debug("Amplifier startup")
+        logger.debug("Amplifier configuration started")
         try:
-            manlight = Amplifier(ip, addr)
+            manlight = Amplifier(ip)
             manlight.mode(mode, power)
             manlight.enable(status)
             params = manlight.status()
@@ -257,7 +244,7 @@ class Amplifier:
                 "Amplifier parameters - status: {}, mode: {}, power: {}".format(params[0], params[1], params[2]))
 
             manlight.close()
+            logger.debug("Amplifier configuration finished")
 
         except Exception as error:
-            logger.error("Amplifier configuration, {}".format(error))
-            raise error
+            logger.error("Amplifier configuration method, {}".format(error))

@@ -1,7 +1,6 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html><head><title>Python: module laser</title>
-<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head><body bgcolor="#f0f0f8">
 
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
@@ -29,13 +28,18 @@
     
 <tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
 <dt><font face="helvetica, arial"><a href="laser.html#Laser">Laser</a>
 </font></dt></dl>
+</dd>
+</dl>
  <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ffc8d8">
 <td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="Laser">class <strong>Laser</strong></a></font></td></tr>
+<font color="#000000" face="helvetica, arial"><a name="Laser">class <strong>Laser</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
 <td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Laser">Laser</a>&nbsp;module.<br>&nbsp;</tt></td></tr>
@@ -65,7 +69,7 @@ parameters:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eos_3&nbsp;(str):&nbsp;Do&nbsp;not&nbsp;append&nbsp;CR&nbsp;or&nbsp;LF&nbsp;to&nbsp;GPIB&nbsp;data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eoi_1&nbsp;(str):&nbsp;Assert&nbsp;EOI&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
 
-<dl><dt><a name="Laser-enable"><strong>enable</strong></a>(self, ch, stat<font color="#909090">=False</font>)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
+<dl><dt><a name="Laser-enable"><strong>enable</strong></a>(self, ch, stat=False)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;<br>
 :param&nbsp;ch:&nbsp;channel<br>
 :type&nbsp;ch:&nbsp;int<br>
@@ -108,7 +112,7 @@ parameters:<br>
 
 <hr>
 Static methods defined here:<br>
-<dl><dt><a name="Laser-startup"><strong>startup</strong></a>(ip, addr, ch, lambda0, power, status)</dt><dd><tt><a href="#Laser">Laser</a>&nbsp;startup:<br>
+<dl><dt><a name="Laser-configuration"><strong>configuration</strong></a>(ip, addr, channel, lambda0, power, status)</dt><dd><tt><a href="#Laser">Laser</a>&nbsp;configuration:<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;wavelength&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;the&nbsp;power&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
@@ -119,8 +123,8 @@ Static methods defined here:<br>
 :type&nbsp;ip:&nbsp;str<br>
 :param&nbsp;addr:&nbsp;GPIB&nbsp;address<br>
 :type&nbsp;addr:&nbsp;str<br>
-:param&nbsp;ch:&nbsp;channel<br>
-:type&nbsp;ch:&nbsp;int<br>
+:param&nbsp;channel:&nbsp;channel<br>
+:type&nbsp;channel:&nbsp;int<br>
 :param&nbsp;lambda0:&nbsp;wavelength<br>
 :type&nbsp;lambda0:&nbsp;float<br>
 :param&nbsp;power:&nbsp;power<br>
@@ -128,6 +132,14 @@ Static methods defined here:<br>
 :param&nbsp;status:&nbsp;if&nbsp;True&nbsp;is&nbsp;enable&nbsp;otherwise&nbsp;is&nbsp;disable<br>
 :type&nbsp;status:&nbsp;bool</tt></dd></dl>
 
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
 <hr>
 Data and other attributes defined here:<br>
 <dl><dt><strong>buffer_size</strong> = 100</dl>

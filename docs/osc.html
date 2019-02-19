@@ -1,7 +1,6 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html><head><title>Python: module osc</title>
-<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head><body bgcolor="#f0f0f8">
 
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
@@ -32,13 +31,18 @@
     
 <tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
 <dt><font face="helvetica, arial"><a href="osc.html#OSC">OSC</a>
 </font></dt></dl>
+</dd>
+</dl>
  <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ffc8d8">
 <td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="OSC">class <strong>OSC</strong></a></font></td></tr>
+<font color="#000000" face="helvetica, arial"><a name="OSC">class <strong>OSC</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
 <td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;Oscilloscope&nbsp;module.<br>&nbsp;</tt></td></tr>
@@ -74,7 +78,7 @@ Define&nbsp;and&nbsp;initialize&nbsp;the&nbsp;Oscilloscope&nbsp;default&nbsp;par
 :type&nbsp;bn:&nbsp;int&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
 :param&nbsp;En:&nbsp;array&nbsp;of&nbsp;Ncarriers&nbsp;positions&nbsp;that&nbsp;contains&nbsp;the&nbsp;power&nbsp;per&nbsp;subcarrier&nbsp;figure<br>
 :type&nbsp;En:&nbsp;float&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
-:return:&nbsp;#&nbsp;TODO&nbsp;que&nbsp;retorna&nbsp;?<br>
+:return:&nbsp;Mapped&nbsp;data,&nbsp;transmitted&nbsp;bitstream&nbsp;and&nbsp;OFDM&nbsp;signal<br>
 :rtype:&nbsp;list</tt></dd></dl>
 
 <dl><dt><a name="OSC-receiver"><strong>receiver</strong></a>(self, trx_mode, rx_ID, bn, En, eq)</dt><dd><tt>Adquires&nbsp;the&nbsp;OFDM&nbsp;signal&nbsp;received&nbsp;at&nbsp;the&nbsp;DPO&nbsp;and&nbsp;recovers&nbsp;by&nbsp;offline&nbsp;DSP&nbsp;the&nbsp;transmitted&nbsp;BitStream.<br>
@@ -95,17 +99,25 @@ transmission&nbsp;mode&nbsp;(loading)<br>
 
 <hr>
 Static methods defined here:<br>
-<dl><dt><a name="OSC-acquire"><strong>acquire</strong></a>(channel_ID, npoints, fs)</dt><dd><tt>#&nbsp;TODO&nbsp;descripcio&nbsp;de&nbsp;que&nbsp;fa&nbsp;la&nbsp;funcio<br>
+<dl><dt><a name="OSC-acquire"><strong>acquire</strong></a>(channel_ID, npoints, fs)</dt><dd><tt>This&nbsp;function&nbsp;acquires&nbsp;the&nbsp;transmitted&nbsp;data&nbsp;from&nbsp;the&nbsp;specified&nbsp;<a href="#OSC">OSC</a>&nbsp;channel.<br>
 &nbsp;<br>
 :param&nbsp;channel_ID:&nbsp;DPO&nbsp;channel&nbsp;used&nbsp;to&nbsp;adquire&nbsp;data<br>
 :type&nbsp;channel_ID:&nbsp;int<br>
 :param&nbsp;npoints:&nbsp;Number&nbsp;of&nbsp;points&nbsp;to&nbsp;adquire<br>
-:type&nbsp;npoints:&nbsp;#&nbsp;TODO&nbsp;int&nbsp;or&nbsp;float&nbsp;?<br>
+:type&nbsp;npoints:&nbsp;int&nbsp;<br>
 :param&nbsp;fs:&nbsp;sampling&nbsp;frequency&nbsp;of&nbsp;the&nbsp;DPO<br>
 :type:&nbsp;int<br>
-:return:&nbsp;#&nbsp;TODO&nbsp;que&nbsp;retorna&nbsp;?<br>
-:rtype:&nbsp;#&nbsp;TODO&nbsp;quin&nbsp;tipus&nbsp;de&nbsp;variable&nbsp;retorna&nbsp;?</tt></dd></dl>
+:return:&nbsp;Adquired&nbsp;signal<br>
+:rtype:&nbsp;float&nbsp;array</tt></dd></dl>
 
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
 <hr>
 Data and other attributes defined here:<br>
 <dl><dt><strong>CP</strong> = 0.019</dl>
@@ -116,7 +128,7 @@ Data and other attributes defined here:<br>
 
 <dl><dt><strong>Ncarriers</strong> = 512</dl>
 
-<dl><dt><strong>Nframes</strong> = 100</dl>
+<dl><dt><strong>Nframes</strong> = 100.0</dl>
 
 <dl><dt><strong>Niters</strong> = 10</dl>
 

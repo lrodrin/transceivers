@@ -1,48 +1,69 @@
-import pyangbind.lib.pybindJSON as pybindJSON
+import logging
+from logging.handlers import RotatingFileHandler
 
+from flasgger import Swagger
 from flask import Flask, request
-from bindingTransceiver import sliceable_transceiver_sdm
-
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
+from flask.json import jsonify
 
 app = Flask(__name__)
+Swagger(app)
 
-model = sliceable_transceiver_sdm()
-
-
-@app.route('/api/transceiver', methods=['GET'])
-def get_transceiver():
-    return pybindJSON.dumps(model, mode='ietf')
+logger = logging.getLogger('werkzeug')
+logger.setLevel(logging.DEBUG)
 
 
-@app.route('/api/transceiver/slice', methods=['POST'])
-def create_slice():
-    payload = request.json
-    model.transceiver.slice.add(payload['sliceid'])
-    return "Created: {} \n".format(payload)
+@app.route('/api/hello', methods=['GET'])
+def hello_world():
+    """
+    Test configuration
+    ---
+    post:
+    description: Test configuration
+    consumes:
+    - application/json
+    produces:
+    - application/json
+    parameters:
+    - name: name
+      in: body
+      type: string
+      description: Identifies the name of tester
+    responses:
+        200:
+            description: "Successful operation"
+        405:
+            description: "Invalid input"
+    """
+    if request.method == 'GET':
+        data = request.json
+        print(data)
+        if data is not None:
+            try:
+                return jsonify("Hello World %s!" % str(data), 200)
+
+            except Exception as e:
+                logger.error(e)
+                return jsonify('ERROR: %s' % e, 405)
+        else:
+            return jsonify('The parameters sended by the agent are not correct.', 405)
 
 
-@app.route('/api/transceiver/slice', methods=['DELETE'])
-def delete_slice():
-    payload = request.json
-    model.transceiver.slice.delete(payload['sliceid'])
-    return "Deleted: {} \n".format(payload)
+def define_logger():
+    """
+    Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
+    """
+    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)  # File Handler
+    streamHandler = logging.StreamHandler()  # Stream Handler
+    # Create a Formatter for formatting the logs messages
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")
+    # Add the Formatter to the Handlers
+    fileHandler.setFormatter(formatter)
+    streamHandler.setFormatter(formatter)
+    # Add Handlers to the logger
+    logger.addHandler(fileHandler)
+    logger.addHandler(streamHandler)
 
 
-@app.route('/api/transceiver/slice/<int:_id>', methods=['POST'])
-def create_opticalchannel(_id):
-    payload = request.json
-    for sliceid in model.transceiver.slice.iteritems():
-        # if _id == sliceid:
-        sliceid.optical_channel.add(payload['opticalchannelid'])
-    return "Created: {} \n".format(payload)
-
-
-@app.route('/api/config', methods=['POST'])
-def execute_config():
-    print(request.values)
-    print(request.values)
-    return "Created: {} \n".format(request.data)
-
-
-app.run(host='10.1.16.53', port=5000, debug=True)
+if __name__ == '__main__':
+    define_logger()
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

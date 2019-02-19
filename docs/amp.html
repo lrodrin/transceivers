@@ -1,7 +1,6 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html><head><title>Python: module amp</title>
-<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head><body bgcolor="#f0f0f8">
 
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
@@ -29,13 +28,18 @@
     
 <tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
 <dt><font face="helvetica, arial"><a href="amp.html#Amplifier">Amplifier</a>
 </font></dt></dl>
+</dd>
+</dl>
  <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ffc8d8">
 <td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="Amplifier">class <strong>Amplifier</strong></a></font></td></tr>
+<font color="#000000" face="helvetica, arial"><a name="Amplifier">class <strong>Amplifier</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
 <td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Amplifier">Amplifier</a>&nbsp;module.<br>&nbsp;</tt></td></tr>
@@ -65,12 +69,12 @@ default&nbsp;parameters:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eos_3&nbsp;(str):&nbsp;Do&nbsp;not&nbsp;append&nbsp;CR&nbsp;or&nbsp;LF&nbsp;to&nbsp;GPIB&nbsp;data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;eoi_1&nbsp;(str):&nbsp;Assert&nbsp;EOI&nbsp;with&nbsp;last&nbsp;byte&nbsp;to&nbsp;indicate&nbsp;end&nbsp;of&nbsp;data.</tt></dd></dl>
 
-<dl><dt><a name="Amplifier-enable"><strong>enable</strong></a>(self, stat<font color="#909090">=False</font>)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>.<br>
+<dl><dt><a name="Amplifier-enable"><strong>enable</strong></a>(self, stat=False)</dt><dd><tt>Enable&nbsp;or&nbsp;Disable&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>.<br>
 &nbsp;<br>
 :param&nbsp;stat:&nbsp;if&nbsp;True&nbsp;is&nbsp;enable&nbsp;otherwise&nbsp;is&nbsp;disable<br>
 :type&nbsp;stat:&nbsp;bool</tt></dd></dl>
 
-<dl><dt><a name="Amplifier-mode"><strong>mode</strong></a>(self, mod, param<font color="#909090">=0</font>)</dt><dd><tt>Define&nbsp;power&nbsp;or&nbsp;gain&nbsp;for&nbsp;mode&nbsp;AGC&nbsp;and&nbsp;APC&nbsp;in&nbsp;dBm,&nbsp;or&nbsp;current&nbsp;for&nbsp;mode&nbsp;ACC&nbsp;in&nbsp;mA.<br>
+<dl><dt><a name="Amplifier-mode"><strong>mode</strong></a>(self, mod, param=0)</dt><dd><tt>Define&nbsp;power&nbsp;or&nbsp;gain&nbsp;for&nbsp;mode&nbsp;AGC&nbsp;and&nbsp;APC&nbsp;in&nbsp;dBm,&nbsp;or&nbsp;current&nbsp;for&nbsp;mode&nbsp;ACC&nbsp;in&nbsp;mA.<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;The&nbsp;range&nbsp;of&nbsp;gain&nbsp;in&nbsp;mode&nbsp;AGC&nbsp;takes&nbsp;20&nbsp;to&nbsp;35&nbsp;dBm.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;The&nbsp;range&nbsp;of&nbsp;power&nbsp;in&nbsp;mode&nbsp;APC&nbsp;takes&nbsp;0&nbsp;to&nbsp;23'5&nbsp;dBm.<br>
@@ -96,7 +100,7 @@ default&nbsp;parameters:<br>
 
 <hr>
 Static methods defined here:<br>
-<dl><dt><a name="Amplifier-startup"><strong>startup</strong></a>(ip, addr, mode, power, status)</dt><dd><tt><a href="#Amplifier">Amplifier</a>&nbsp;startup:<br>
+<dl><dt><a name="Amplifier-configuration"><strong>configuration</strong></a>(ip, addr, mode, power, status)</dt><dd><tt><a href="#Amplifier">Amplifier</a>&nbsp;configuration:<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;mode&nbsp;of&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Enable&nbsp;or&nbsp;disable&nbsp;the&nbsp;<a href="#Amplifier">Amplifier</a>.<br>
@@ -113,6 +117,14 @@ Static methods defined here:<br>
 :param&nbsp;status:&nbsp;if&nbsp;True&nbsp;is&nbsp;enable&nbsp;otherwise&nbsp;is&nbsp;disable<br>
 :type&nbsp;status:&nbsp;bool</tt></dd></dl>
 
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
 <hr>
 Data and other attributes defined here:<br>
 <dl><dt><strong>buffer_size</strong> = 100</dl>

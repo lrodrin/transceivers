@@ -13,6 +13,7 @@ class Laser:
     This is a class for Laser module.
     """
     # TODO documentar variables constants de la classe
+    addr = '11'  # GPIB address
     connection_port = 1234
     connection_timeout = 1
     mode = "++mode 1\n"
@@ -25,17 +26,15 @@ class Laser:
     read_eoi = "++read eoi\n"
     time_sleep_enable = 5  # Time needed to enable/disable the Laser before check the status
 
-    def __init__(self, ip, addr):
+    def __init__(self, ip):
         """
         The constructor for the Laser class.
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
-        :param addr: GPIB address
-        :type addr: str
         """
         self.ip = ip
-        self.addr = addr
+        self.addr = Laser.addr
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         self.connection_and_initialization()
 
@@ -61,7 +60,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Connection to Laser refused, {}".format(error))
-            raise error
 
         # Initialization
         try:
@@ -76,7 +74,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Default parameters of the Laser not initialized, {}".format(error))
-            raise error
 
     def test(self):
         """
@@ -92,7 +89,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Laser test, {}".format(error))
-            raise error
 
     def wavelength(self, ch, lambda0):
         """
@@ -112,7 +108,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Wavelength not configured, {}".format(error))
-            raise error
 
     def power(self, ch, power):
         """
@@ -132,7 +127,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Power not configured, {}".format(error))
-            raise error
 
     def enable(self, ch, stat=False):
         """
@@ -151,7 +145,6 @@ class Laser:
 
             except socket.error as error:
                 logger.error("Can't enable, {}".format(error))
-                raise error
         else:
             try:
                 self.sock.send("CH%d:DISABLE\n" % ch)
@@ -159,7 +152,6 @@ class Laser:
 
             except socket.error as error:
                 logger.error("Can't disable, {}".format(error))
-                raise error
 
     def status(self, ch):
         """
@@ -175,6 +167,8 @@ class Laser:
         :rtype: list
         """
         stat = False
+        wavelength = float()
+        power = float()
 
         # Check status
         try:
@@ -186,7 +180,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Checking status, {}".format(error))
-            raise error
 
         # Check wavelength
         try:
@@ -197,7 +190,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Checking wavelength, {}".format(error))
-            raise error
 
         # Check power
         try:
@@ -211,7 +203,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Checking wavelength, {}".format(error))
-            raise error
 
         return [stat, wavelength, power]
 
@@ -225,7 +216,6 @@ class Laser:
 
         except socket.error as error:
             logger.error("Connection to Laser not closed, {}".format(error))
-            raise error
 
     def checkerror(self):
         """
@@ -241,10 +231,9 @@ class Laser:
 
         except socket.error as error:
             logger.error("System error, {}".format(error))
-            raise error
 
     @staticmethod
-    def configuration(ip, addr, ch, lambda0, power, status):
+    def configuration(ip, channel, lambda0, power, status):
         """
         Laser configuration:
 
@@ -255,10 +244,8 @@ class Laser:
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
-        :param addr: GPIB address
-        :type addr: str
-        :param ch: channel
-        :type ch: int
+        :param channel: channel
+        :type channel: int
         :param lambda0: wavelength
         :type lambda0: float
         :param power: power
@@ -266,17 +253,18 @@ class Laser:
         :param status: if True is enable otherwise is disable
         :type status: bool
         """
+        logger.debug("Laser configuration started")
         try:
-            yenista = Laser(ip, addr)
-            yenista.wavelength(ch, lambda0)
-            yenista.power(ch, power)
-            yenista.enable(ch, status)
-            params = yenista.status(ch)
+            yenista = Laser(ip)
+            yenista.wavelength(channel, lambda0)
+            yenista.power(channel, power)
+            yenista.enable(channel, status)
+            params = yenista.status(channel)
             logger.debug(
                 "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
 
             yenista.close()
+            logger.debug("Laser configuration finished")
 
         except Exception as error:
-            logger.error("Laser configuration, {}".format(error))
-            raise error
+            logger.error("Laser configuration method, {}".format(error))

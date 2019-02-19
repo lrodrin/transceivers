@@ -158,7 +158,7 @@ def equalize_fht(datarx, datatx, Ncarriers, NTS):
     BB = fliplr(diag(B))
     A0 = H[0] / TS2[0]
 
-    # Build W (eq matrix)
+    # Build W (equalitzation matrix)
     W = np.zeros((Ncarriers, Ncarriers))
     W[1:Ncarriers, 1:Ncarriers] = AA + BB
     W[Ncarriers / 2, Ncarriers / 2] = 1

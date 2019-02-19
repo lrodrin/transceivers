@@ -52,7 +52,7 @@ def Format(constellation, bn):
             bitmap = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0], [1, 0, 1], [1, 1, 1]])
             # mapped=np.sqrt(1./0.875)*np.array([1, np.exp(1j*2.*np.pi/7.), np.exp(1j*4.*np.pi/7.),
             # np.exp(1j*6.*np.pi/7.),np.exp(1j*8.*np.pi/7.), np.exp(1j*10.*np.pi/7.), np.exp(1j*12.*np.pi/7.),
-            # 0]) #circular 8QAM enhanced performance for flexi optical networks the best performance (LMS eq)
+            # 0]) #circular 8QAM enhanced performance for flexi optical networks the best performance (LMS equalitzation)
             mapped = np.sqrt(1. / 5.5) * np.array([-3, -1 + 1j, 3 * 1j, -1 - 1j, 1 - 1j, -3 * 1j, 1 + 1j, 3],
                                                   complex)  # 8QAM(4,4) PAM-PSK Constellation
             # mapped=np.sqrt(1./0.636)*np.array([1j,3*1j,1-1j,1+1j,-3*1j,-1+1j,-1-1j,-1j]) #8QAM Sadjadpour's

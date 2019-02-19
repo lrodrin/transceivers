@@ -9,10 +9,10 @@ from lib.laser.laser import Laser
 
 if __name__ == '__main__':
     ip = '10.1.1.7'
-    addr = '11'
     channel = 1
     # channel 1 - lambda0 1550.12
     # channel 2 - lambda0 1550.9
     lambda0 = 1550.12
     power = 7.5
-    Laser.configuration(ip, addr, channel, lambda0, power, True)
+    status = True
+    Laser.configuration(ip, channel, lambda0, power, status)
