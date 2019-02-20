@@ -141,7 +141,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify('ERROR: %s' % e, 405)
+                    return jsonify("ERROR: %s" % e, 405)
 
             elif tx_id == 1:
                 try:
@@ -152,7 +152,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify('ERROR: %s' % e, 405)
+                    return jsonify("ERROR: %s" % e, 405)
 
         elif configuration == 1:  # Configuration 2
             if tx_id == 0:
@@ -164,7 +164,7 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify('ERROR: %s' % e, 405)
+                    return jsonify("ERROR: %s" % e, 405)
 
             if tx_id == 1:
                 try:
@@ -175,12 +175,12 @@ def dac_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify('ERROR: %s' % e, 405)
+                    return jsonify("ERROR: %s" % e, 405)
 
         logger.debug("DAC configuration finished")
 
     else:
-        return jsonify('The parameters sended by the agent are not correct.', 405)
+        return jsonify("The parameters sended by the agent are not correct.", 405)
 
 
 def run_dac_configuration(tx, tx_id, bn, En, temp_file, leia_sequence, leia_file):
@@ -295,7 +295,7 @@ def osc_configuration(params):
 
             except Exception as e:
                 logger.error(e)
-                return jsonify('ERROR: %s' % e, 405)
+                return jsonify("ERROR: %s" % e, 405)
 
         elif configuration == 1:  # Configuration 2
             if rx_id == 0:
@@ -306,7 +306,7 @@ def osc_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify('ERROR: %s' % e, 405)
+                    return jsonify("ERROR: %s" % e, 405)
 
             if rx_id == 1:
                 try:
@@ -316,12 +316,12 @@ def osc_configuration(params):
 
                 except Exception as e:
                     logger.error(e)
-                    return jsonify('ERROR: %s' % e, 405)
+                    return jsonify("ERROR: %s" % e, 405)
 
         logger.debug("OSC configuration finished")
 
     else:
-        return jsonify('The parameters sended by the agent are not correct.', 405)
+        return jsonify("The parameters sended by the agent are not correct.", 405)
 
 
 def run_osc_configuration(rx, trx_mode, rx_id, bn, En, eq, msg):

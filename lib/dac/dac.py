@@ -26,7 +26,7 @@ class DAC:
     BW_filter = 25e9
     N_filter = 2
     Ncarriers = 512
-    Constellation = 'QAM'
+    Constellation = "QAM"
     CP = 0.019
     NTS = 4
     Nsymbols = 16 * 3 * 1024
@@ -99,7 +99,7 @@ class DAC:
                 (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
             ttt = tt.cumsum()
 
-            logger.debug('Generating data')
+            logger.debug("Generating data")
             if tx_ID == 0:  # Generate data with different seed for the different users/clients
                 np.random.seed(42)
             else:
@@ -107,13 +107,13 @@ class DAC:
 
             data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 
-            logger.debug('Trainning symbols')
+            logger.debug("Trainning symbols")
             TS = np.random.randint(0, 2, self.NTS * self.bps * self.Ncarriers)
             BitStream = np.r_[TS, data]
             BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
             cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
 
-            logger.debug('Mapping data')
+            logger.debug("Mapping data")
             cumBit = 0
             for k in range(0, self.Ncarriers):
                 (FormatM, bitOriginal) = modulation.Format(self.Constellation, bn[k])
@@ -121,13 +121,13 @@ class DAC:
                 cumBit = cumBit + bn[k]
 
             cdatary = cdatar * np.sqrt(En)  # Include power loading results
-            logger.debug('Implementing the IFFT')
+            logger.debug("Implementing the IFFT")
             FHTdatatx = ofdm.ifft(cdatary, self.Ncarriers)  # Perform the IFFT required in OFDM
-            logger.debug('Add cyclic prefix')
+            logger.debug("Add cyclic prefix")
             FHTdata_cp = np.concatenate((FHTdatatx, FHTdatatx[:, 0:np.round(self.CP * self.Ncarriers)]), axis=1)
 
             Cx = FHTdata_cp.reshape(FHTdata_cp.size, )  # Serialize
-            logger.debug('Clipping the signal')
+            logger.debug("Clipping the signal")
             deviation = np.std(Cx)
             Cx_clip = Cx.clip(min=-self.k_clip * deviation, max=self.k_clip * deviation)
             Cx_up = sgn.resample(Cx_clip, self.sps * Cx_clip.size)  # Resample
@@ -135,7 +135,7 @@ class DAC:
                 2 * np.math.pi * f_clock * ttt)  # Upconvert the signal to create a real signal
 
             if self.Preemphasis:
-                logger.debug('Preemphasis')
+                logger.debug("Preemphasis")
                 # Pre-emphasis (inverted gaussian) filter
                 sigma = self.BW_filter / (2 * np.sqrt(2 * np.log10(2)))
                 stepfs = self.fs / len(Cx_up2)
@@ -152,12 +152,12 @@ class DAC:
 
             logger.debug("OFDM signal is created")
 
-            logger.debug('Initializing LEIA')
-            f_clock = open(DAC.clock_file, "w")
+            logger.debug("Initializing LEIA")
+            f_clock = open(self.clock_file, "w")
             f_clock.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
-            f_clock_ref = open(DAC.clock_ref_file, "w")
+            f_clock_ref = open(self.clock_ref_file, "w")
             f_clock_ref.write("10\n")  # 10MHz or 50MHz Ref frequency
-            np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
+            np.savetxt(self.temp_file, Cx_LEIA)  # .txt with the OFDM signal
 
         except Exception as error:
             logger.error("DAC transmitter method, {}".format(error))

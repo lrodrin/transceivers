@@ -13,7 +13,7 @@ class Amplifier:
     This is a class for Amplifier module.
     """
     # TODO documentar variables constants de la classe
-    addr = '3'  # GPIB address
+    addr = "3"  # GPIB address
     connection_port = 1234
     connection_timeout = 2
     controller_mode = "++mode 1\n"
@@ -52,9 +52,9 @@ class Amplifier:
             - eoi_1 (str): Assert EOI with last byte to indicate end of data.
         """
         # Connection
-        self.sock.settimeout(Amplifier.connection_timeout)
+        self.sock.settimeout(self.connection_timeout)
         ip = self.ip
-        port = Amplifier.connection_port
+        port = self.connection_port
         try:
             self.sock.connect((ip, port))
             logger.debug("Connection to Amplifier {} on port {} opened".format(ip, port))
@@ -64,13 +64,13 @@ class Amplifier:
 
         # Initialization
         try:
-            self.sock.send(Amplifier.controller_mode)
+            self.sock.send(self.controller_mode)
             addr_GPIB = "++addr " + self.addr + "\n"
             self.sock.send(addr_GPIB)
-            self.sock.send(Amplifier.read_after_write)
-            self.sock.send(Amplifier.read_timeout)
-            self.sock.send(Amplifier.eos_3)
-            self.sock.send(Amplifier.eoi_1)
+            self.sock.send(self.read_after_write)
+            self.sock.send(self.read_timeout)
+            self.sock.send(self.eos_3)
+            self.sock.send(self.eoi_1)
             logger.debug("Default parameters of the Amplifier initialized")
 
         except socket.error as error:
@@ -85,8 +85,8 @@ class Amplifier:
         """
         try:
             self.sock.send("*IDN?\n")
-            self.sock.send(Amplifier.read_eoi)
-            return self.sock.recv(Amplifier.buffer_size)
+            self.sock.send(self.read_eoi)
+            return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
             logger.error("Amplifier test, {}".format(error))
@@ -102,14 +102,14 @@ class Amplifier:
         if stat:
             try:
                 self.sock.send("POW:ON\n")
-                time.sleep(Amplifier.time_sleep_enable)
+                time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't enable the Amplifier, {}".format(error))
         else:
             try:
                 self.sock.send("POW:OFF\n")
-                time.sleep(Amplifier.time_sleep_enable)
+                time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't disable the Amplifier, {}".format(error))
@@ -147,7 +147,7 @@ class Amplifier:
                 self.sock.send(cmd + "\n")
                 logger.debug("Set current %s" % param)
 
-            time.sleep(Amplifier.time_sleep_mode)
+            time.sleep(self.time_sleep_mode)
 
         except socket.error as error:
             logger.error("Mode not configured, {}".format(error))
@@ -169,8 +169,8 @@ class Amplifier:
         # Check mode
         try:
             self.sock.send("MODE\n")
-            self.sock.send(Amplifier.read_eoi)
-            s = self.sock.recv(Amplifier.buffer_size)
+            self.sock.send(self.read_eoi)
+            s = self.sock.recv(self.buffer_size)
             mod = s.split(" ")[1]  # mode
             power = float(s.split(" ")[2])  # power
 
@@ -180,8 +180,8 @@ class Amplifier:
         # Check status
         try:
             self.sock.send("POW?\n")
-            self.sock.send(Amplifier.read_eoi)
-            s = self.sock.recv(Amplifier.buffer_size)
+            self.sock.send(self.read_eoi)
+            s = self.sock.recv(self.buffer_size)
             if s.find("OFF") == -1:
                 stat = True
 
@@ -210,8 +210,8 @@ class Amplifier:
         """
         try:
             self.sock.send("SYST:ERR?\n")
-            self.sock.send(Amplifier.read_eoi)
-            return self.sock.recv(Amplifier.buffer_size)
+            self.sock.send(self.read_eoi)
+            return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
             logger.error("System error, {}".format(error))

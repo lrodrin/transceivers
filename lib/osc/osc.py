@@ -17,7 +17,7 @@ class OSC:
     This is a class for Oscilloscope module.
     """
     Ncarriers = 512
-    Constellation = 'QAM'
+    Constellation = "QAM"
     CP = 0.019
     NTS = 4
     Nsymbols = 16 * 3 * 1024
@@ -107,7 +107,7 @@ class OSC:
             cdatar = np.delete(cdatar, Subzero, axis=1)
             bn = np.delete(bn, Subzero)
             Runs = 0
-            logger.debug('Iterating')
+            logger.debug("Iterating")
             for run in range(1, self.Niters + 1):
                 Ncarriers_eq = self.Ncarriers
 
@@ -125,42 +125,42 @@ class OSC:
                 ref2 = Cx_up[0:self.sps * self.NTS * (Ncarriers_eq + np.round(
                     self.CP * Ncarriers_eq))]  # Creating a reference signal for syncronization
 
-                logger.debug('Synchronizing')
+                logger.debug("Synchronizing")
                 Bfilt = sgn.firwin(2 ** 9, BWs / self.fs, 0)
                 I_rx_BBf = sgn.filtfilt(Bfilt, [1], I_rx_BB)
                 Rd = np.correlate(I_rx_BBf[0:self.nsamplesrx / 2], ref2)  # Look for the beginning of the OFDM frame
                 Rdlog = 20 * np.log10(np.abs(Rd))
 
                 if Rdlog.max(0) < np.mean(Rdlog) + 20:
-                    logger.warning('Not able to sync!')
+                    logger.warning("Not able to sync!")
                 else:
                     peakind = (Rdlog == Rdlog.max(0)).nonzero()
                     index = peakind[0][0]
                     data_sync = I_rx_BBf[index:index + self.nsamplesrx / 2]
-                    logger.debug('Data is synchronized!')
+                    logger.debug("Data is synchronized!")
 
                     Cx_down = sgn.resample(data_sync, (Ncarriers_eq + np.round(self.CP * Ncarriers_eq)) * self.Nframes)
 
                     cdatarxr_CP = Cx_down.reshape(self.Nframes, Ncarriers_eq + np.round(self.CP * Ncarriers_eq))
 
-                    logger.debug('Remove CP')
+                    logger.debug("Remove CP")
                     cdatarxr = cdatarxr_CP[:, 0:Ncarriers_eq]
 
-                    logger.debug('Perform FFT')
+                    logger.debug("Perform FFT")
                     FHTdatarx = ofdm.fft(cdatarxr, Ncarriers_eq)
 
                     FHTdatarx = np.delete(FHTdatarx, Subzero, axis=1)
                     # Remove subcarriers set to 0 for equalization to avoid divide by 0
                     Ncarriers_eq = Ncarriers_eq - Subzero.size
 
-                    logger.debug('Performing Equalization')
-                    if eq == 'MMSE':
+                    logger.debug("Performing Equalization")
+                    if eq == "MMSE":
                         FHTdatarx_eq = ofdm.equalize_MMSE_LE(FHTdatarx, cdatar, Ncarriers_eq, self.NTS)
                     else:
                         FHTdatarx_eq = ofdm.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, self.NTS)
 
                     if trx_mode == 0:  # Only in estimation mode (uniform loading)
-                        logger.debug('Estimating SNR')
+                        logger.debug("Estimating SNR")
                         SNR = ofdm.SNR_estimation(cdatar[self.NTS:, ], FHTdatarx_eq, self.Nframes - self.NTS,
                                                   Ncarriers_eq)
                         SNRT = SNR + SNRT
@@ -175,7 +175,7 @@ class OSC:
                     datarx = np.array(np.zeros((self.Nframes - self.NTS, np.round(Ncarriers_eq * bps2))))
                     cumbit = 0
 
-                    logger.debug('Demmaping')
+                    logger.debug("Demmaping")
                     for i in range(0, Ncarriers_eq):
                         (FormatM, bitOriginal) = modulation.Format(self.Constellation, bn[i])
                         datarx[:, cumbit:cumbit + bn[i]] = modulation.Demod(FHTdatarx_eq[:, i], FormatM.reshape(1, -1),
@@ -185,10 +185,10 @@ class OSC:
                     datarx = datarx.reshape(np.round(Ncarriers_eq * (self.Nframes - self.NTS) * bps2, ))
                     diff = datarx - data
 
-                    logger.debug('Calculating BER')
+                    logger.debug("Calculating BER")
                     Nerr = np.sum(np.sqrt(diff.real ** 2 + diff.imag ** 2))
                     BER = np.true_divide(Nerr, data.size)
-                    logger.debug('BER = {}, iteration = {}'.format(BER, run))
+                    logger.debug("BER = {}, iteration = {}".format(BER, run))
                     BERT = BERT + BER
                     Runs = Runs + 1
 
@@ -213,25 +213,21 @@ class OSC:
         :rtype: float array
         """
         try:
-
             dpo = visa.instrument("TCPIP::10.1.1.14::4000::SOCKET")
-            # dpo = visa.instrument("TCPIP0::10.1.1.14::inst0::INSTR")
 
-            dpo.write('HOR:mode:RECO %d' % npoints)  # Set the record length to npoints
-            dpo.write('HOR:mode:SAMPLER %d' % fs)  # Set the sample rate to fs
-            logger.debug('Acquiring data...')
-            # print "Acquiring channel %d from %s" % (channel_ID, dpo.ask('*IDN?'))
+            dpo.write("HOR:mode:RECO %d" % npoints)  # Set the record length to npoints
+            dpo.write("HOR:mode:SAMPLER %d" % fs)  # Set the sample rate to fs
+            logger.debug("Acquiring data...")
 
-            dpo.write('DAT:SOU CH%d' % channel_ID)
-            dpo.write('DAT:ENC ASCII')
-            # dpo.write('DAT:ENC SFPbinary')
-            # print dpo.ask('DAT:ENC?')
-            dpo.write('DAT:STAR %d' % 1)
-            dpo.write('DAT:STOP %d' % npoints)
+            dpo.write("DAT:SOU CH%d" % channel_ID)
+            dpo.write("DAT:ENC ASCII")
 
-            aux = dpo.ask('CURV?')
+            dpo.write("DAT:STAR %d" % 1)
+            dpo.write("DAT:STOP %d" % npoints)
+
+            aux = dpo.ask("CURV?")
             dpo.close()
-            return np.fromstring(aux, dtype=float, sep=',')
+            return np.fromstring(aux, dtype=float, sep=",")
 
         except Exception as error:
             logger.error("OSC acquire method, {}".format(error))
@@ -250,7 +246,7 @@ class OSC:
         :rtype: list
         """
         try:
-            logger.debug('Generating data')
+            logger.debug("Generating data")
             if rx_ID == 0:
                 np.random.seed(42)
             else:
@@ -258,13 +254,13 @@ class OSC:
 
             data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 
-            logger.debug('Trainning symbols')
+            logger.debug("Trainning symbols")
             TS = np.random.randint(0, 2, self.NTS * self.bps * self.Ncarriers)
             BitStream = np.r_[TS, data]
             BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
             cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
 
-            logger.debug('Mapping data')
+            logger.debug("Mapping data")
             cumBit = 0
             for k in range(0, self.Ncarriers):
                 (FormatM, bitOriginal) = modulation.Format(self.Constellation, bn[k])
@@ -272,13 +268,13 @@ class OSC:
                 cumBit = cumBit + bn[k]
 
             cdatary = cdatar * np.sqrt(En)  # Include power loading results
-            logger.debug('Implementing the IFFT')
+            logger.debug("Implementing the IFFT")
             FHTdatatx = ofdm.ifft(cdatary, self.Ncarriers)  # Perform the IFFT required in OFDM
-            logger.debug('Add cyclic prefix')
+            logger.debug("Add cyclic prefix")
             FHTdata_cp = np.concatenate((FHTdatatx, FHTdatatx[:, 0:np.round(self.CP * self.Ncarriers)]), axis=1)
 
             Cx = FHTdata_cp.reshape(FHTdata_cp.size, )  # Serialize
-            logger.debug('Clipping the signal')
+            logger.debug("Clipping the signal")
             deviation = np.std(Cx)
             Cx_clip = Cx.clip(min=-self.k_clip * deviation, max=self.k_clip * deviation)
             Cx_up = sgn.resample(Cx_clip, self.sps * Cx_clip.size)  # Resample

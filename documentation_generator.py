@@ -34,5 +34,5 @@ if __name__ == '__main__':
                         except Exception as e:
                             print("The subprocess call failed")
 
-    print('mv *.html %s' % DOCPATH)
+    print("mv *.html %s" % DOCPATH)
     subprocess.run('mv *.html %s' % DOCPATH, shell=True)

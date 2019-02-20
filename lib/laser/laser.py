@@ -13,7 +13,7 @@ class Laser:
     This is a class for Laser module.
     """
     # TODO documentar variables constants de la classe
-    addr = '11'  # GPIB address
+    addr = "11"  # GPIB address
     connection_port = 1234
     connection_timeout = 1
     mode = "++mode 1\n"
@@ -51,9 +51,9 @@ class Laser:
             - eoi_1 (str): Assert EOI with last byte to indicate end of data.
         """
         # Connection
-        self.sock.settimeout(Laser.connection_timeout)
+        self.sock.settimeout(self.connection_timeout)
         ip = self.ip
-        port = Laser.connection_port
+        port = self.connection_port
         try:
             self.sock.connect((ip, port))
             logger.debug("Connection to Laser {} on port {} opened".format(ip, port))
@@ -63,13 +63,13 @@ class Laser:
 
         # Initialization
         try:
-            self.sock.send(Laser.mode)
+            self.sock.send(self.mode)
             addr_GPIB = "++addr " + self.addr + "\n"
             self.sock.send(addr_GPIB)
-            self.sock.send(Laser.read_after_write)
-            self.sock.send(Laser.read_timeout)
-            self.sock.send(Laser.eos_3)
-            self.sock.send(Laser.eoi_1)
+            self.sock.send(self.read_after_write)
+            self.sock.send(self.read_timeout)
+            self.sock.send(self.eos_3)
+            self.sock.send(self.eoi_1)
             logger.debug("Default parameters of the Laser initialized")
 
         except socket.error as error:
@@ -84,8 +84,8 @@ class Laser:
         """
         try:
             self.sock.send("*IDN?\n")
-            self.sock.send(Laser.read_eoi)
-            return self.sock.recv(Laser.buffer_size)
+            self.sock.send(self.read_eoi)
+            return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
             logger.error("Laser test, {}".format(error))
@@ -141,14 +141,14 @@ class Laser:
         if stat:
             try:
                 self.sock.send("CH%d:ENABLE\n" % ch)
-                time.sleep(Laser.time_sleep_enable)
+                time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't enable, {}".format(error))
         else:
             try:
                 self.sock.send("CH%d:DISABLE\n" % ch)
-                time.sleep(Laser.time_sleep_enable)
+                time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't disable, {}".format(error))
@@ -173,8 +173,8 @@ class Laser:
         # Check status
         try:
             self.sock.send("CH%d:ENABLE?\n" % ch)
-            self.sock.send(Laser.read_eoi)
-            s = self.sock.recv(Laser.buffer_size)
+            self.sock.send(self.read_eoi)
+            s = self.sock.recv(self.buffer_size)
             if s.split(":")[1] == "ENABLED\n":
                 stat = True
 
@@ -184,8 +184,8 @@ class Laser:
         # Check wavelength
         try:
             self.sock.send("CH%d:L?\n" % ch)
-            self.sock.send(Laser.read_eoi)
-            s = self.sock.recv(Laser.buffer_size)
+            self.sock.send(self.read_eoi)
+            s = self.sock.recv(self.buffer_size)
             wavelength = float(s.split("=")[1])
 
         except socket.error as error:
@@ -194,8 +194,8 @@ class Laser:
         # Check power
         try:
             self.sock.send("CH%d:P?\n" % ch)
-            self.sock.send(Laser.read_eoi)
-            s = self.sock.recv(Laser.buffer_size)
+            self.sock.send(self.read_eoi)
+            s = self.sock.recv(self.buffer_size)
             if stat:
                 power = float(s.split("=")[1])
             else:
@@ -226,8 +226,8 @@ class Laser:
         """
         try:
             self.sock.send("SYST:ERR?\n")
-            self.sock.send(Laser.read_eoi)
-            return self.sock.recv(Laser.buffer_size)
+            self.sock.send(self.read_eoi)
+            return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
             logger.error("System error, {}".format(error))

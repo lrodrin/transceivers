@@ -1,3 +1,4 @@
+import collections
 import logging
 import os
 import sys
@@ -22,16 +23,12 @@ print(logger.name)
 
 logger.debug("HEHE")
 
-if "up" in "Leia_DAC_up.m":
-    print("YES")
+operations = collections.OrderedDict()  # operations configured on the WaveShaper
+operations['1'] = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
+id = str(1)
+if id not in operations.keys():
+    operations[id] = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
+else:
+    operations[id] += [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
 
-
-
-import requests
-
-url = 'http://10.1.7.64:5000/api/'
-headers = {"Content-Type": "application/json"}
-
-request = requests.get(url + 'hello', headers=headers)
-print(request.status_code, request.content)
-
+print(operations)
