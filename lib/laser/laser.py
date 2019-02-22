@@ -13,7 +13,6 @@ class Laser:
     This is a class for Laser module.
     """
     # TODO documentar variables constants de la classe
-    addr = "11"  # GPIB address
     connection_port = 1234
     connection_timeout = 1
     mode = "++mode 1\n"
@@ -26,15 +25,17 @@ class Laser:
     read_eoi = "++read eoi\n"
     time_sleep_enable = 5  # Time needed to enable/disable the Laser before check the status
 
-    def __init__(self, ip):
+    def __init__(self, ip, addr):
         """
         The constructor for the Laser class.
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
+        :param addr: GPIB address
+        :type addr: str
         """
         self.ip = ip
-        self.addr = Laser.addr
+        self.addr = addr
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         self.connection_and_initialization()
 
@@ -233,7 +234,7 @@ class Laser:
             logger.error("System error, {}".format(error))
 
     @staticmethod
-    def configuration(ip, channel, lambda0, power, status):
+    def configuration(ip, addr, channel, lambda0, power, status):
         """
         Laser configuration:
 
@@ -244,6 +245,8 @@ class Laser:
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
+        :param addr: GPIB address
+        :type addr: str
         :param channel: channel
         :type channel: int
         :param lambda0: wavelength
@@ -255,7 +258,7 @@ class Laser:
         """
         logger.debug("Laser configuration started")
         try:
-            yenista = Laser(ip)
+            yenista = Laser(ip, addr)
             yenista.wavelength(channel, lambda0)
             yenista.power(channel, power)
             yenista.enable(channel, status)

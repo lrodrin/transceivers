@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     # test local assignment from server
     # request = requests.post('http://%s:5001/api/vi/openconfig/' % ip_server + 'local_assignment',
-    #                         headers={"Content-Type": "application/json"}, data=json.dumps(params_xc))
+    #                         HEADERS={"Content-Type": "application/json"}, data=json.dumps(params_xc))
     if request:
         data = request.json()
         logging.debug(data)
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # test optical channel configuration from server
     # request = requests.post('http://%s:5001/api/vi/openconfig/' % ip_server + 'optical_channel',
-    #                         headers={"Content-Type": "application/json"}, data=json.dumps(params_f))
+    #                         HEADERS={"Content-Type": "application/json"}, data=json.dumps(params_f))
     if request:
         data = request.json()
         logging.debug(data)

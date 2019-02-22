@@ -13,7 +13,6 @@ class Amplifier:
     This is a class for Amplifier module.
     """
     # TODO documentar variables constants de la classe
-    addr = "3"  # GPIB address
     connection_port = 1234
     connection_timeout = 2
     controller_mode = "++mode 1\n"
@@ -27,15 +26,17 @@ class Amplifier:
     time_sleep_mode = 1  # Time needed to enable/disable the Amplifier after changing the mode
     time_sleep_enable = 7  # Time needed to enable/disable the Laser before check the status
 
-    def __init__(self, ip):
+    def __init__(self, ip, addr):
         """
         The constructor for the Amplifier class.
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
+        :param addr: GPIB address
+        :type addr: str
         """
         self.ip = ip
-        self.addr = Amplifier.addr
+        self.addr = addr
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         self.connection_and_initialization()
 
@@ -217,7 +218,7 @@ class Amplifier:
             logger.error("System error, {}".format(error))
 
     @staticmethod
-    def configuration(ip, mode, power, status):
+    def configuration(ip, addr, mode, power, status):
         """
         Amplifier configuration:
 
@@ -227,6 +228,8 @@ class Amplifier:
 
         :param ip: IP address of GPIB-ETHERNET
         :type ip: str
+        :param addr: GPIB address
+        :type addr: str
         :param mode: mode
         :type mode: str
         :param power: power
@@ -236,7 +239,7 @@ class Amplifier:
         """
         logger.debug("Amplifier configuration started")
         try:
-            manlight = Amplifier(ip)
+            manlight = Amplifier(ip, addr)
             manlight.mode(mode, power)
             manlight.enable(status)
             params = manlight.status()

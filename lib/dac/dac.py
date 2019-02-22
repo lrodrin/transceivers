@@ -1,6 +1,8 @@
 """This is the DAC module.
 """
 import logging
+from subprocess import Popen, PIPE
+
 import numpy as np
 import scipy.signal as sgn
 
@@ -15,12 +17,12 @@ class DAC:
     """
     This is the class for DAC module.
     """
-    folder = "C:/Users/cttc/Desktop/agent-bvt/conf/"    # Folder that stores all the configuration files
+    folder = "C:/Users/cttc/Desktop/agent-bvt/conf/"  # Folder that stores all the configuration files
     clock_ref_file = folder + "CLK_ref.txt"  # File to save the clock_ref for the DAC
     clock_file = folder + "CLK.txt"  # File to save the clock value for the DAC
     temp_file = folder + "TEMP.txt"  # File to save the OFDM signal that will be uploaded to LEIA DAC
-    leia_up_filename = "Leia_DAC_up.m"  # TODO
-    leia_down_filename = "Leia_DAC_dowm.m"  # TODO
+    leia_up_filename = "Leia_DAC_up.m"  # File with the generated OFDM signal to be uploaded to the LEIA DAC
+    leia_down_filename = "Leia_DAC_dowm.m"  # File with the generated OFDM signal to be uploaded to the LEIA DAC
 
     Preemphasis = True
     BW_filter = 25e9
@@ -82,12 +84,12 @@ class DAC:
         self.bps = DAC.bps
         self.BWs = self.fs / self.sps
 
-    def transmitter(self, tx_ID, bn, En):
+    def transmitter(self, dac_out, bn, En):
         """
         Generate a BitStream and creates the OFDM signal to be uploaded into the DAC.
 
-        :param tx_ID: identify the channel of the DAC to be used and the local files to use for storing data
-        :type tx_ID: int (0 or 1)
+        :param dac_out: input port
+        :type dac_out: int
         :param bn: array of Ncarriers positions that contains the bits per symbol per subcarrier
         :type bn: int array of 512 positions
         :param En: array of Ncarriers positions that contains the power per subcarrier figure
@@ -99,11 +101,11 @@ class DAC:
                 (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
             ttt = tt.cumsum()
 
-            logger.debug("Generating data")
-            if tx_ID == 0:  # Generate data with different seed for the different users/clients
-                np.random.seed(42)
-            else:
+            logger.debug("Generating data")  # Generate data with different seed for the different users/clients
+            if dac_out % 2 != 0:  # TODO Esta be?
                 np.random.seed(36)
+            elif dac_out % 2 == 0:
+                np.random.seed(42)
 
             data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 
@@ -159,5 +161,56 @@ class DAC:
             f_clock_ref.write("10\n")  # 10MHz or 50MHz Ref frequency
             np.savetxt(self.temp_file, Cx_LEIA)  # .txt with the OFDM signal
 
+            self.enable_channel(dac_out)
+
         except Exception as error:
             logger.error("DAC transmitter method, {}".format(error))
+
+    def enable_channel(self, dac_out):
+        """
+        Enable the DAC channel. Sets 1 to the active Leia output and 0 to the remaining outputs.
+
+        :param dac_out: input port
+        :type dac_out: int
+        """
+        seq = ""
+        leia_file = ""
+        try:
+            temp_file = open(self.temp_file, "w")
+            if dac_out % 2 != 0:
+                logger.debug("Enable Hi channel")
+                seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                leia_file = self.leia_up_filename
+
+            elif dac_out % 2 == 0:
+                logger.debug("Enable Hq channel")
+                seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                leia_file = self.leia_down_filename
+
+            temp_file.write(seq)
+            self.execute_matlab(leia_file)
+
+        except Exception as error:
+            logger.error("DAC enable_channel method, {}".format(error))
+
+    def execute_matlab(self, leia_file):
+        """
+        Call MATLAB program to process the OFDM signal uploaded to the Leia DAC.
+
+        :param leia_file: file with the generated OFDM signal to be uploaded to the LEIA DAC
+        :type leia_file: str    (Leia_DAC_up.m or Leia_DAC_down.m)
+        """
+        matlab = 'C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe'
+        options = '-nodisplay -nosplash -nodesktop -wait'
+        try:
+            command = """{} {} -r "cd(fullfile('{}')), {}" """.format(matlab, options, self.folder, leia_file)
+            proc = Popen(command, stdout=PIPE, stderr=PIPE)
+            out, err = proc.communicate()
+            if proc.returncode == 0:
+                logger.debug("MATLAB call {} succeeded, exit-code = {} returned".format(command, proc.returncode))
+            else:
+                logger.error(
+                    "MATLAB call {} failed, exit-code = {} returned, error = {}".format(command, proc.returncode,
+                                                                                        str(err)))
+        except OSError as error:
+            logger.error("Failed to execute MATLAB, error = %s" % error)

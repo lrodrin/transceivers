@@ -9,7 +9,8 @@ from lib.amp.amp import Amplifier
 
 if __name__ == '__main__':
     ip = '10.1.1.16'
+    addr = '3'
     mode = "APC"
     power = 0
     status = True
-    Amplifier.configuration(ip, mode, power, status)
+    Amplifier.configuration(ip, addr, mode, power, status)

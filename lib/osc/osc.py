@@ -73,15 +73,12 @@ class OSC:
         self.Qt = OSC.Qt
         self.bps = OSC.bps
 
-    def receiver(self, trx_mode, rx_ID, bn, En, eq):
+    def receiver(self, osc_in, bn, En, eq):
         """
         Adquires the OFDM signal received at the DPO and recovers by offline DSP the transmitted BitStream.
 
-        :param trx_mode: identify the mode of the transceiver. 0 for estimation mode (uniform loading) and 1 for
-        transmission mode (loading)
-        :type trx_mode: int
-        :param rx_ID: identify the channel of the OSC to be used and the local files to use for storing data
-        :type rx_ID: int (0 or 1)
+        :param osc_in: output port
+        :type osc_in: int
         :param bn: array of Ncarriers positions that contains the bits per symbol per subcarrier
         :type bn: int array of 512 positions
         :param En: array of Ncarriers positions that contains the power per subcarrier figure
@@ -92,7 +89,7 @@ class OSC:
         :rtype: list
         """
         try:
-            cdatar, data, Cx_up = self.generated_data(rx_ID, bn, En)
+            cdatar, data, Cx_up = self.generated_data(osc_in, bn, En)
 
             BWs = self.fs / self.sps  # BW electrical signal
             R = self.f_DCO / self.fs  # Sampling factor for the receiver
@@ -111,12 +108,12 @@ class OSC:
             for run in range(1, self.Niters + 1):
                 Ncarriers_eq = self.Ncarriers
 
-                if rx_ID == 0:
-                    data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
-                else:
+                if osc_in % 2 != 0:
                     data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
+                elif osc_in % 2 == 0:
+                    data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
 
-                data_acqT = data_acqT - np.mean(data_acqT)
+                data_acqT = data_acqT - np.mean(data_acqT)  # TODO s'ha d'inizialitzar data_acqT
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
 
                 I_rx_BB = data_acq2 * np.cos(2 * np.math.pi * fc * ttt2[0:data_acq2.size]) + 1j * data_acq2 * np.sin(
@@ -159,13 +156,14 @@ class OSC:
                     else:
                         FHTdatarx_eq = ofdm.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, self.NTS)
 
-                    if trx_mode == 0:  # Only in estimation mode (uniform loading)
-                        logger.debug("Estimating SNR")
-                        SNR = ofdm.SNR_estimation(cdatar[self.NTS:, ], FHTdatarx_eq, self.Nframes - self.NTS,
-                                                  Ncarriers_eq)
-                        SNRT = SNR + SNRT
-                        if run == self.Niters:
-                            SNR = SNRT / self.Niters
+                    logger.debug("Estimating SNR")
+                    # TODO take into account in the controler that we only use the SNR corresponding to estimation
+                    #  mode defined at the controller
+                    SNR = ofdm.SNR_estimation(cdatar[self.NTS:, ], FHTdatarx_eq, self.Nframes - self.NTS,
+                                              Ncarriers_eq)
+                    SNRT = SNR + SNRT
+                    if run == self.Niters:
+                        SNR = SNRT / self.Niters
 
                     FHTdatarx_eq[:, Ncarriers_eq / 2] = cdatar[self.NTS:, Ncarriers_eq / 2]
                     FHTdatarx_eq[:, 0] = cdatar[self.NTS:, 0]
@@ -232,12 +230,12 @@ class OSC:
         except Exception as error:
             logger.error("OSC acquire method, {}".format(error))
 
-    def generated_data(self, rx_ID, bn, En):
+    def generated_data(self, osc_in, bn, En):
         """
         Generate data with different seed for different users/clients.
 
-        :param rx_ID: identify the channel of the OSC to be used and the local files to use for storing data.
-        :type rx_ID: int (0 or 1)
+        :param osc_in: output port
+        :type osc_in: int
         :param bn: array of Ncarriers positions that contains the bits per symbol per subcarrier
         :type bn: int array of 512 positions
         :param En: array of Ncarriers positions that contains the power per subcarrier figure
@@ -247,10 +245,10 @@ class OSC:
         """
         try:
             logger.debug("Generating data")
-            if rx_ID == 0:
-                np.random.seed(42)
-            else:
+            if osc_in % 2 != 0:  # TODO Esta be?
                 np.random.seed(36)
+            elif osc_in % 2 == 0:
+                np.random.seed(42)
 
             data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 
