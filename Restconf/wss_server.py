@@ -1,10 +1,10 @@
 import logging
-
 from collections import Counter
 from logging.handlers import RotatingFileHandler
+from os import sys, path
+
 from flasgger import Swagger
 from flask import Flask, request
-from os import sys, path
 from flask.json import jsonify
 
 STATUS_CODE_200 = 200
@@ -30,7 +30,7 @@ def wss_configuration():
     post:
     description: |
         WaveShaper configuration. This function sets the configuration file, central wavelength, bandwidth and
-        attenuation/phase per port to the WaveShaper module.
+        attenuation/phase per port to the WaveShaper module. And saves the operations to be configured on the WaveShaper
     consumes:
     - application/json
     produces:
@@ -60,6 +60,12 @@ def wss_configuration():
                 n, m = calculateNandM(operations)
                 wss_tx = WSS(wss_id, n, m)
                 wss_tx.configuration(operations)
+
+                if wss_id not in WSS.operations.keys():  # Adding new operation
+                    WSS.operations[wss_id] = operations
+                else:
+                    WSS.operations[wss_id] += operations
+
                 return jsonify("WaveShaper %s was successfully configured" % wss_id, STATUS_CODE_200)
 
             except Exception as e:
@@ -115,7 +121,6 @@ def wss_operations(wss_id):
     wss_id = str(wss_id)
     msg_not_exists_operations = "Not exists operations on the WaveShaper %s." % wss_id
     msg_not_exists_waveshapers = "Not exists any WaveShaper configured"
-
     if request.method == 'GET':
         if len(WSS.operations) != 0:
             if WSS.operations[wss_id]:

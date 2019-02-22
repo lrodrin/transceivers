@@ -1,8 +1,9 @@
 """This is the WSS module.
 """
+import collections
 import logging
 import time
-import collections
+
 import numpy as np
 
 from lib.wss import wsapi
@@ -166,12 +167,6 @@ class WSS:
                 logger.debug("Profile loaded to the WaveShaper")
                 time.sleep(self.time_sleep)
                 self.close()
-                # Adding new operation into the WaveShaper operations
-                if wss_id not in self.operations.keys():
-                    self.operations[wss_id] = operation
-                else:
-                    self.operations[wss_id] += operation
-
                 logger.debug("WaveShaper %s configuration finished" % wss_id)
 
         except Exception as error:
