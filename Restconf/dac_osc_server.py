@@ -1,5 +1,4 @@
 import collections
-import json
 import logging
 from logging.handlers import RotatingFileHandler
 from os import sys, path
@@ -49,7 +48,7 @@ def dac_osc_configuration():
         405:
             description: "Invalid input"
     get:
-    description: Get logical associations configured between DAC and OSC
+    description: Get all the logical associations configured between DAC and OSC
     produces:
     - application/json
     responses:
@@ -59,30 +58,32 @@ def dac_osc_configuration():
             description: "Logical associations between DAC and OSC not found" # TODO
     """
     if request.method == 'POST':
-        logical_assocs = request.json
-        if logical_assocs is not None:
+        logic_assoc = request.json
+        if len(logic_assoc) != 0:
             wanted_keys = ('dac_out', 'osc_in', 'eq')
-            for assoc in logical_assocs:  # for each logical association between DAC and OSC
-                assoc_id = str(assoc['id'])
-                dac_out = assoc['dac_out']
-                osc_in = assoc['osc_in']
-                # bn = assoc['bn']
-                # En = assoc['En']
-                eq = assoc['eq']
-                try:
+            try:
+                for index in range(len(logic_assoc)):  # for each logic association between DAC and OSC
+                    assoc_id = str(logic_assoc[index]['id'])
+                    dac_out = logic_assoc[index]['dac_out']
+                    osc_in = logic_assoc[index]['osc_in']
+                    bn = logic_assoc[index]['bn']
+                    En = logic_assoc[index]['En']
+                    eq = logic_assoc[index]['eq']
+
                     # dac_configuration(dac_out, bn, En)
                     # osc_configuration(dac_out, osc_in, bn, En, eq)
 
                     # Adding new logical association
-                    filtered_assoc = dict(zip(wanted_keys, [assoc[k] for k in wanted_keys]))  # assoc - ['id']
+                    filtered_assoc = dict(
+                        zip(wanted_keys, [logic_assoc[index][k] for k in wanted_keys]))  # assoc - ['id']
                     if assoc_id not in logical_associations.keys():
                         logical_associations[assoc_id] = filtered_assoc
-                    return jsonify("DAC {} and OSC {} was successfully configured".format(dac_out, osc_in), 200)
 
-                except Exception as e:
-                    logger.error(e)
-                    return jsonify(
-                        "DAC {} and OSC {} was not successfully configured. Error: {}".format(dac_out, osc_in, e), 405)
+                return jsonify("DAC and OSC was successfully configured", 200)
+
+            except Exception as e:
+                logger.error(e)
+                return jsonify("DAC and OSC was not successfully configured. Error: {}".format(e), 405)
         else:
             return jsonify("The parameters send by the agent are not correct.", 405)
 

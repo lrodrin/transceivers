@@ -39,7 +39,7 @@ class RestApi:
         DAC and OSC configuration.
 
         :param params: # TODO
-        :type params: dict
+        :type params: list
         :return:    # TODO
         :rtype: dict
         """
@@ -220,7 +220,7 @@ if __name__ == '__main__':
     params_wss_2 = {'wss_id': 2, 'operation': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]}
 
-    api = RestApi('10.1.7.64')
+    api = RestApi('10.1.1.10')
     # print(api.WSSConfiguration(params_wss_1))
     # print(api.WSSConfiguration(params_wss_2))
     # print(api.getWSSOperationsById(1))
@@ -230,9 +230,10 @@ if __name__ == '__main__':
 
     bn = [float(DAC.bps)] * DAC.Ncarriers
     En = [float(1)] * DAC.Ncarriers
-    params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'eq': 0}, {'id': 2, 'dac_out': 1, 'osc_in': 1, 'eq': 0}]
+    params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'bn': bn, 'En': En, 'eq': 0},
+                      {'id': 2, 'dac_out': 1, 'osc_in': 1, 'bn': bn, 'En': En, 'eq': 0}]
     print(api.DACOSCConfiguration(params_dac_osc))
-    # print(api.getDACOSCOperationsById(1))
-    # print(api.getDACOSCOperationsById(2))
-    # print(api.deleteDACOSCOperationsById(1))
+    print(api.getDACOSCOperationsById(1))
+    print(api.getDACOSCOperationsById(2))
+    print(api.deleteDACOSCOperationsById(1))
     print(api.getDACOSCOperations())
