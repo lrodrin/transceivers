@@ -1,6 +1,5 @@
 """This is the WSS module.
 """
-import collections
 import logging
 import time
 
@@ -15,16 +14,24 @@ logger.addHandler(logging.NullHandler())
 class WSS:
     """
     This is a class for WaveShaper module.
+
+    :var float frequency_start: Start frequency
+    :var float frequency_end: End frequency
+    :var float step: Frequency step
+    :var float speed_of_light: Speed of light
+    :var int time_sleep: Time needed to load the WaveShaper profile before returning the bandwidth and port attenuation
+    :var str folder: Folder that contains the configuration files
+    :var str configfile_1: Configuration file for the WaveShaper 1
+    :var str configfile_2: Configuration file for the WaveShaper 2
     """
-    operations = collections.OrderedDict()  # operations to be configured on the WaveShaper
-    frequency_start = 191.250  # Start frequency
-    frequency_end = 196.274  # End frequency
-    step = 0.001  # Frequency step
+    frequency_start = 191.250
+    frequency_end = 196.274
+    step = 0.001
     speed_of_light = 299792.458
-    time_sleep = 5  # Time needed to load the WaveShaper profile before returning the bandwidth and port attenuation.
-    folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"  # Folder that contains the configuration files
-    configfile_1 = "SN042561.wsconfig"  # Configuration file for the WaveShaper 1
-    configfile_2 = "SN200162.wsconfig"  # Configuration file for the WaveShaper 2
+    time_sleep = 5
+    folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
+    configfile_1 = "SN042561.wsconfig"
+    configfile_2 = "SN200162.wsconfig"
 
     def __init__(self, id, n, m):
         """
@@ -103,6 +110,7 @@ class WSS:
         """
         Load the desired profile according to the WaveShaper wavelength, port attenuation, phase and bandwidth for the
         filter configuration.
+
         :return: 0 if profile was loaded and -1 otherwise
         :rtype: int
         """
@@ -144,7 +152,6 @@ class WSS:
 
             - Set the wavelength, port attenuation, phase and bandwidth for the filter configuration of the WaveShaper.
             - Load the desired profile according to the WaveShaper values of filter configuration.
-            - Save the operation to configure the WaveShaper.
 
         :param operation: operation to configure the WaveShaper
         :type operation: list

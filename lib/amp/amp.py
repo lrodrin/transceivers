@@ -11,6 +11,9 @@ logger.addHandler(logging.NullHandler())
 class Amplifier:
     """
     This is a class for Amplifier module.
+
+    :var int time_sleep_mode: Time needed to enable/disable the Amplifier after changing the mode
+    :var int time_sleep_enable: Time needed to enable/disable the Laser before check the status
     """
     # TODO documentar variables constants de la classe
     connection_port = 1234
@@ -23,8 +26,8 @@ class Amplifier:
 
     buffer_size = 100
     read_eoi = "++read eoi\n"
-    time_sleep_mode = 1  # Time needed to enable/disable the Amplifier after changing the mode
-    time_sleep_enable = 7  # Time needed to enable/disable the Laser before check the status
+    time_sleep_mode = 1
+    time_sleep_enable = 7
 
     def __init__(self, ip, addr):
         """

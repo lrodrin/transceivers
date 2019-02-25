@@ -1,39 +1,50 @@
+"""This is the REST API module.
+"""
 import json
 import logging
 import requests
+
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from lib.dac.dac import DAC
 
 logging.basicConfig(level=logging.DEBUG)  # TODO change logging to logger
 
 HEADERS = {"Content-Type": "application/json"}
 
 
-class RestApiAgentCore:
+class RestApi:
+    """
+    This is a class for the REST API module.
 
-    def __init__(self, ip, port):
+    :ivar int port_dac_osc: number of DAC/OSC REST Server port
+    :ivar int port_wss: number of WSS REST Server port
+    """
+
+    def __init__(self, ip):
         """
-        Initialize the ip address and port number of the Rest Server.
+        The constructor for the REST API class.
 
         :param ip: ip address
         :type ip: str
-        :param port: port number
-        :type port: int
         """
         self.ip = ip
-        self.port = port
-        self.logical_assoc = None  # TODO per guardar les associacions dac i osc.
+        self.port_dac_osc = 5000
+        self.port_wss = 5001
 
-    def WSSConfiguration(self, params):
+    def DACOSCConfiguration(self, params):
         """
-        WaveShaper configuration. This function sets the configuration file, central wavelength, bandwidth and
-        attenuation/phase per port to the WaveShaper module.
+        DAC and OSC configuration.
 
-        :param params: WaveShaper id and a set of operations to configure the WaveShaper
+        :param params: # TODO
         :type params: dict
         :return:    # TODO
         :rtype: dict
         """
-        logging.debug('ResApiAgentCore.WSSConfiguration')
-        url = "http://" + self.ip + ':' + str(self.port) + "/api/wss"
+        logging.debug('RestApi.DACOSCConfiguration')
+        url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc"
         try:
             response = requests.post(url, headers=HEADERS, data=json.dumps(params))
             logging.debug('Response from {}:\n\t{}'.format(url, response.content))
@@ -45,15 +56,81 @@ class RestApiAgentCore:
 
         return data
 
-    def getWSSOperations(self):
+    def WSSConfiguration(self, params):
         """
-        Get operations from a set of WaveShapers.
+        WaveShaper configuration.
+
+        :param params: id and a set of operations to configure the WaveShaper
+        :type params: dict
+        :return:    # TODO
+        :rtype: dict
+        """
+        logging.debug('RestApi.WSSConfiguration')
+        url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss"
+        try:
+            response = requests.post(url, headers=HEADERS, data=json.dumps(params))
+            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
+            data = response.content
+
+        except Exception as e:
+            logging.error(e)
+            raise e
+
+        return data
+
+    def getDACOSCOperations(self):
+        """
+        Get all the logical associations between DAC and OSC.
 
         :return: # TODO
-        :rtype: # TODO
+        :rtype: dict
         """
-        logging.debug('ResApiAgentCore.getWSSOperations')
-        url = "http://" + self.ip + ':' + str(self.port) + "/api/wss"
+        logging.debug('RestApi.getDACOSCOperations')
+        url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc"
+        print(url)
+        try:
+            response = requests.get(url, headers=HEADERS)
+            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
+            data = response.content
+
+        except Exception as e:
+            logging.error(e)
+            raise e
+
+        return data
+
+    def getWSSOperations(self):
+        """
+        Get all the operations from a set of WaveShaper.
+
+        :return: # TODO
+        :rtype: dict
+        """
+        logging.debug('RestApi.getWSSOperations')
+        url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss"
+        print(url)
+        try:
+            response = requests.get(url, headers=HEADERS)
+            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
+            data = response.content
+
+        except Exception as e:
+            logging.error(e)
+            raise e
+
+        return data
+
+    def getDACOSCOperationsById(self, assoc_id):
+        """
+         Get all the logical associations between DAC and OSC specified by id.
+
+        :param assoc_id: logical association id
+        :type assoc_id: int
+        :return: # TODO
+        :rtype: dict
+        """
+        logging.debug('RestApi.getDACOSCOperationsById')
+        url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc/" + str(assoc_id)
         print(url)
         try:
             response = requests.get(url, headers=HEADERS)
@@ -68,18 +145,41 @@ class RestApiAgentCore:
 
     def getWSSOperationsById(self, wss_id):
         """
-        Get operations from a WaveShaper specified by id.
+        Get the operations from a WaveShaper specified by id.
 
         :param wss_id: WaveShaper id
         :type wss_id: int
         :return: # TODO
-        :rtype: # TODO
+        :rtype: dict
         """
-        logging.debug('ResApiAgentCore.getWSSOperationsById')
-        url = "http://" + self.ip + ':' + str(self.port) + "/api/wss/" + str(wss_id)
+        logging.debug('RestApi.getWSSOperationsById')
+        url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss/" + str(wss_id)
         print(url)
         try:
             response = requests.get(url, headers=HEADERS)
+            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
+            data = response.content
+
+        except Exception as e:
+            logging.error(e)
+            raise e
+
+        return data
+
+    def deleteDACOSCOperationsById(self, assoc_id):
+        """
+        Delete all the logical associations between DAC and OSC specified by id.
+
+        :param assoc_id: logical association id
+        :type assoc_id: int
+        :return: # TODO
+        :rtype: dict
+        """
+        logging.debug('RestApi.deleteDACOSCOperationsById')
+        url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc/" + str(assoc_id)
+        print(url)
+        try:
+            response = requests.delete(url, headers=HEADERS)
             logging.debug('Response from {}:\n\t{}'.format(url, response.content))
             data = response.content
 
@@ -96,10 +196,10 @@ class RestApiAgentCore:
         :param wss_id: WaveShaper id
         :type wss_id: int
         :return: # TODO
-        :rtype: # TODO
+        :rtype: dict
         """
-        logging.debug('ResApiAgentCore.deleteWSSOperationsById')
-        url = "http://" + self.ip + ':' + str(self.port) + "/api/wss/" + str(wss_id)
+        logging.debug('RestApi.deleteWSSOperationsById')
+        url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss/" + str(wss_id)
         print(url)
         try:
             response = requests.delete(url, headers=HEADERS)
@@ -115,11 +215,24 @@ class RestApiAgentCore:
 
 if __name__ == '__main__':
     print("Testing REST API")
-    params_wss = {'wss_id': 1, 'operation': [
+    params_wss_1 = {'wss_id': 1, 'operation': [
+        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]}
+    params_wss_2 = {'wss_id': 2, 'operation': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]}
 
-    api = RestApiAgentCore('10.1.1.10', 5001)
-    print(api.WSSConfiguration(params_wss))
-    print(api.getWSSOperations())
-    print(api.getWSSOperationsById(1))
-    print(api.deleteWSSOperationsById(1))
+    api = RestApi('10.1.7.64')
+    # print(api.WSSConfiguration(params_wss_1))
+    # print(api.WSSConfiguration(params_wss_2))
+    # print(api.getWSSOperationsById(1))
+    # print(api.getWSSOperationsById(2))
+    # print(api.deleteWSSOperationsById(1))
+    # print(api.getWSSOperations())
+
+    bn = [float(DAC.bps)] * DAC.Ncarriers
+    En = [float(1)] * DAC.Ncarriers
+    params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'eq': 0}, {'id': 2, 'dac_out': 1, 'osc_in': 1, 'eq': 0}]
+    print(api.DACOSCConfiguration(params_dac_osc))
+    # print(api.getDACOSCOperationsById(1))
+    # print(api.getDACOSCOperationsById(2))
+    # print(api.deleteDACOSCOperationsById(1))
+    print(api.getDACOSCOperations())

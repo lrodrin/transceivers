@@ -16,14 +16,27 @@ logger.addHandler(logging.NullHandler())
 class DAC:
     """
     This is the class for DAC module.
-    """
-    folder = "C:/Users/cttc/Desktop/agent-bvt/conf/"  # Folder that stores all the configuration files
-    clock_ref_file = folder + "CLK_ref.txt"  # File to save the clock_ref for the DAC
-    clock_file = folder + "CLK.txt"  # File to save the clock value for the DAC
-    temp_file = folder + "TEMP.txt"  # File to save the OFDM signal that will be uploaded to LEIA DAC
-    leia_up_filename = "Leia_DAC_up.m"  # File with the generated OFDM signal to be uploaded to the LEIA DAC
-    leia_down_filename = "Leia_DAC_dowm.m"  # File with the generated OFDM signal to be uploaded to the LEIA DAC
 
+    :ivar bool Preemphasis: Preemphasis
+    :ivar int BW_filter: Bandwidth of the preemphasis filter
+    :ivar int N_filter: Order of the preemphasis filter
+    :ivar int Ncarriers: Number of carriers
+    :ivar str Constellation: Modulation format
+    :ivar float CP: Cyclic prefix
+    :ivar int NTS: Number of training symbols
+    :ivar int Nsymbols: Number of generated symbols
+    :ivar float sps: Samples per symbol for the DAC
+    :ivar int fs: DAC frequency sampling
+    :ivar int k_clip: factor for clipping the OFDM signal
+    :ivar int Qt: Quantization steps
+    :ivar int bps: Number of bits per symbol
+    :var str folder: Folder that stores all the configuration files
+    :var str clock_ref_file: File to save the clock_ref for the DAC
+    :var str clock_file: File to save the clock value for the DAC
+    :var str temp_file: File to save the OFDM signal that will be uploaded to LEIA DAC
+    :var str leia_up_filename: File with the generated OFDM signal to be uploaded to the LEIA DAC
+    :var str leia_down_filename: File with the generated OFDM signal to be uploaded to the LEIA DAC
+    """
     Preemphasis = True
     BW_filter = 25e9
     N_filter = 2
@@ -37,6 +50,15 @@ class DAC:
     k_clip = 2.8
     Qt = 255
     bps = 2
+
+    folder = "C:/Users/cttc/Desktop/agent-bvt/conf/"
+    clock_ref_file = folder + "CLK_ref.txt"
+    clock_file = folder + "CLK.txt"
+    temp_file = folder + "TEMP.txt"
+    leia_hi_filename = "Leia_DAC_hi.m"
+    leia_hq_filename = "Leia_DAC_hq.m"
+    leia_vi_filename = "Leia_DAC_vi.m"
+    leia_vq_filename = "Leia_DAC_vq.m"
 
     def __init__(self):
         """
@@ -101,11 +123,15 @@ class DAC:
                 (self.sps * self.Nframes * (self.Ncarriers + np.round(self.CP * self.Ncarriers)),))
             ttt = tt.cumsum()
 
-            logger.debug("Generating data")  # Generate data with different seed for the different users/clients
-            if dac_out % 2 != 0:  # TODO Esta be?
+            logger.debug("Generating data")  # Generate data with different seed for the different output ports
+            if dac_out == 1:
                 np.random.seed(36)
-            elif dac_out % 2 == 0:
+            elif dac_out == 2:
                 np.random.seed(42)
+            elif dac_out == 3:
+                np.random.seed(32)
+            elif dac_out == 4:
+                np.random.seed(46)
 
             data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 
@@ -168,24 +194,31 @@ class DAC:
 
     def enable_channel(self, dac_out):
         """
-        Enable the DAC channel. Sets 1 to the active Leia output and 0 to the remaining outputs.
+        Enable a DAC channel (Hi, Hq, Vi or Vq). Sets 1 to the active channel and 0 to the remaining channels.
 
-        :param dac_out: input port
+        :param dac_out: output port
         :type dac_out: int
         """
         seq = ""
         leia_file = ""
         try:
             temp_file = open(self.temp_file, "w")
-            if dac_out % 2 != 0:
+            if dac_out == 1:
                 logger.debug("Enable Hi channel")
                 seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                leia_file = self.leia_up_filename
-
-            elif dac_out % 2 == 0:
+                leia_file = self.leia_hi_filename
+            elif dac_out == 2:
                 logger.debug("Enable Hq channel")
                 seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                leia_file = self.leia_down_filename
+                leia_file = self.leia_hq_filename
+            elif dac_out == 3:
+                logger.debug("Enable Vi channel")
+                seq = "0\n 0\n 1\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                leia_file = self.leia_vi_filename
+            elif dac_out == 4:
+                logger.debug("Enable Vq channel")
+                seq = "0\n 0\n 0\n 1\n"  # Hi_en, Hq_en, Vi_en, Vq_en
+                leia_file = self.leia_vq_filename
 
             temp_file.write(seq)
             self.execute_matlab(leia_file)
@@ -198,7 +231,7 @@ class DAC:
         Call MATLAB program to process the OFDM signal uploaded to the Leia DAC.
 
         :param leia_file: file with the generated OFDM signal to be uploaded to the LEIA DAC
-        :type leia_file: str    (Leia_DAC_up.m or Leia_DAC_down.m)
+        :type leia_file: str
         """
         matlab = 'C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe'
         options = '-nodisplay -nosplash -nodesktop -wait'

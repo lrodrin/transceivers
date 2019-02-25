@@ -1,3 +1,4 @@
+import collections
 import logging
 from collections import Counter
 from logging.handlers import RotatingFileHandler
@@ -6,9 +7,6 @@ from os import sys, path
 from flasgger import Swagger
 from flask import Flask, request
 from flask.json import jsonify
-
-STATUS_CODE_200 = 200
-STATUS_CODE_405 = 405
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
@@ -21,8 +19,10 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
 
+operations = collections.OrderedDict()
 
-@app.route('/api/wss', methods=['POST'])
+
+@app.route('/api/wss', methods=['POST', 'GET'])
 def wss_configuration():
     """
     WaveShaper configuration
@@ -30,7 +30,7 @@ def wss_configuration():
     post:
     description: |
         WaveShaper configuration. This function sets the configuration file, central wavelength, bandwidth and
-        attenuation/phase per port to the WaveShaper module. And saves the operations to be configured on the WaveShaper
+        attenuation/phase per port to the WaveShaper module.
     consumes:
     - application/json
     produces:
@@ -40,71 +40,64 @@ def wss_configuration():
       in: body
       type: integer
       description: Identifies the WaveShaper
-      example: 1 or 2
-    - name: operations
+    - name: ops
       in: body
       type: list of dictionaries
-      description: Operations to be configured on the WaveShaper identified by id
+      description: Operation to be configured on the WaveShaper
     responses:
         200:
             description: "Successful operation"
         405:
             description: "Invalid input"
-    """
-    if request.method == 'POST':
-        params = request.json
-        if params is not None:
-            wss_id = params['wss_id']
-            operations = params['operation']
-            try:
-                n, m = calculateNandM(operations)
-                wss_tx = WSS(wss_id, n, m)
-                wss_tx.configuration(operations)
-
-                if wss_id not in WSS.operations.keys():  # Adding new operation
-                    WSS.operations[wss_id] = operations
-                else:
-                    WSS.operations[wss_id] += operations
-
-                return jsonify("WaveShaper %s was successfully configured" % wss_id, STATUS_CODE_200)
-
-            except Exception as e:
-                logger.error(e)
-                return jsonify("WaveShaper {} not was successfully configured. Error: {}".format(wss_id, e),
-                               STATUS_CODE_405)
-        else:
-            return jsonify("The parameters sended by the agent are not correct.", STATUS_CODE_405)
-
-
-@app.route('/api/wss', methods=['GET'])  # TODO attach into the POST
-def wss_operations():
-    """
-    WaveShaper operations
-    ---
     get:
-    description: Get operations from a set of WaveShapers
+    description: Get operations configured on a set of WaveShaper
     produces:
     - application/json
     responses:
         200:
-            description: "Successful operation"
-        405:
-            description: "Invalid value"
-        """
-    if request.method == 'GET':
-        if len(WSS.operations) != 0:
-            return jsonify(WSS.operations)
+            description: "Successful operation" # TODO
+        404:
+            description: "WaveShaper not found" # TODO
+    """
+    if request.method == 'POST':
+        params = request.json
+        if params is not None:
+            wss_id = str(params['wss_id'])
+            ops = params['operation']
+            try:
+                n, m = calculateNxM(ops)
+                wss = WSS(params['wss_id'], n, m)
+                wss.configuration(ops)
+
+                # Adding new operation
+                if wss_id not in operations.keys():
+                    operations[wss_id] = ops
+                else:
+                    operations[wss_id] += ops
+
+                return jsonify("WaveShaper %s was successfully configured" % wss_id, 200)
+
+            except Exception as e:
+                logger.error(e)
+                return jsonify("WaveShaper {} not was successfully configured. Error: {}".format(wss_id, e),
+                               405)
         else:
-            return jsonify("Not exists any WaveShaper configurated", STATUS_CODE_405)
+            return jsonify("The parameters send by the agent are not correct.", 405)
+
+    elif request.method == 'GET':
+        if len(operations) != 0:
+            return jsonify(operations)
+        else:
+            return jsonify("Not exists operations on any WaveShaper")
 
 
 @app.route('/api/wss/<wss_id>', methods=['GET', 'DELETE'])
 def wss_operations(wss_id):
     """
-    WaveShaper operations by id
+    WaveShaper operations
     ---
     get:
-    description: Get or delete operations that configure a WaveShaper specified by id
+    description: Get operations configured on a WaveShaper specified by id
     produces:
     - application/json
     parameters:
@@ -115,48 +108,65 @@ def wss_operations(wss_id):
     responses:
         200:
             description: "Successful operation"
-        405:
-            description: "Invalid value"
-        """
+        400:
+            description: "Invalid ID supplied"
+    delete:
+    description: Delete operations configured on a WaveShaper specified by id
+    produces:
+    - application/json
+    parameters:
+    - name: wss_id
+      in: body
+      type: integer
+      description: Identifies the WaveShaper
+    responses:
+        200:
+            description: "Successful operation" # TODO
+        400:
+            description: "Invalid ID supplied" # TODO
+        404:
+            description: "WaveShaper not found" # TODO
+    """
     wss_id = str(wss_id)
     msg_not_exists_operations = "Not exists operations on the WaveShaper %s." % wss_id
-    msg_not_exists_waveshapers = "Not exists any WaveShaper configured"
+    msg_not_exists_waveshaper = "WaveShaper %s not configured" % wss_id
+
     if request.method == 'GET':
-        if len(WSS.operations) != 0:
-            if WSS.operations[wss_id]:
-                return jsonify(wss_id, WSS.operations[wss_id])
+        if len(operations) != 0:
+            if operations[wss_id]:
+                return jsonify(wss_id, operations[wss_id])
             else:
-                return jsonify(msg_not_exists_operations, STATUS_CODE_405)
+                return jsonify(msg_not_exists_operations, 400)
         else:
-            return jsonify(msg_not_exists_waveshapers, STATUS_CODE_405)
+            return jsonify(msg_not_exists_waveshaper, 404)
 
     elif request.method == 'DELETE':
-        if len(WSS.operations) != 0:
-            if WSS.operations[wss_id]:
-                del WSS.operations[wss_id]
-                return jsonify(wss_id, WSS.operations[wss_id])
+        if len(operations) != 0:
+            if operations[wss_id]:
+                del operations[wss_id]
+                return jsonify("WaveShaper %s operations deleted." % wss_id, 200)
             else:
-                return jsonify(msg_not_exists_operations, STATUS_CODE_405)
+                return jsonify(msg_not_exists_operations, 400)
         else:
-            return jsonify(msg_not_exists_waveshapers, STATUS_CODE_405)
+            return jsonify(msg_not_exists_waveshaper, 404)
 
 
-def calculateNandM(operations):
+def calculateNxM(operation):
     """
-    Calculate the total number of input and output ports of a WaveShaper.
+    Calculate the total number of input and output ports of an operation.
 
-    :param operations: operations that configure a WaveShaper
-    :type operations: list
+    :param operation: operation that configure a WaveShaper
+    :type operation: list
     :return: number of input (n) and output ports (m)
     :rtype: int, int
     """
     n = Counter()
     m = Counter()
-    for op in operations:
+    for op in operation:
         n[op["port_in"]] += 1
         m[op["port_out"]] += 1
 
-    logger.debug("Number of input ports = {} and number of output ports {}".format(n, m))
+    logger.debug("Number of input ports = {} and number of output ports {}".format(len(n), len(m)))
     return len(n), len(m)
 
 

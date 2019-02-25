@@ -15,6 +15,22 @@ logger.addHandler(logging.NullHandler())
 class OSC:
     """
     This is a class for Oscilloscope module.
+
+    :ivar int Ncarriers: Number of carriers
+    :ivar str Constellation: Modulation format
+    :ivar float CP: Cyclic prefix
+    :ivar int NTS: Number of training symbols
+    :ivar int Nsymbols: Number of generated symbols
+    :ivar int NsymbolsTS: Number of generated symbols without TS
+    :ivar int Nframes: Number of OFDM frames
+    :ivar float sps: Samples per symbol for the DAC
+    :ivar int fs: DAC frequency sampling
+    :ivar int Niters: Number of iterations for BER calculation
+    :ivar int f_DCO: Sampling frequency of the DPO
+    :ivar int nsamplesrx: Number of received samples. Must be multiple of 4
+    :ivar int k_clip: factor for clipping the OFDM signal
+    :ivar int Qt: Quantization steps
+    :ivar int bps: Number of bits per symbol
     """
     Ncarriers = 512
     Constellation = "QAM"
@@ -35,7 +51,7 @@ class OSC:
     def __init__(self):
         """
         The constructor for Oscilloscope class.
-        Define and initialize the Oscilloscope default parameters:
+        Define and initialize the Oscilloscope default parameters for the OFDM signal definition:
 
             - Ncarriers (int): Set number of carriers.
             - Constellation (str): Set modulation format.
@@ -47,8 +63,8 @@ class OSC:
              - sps (float): Set samples per symbol for the DAC.
             - fs (int): Set DAC frequency sampling.
             - Niters (int): Set number of iterations for BER calculation.
-            - f_DCO (int): Sampling frequency of the DPO.
-            - nsamplesrx (int): Number of received samples. Must be multiple of 4.
+            - f_DCO (int): Set sampling frequency of the DPO.
+            - nsamplesrx (int): Set number of received samples. Must be multiple of 4.
             - k_clip (float): Set factor for clipping the OFDM signal.
                 - 3.16 optimum for 256 QAM.
                 - 2.66 optimum for 32 QAM.
@@ -56,7 +72,6 @@ class OSC:
             - Qt (int): Set quantization steps.
             - bps (int): Set number of bits per symbol.
         """
-        # Parameters for the OFDM signal definition
         self.Ncarriers = OSC.Ncarriers
         self.Constellation = OSC.Constellation
         self.CP = OSC.CP
@@ -73,11 +88,13 @@ class OSC:
         self.Qt = OSC.Qt
         self.bps = OSC.bps
 
-    def receiver(self, osc_in, bn, En, eq):
+    def receiver(self, dac_out, osc_in, bn, En, eq):
         """
         Adquires the OFDM signal received at the DPO and recovers by offline DSP the transmitted BitStream.
 
-        :param osc_in: output port
+        :param dac_out: output port of DAC
+        :type dac_out: int
+        :param osc_in: input port
         :type osc_in: int
         :param bn: array of Ncarriers positions that contains the bits per symbol per subcarrier
         :type bn: int array of 512 positions
@@ -89,12 +106,12 @@ class OSC:
         :rtype: list
         """
         try:
-            cdatar, data, Cx_up = self.generated_data(osc_in, bn, En)
+            cdatar, data, Cx_up = self.generated_data(dac_out, bn, En)
 
             BWs = self.fs / self.sps  # BW electrical signal
             R = self.f_DCO / self.fs  # Sampling factor for the receiver
             fc = BWs / 2  # Central frequency
-            ttime2 = (1 / self.fs) * np.ones((self.nsamplesrx,))  # ?
+            ttime2 = (1 / self.fs) * np.ones((self.nsamplesrx,))
             ttt2 = ttime2.cumsum()
 
             Subzero = np.array(np.where(bn == 0))
@@ -108,12 +125,12 @@ class OSC:
             for run in range(1, self.Niters + 1):
                 Ncarriers_eq = self.Ncarriers
 
-                if osc_in % 2 != 0:
+                if osc_in == 1:
                     data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
-                elif osc_in % 2 == 0:
+                elif osc_in == 2:
                     data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
 
-                data_acqT = data_acqT - np.mean(data_acqT)  # TODO s'ha d'inizialitzar data_acqT
+                data_acqT = data_acqT - np.mean(data_acqT)  # TODO inicialitzar com a float array
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
 
                 I_rx_BB = data_acq2 * np.cos(2 * np.math.pi * fc * ttt2[0:data_acq2.size]) + 1j * data_acq2 * np.sin(
@@ -203,11 +220,11 @@ class OSC:
 
         :param channel_ID: DPO channel used to adquire data
         :type channel_ID: int
-        :param npoints: Number of points to adquire
+        :param npoints: number of points to adquire
         :type npoints: int 
         :param fs: sampling frequency of the DPO
         :type: int
-        :return: Adquired signal
+        :return: adquired signal
         :rtype: float array
         """
         try:
@@ -230,12 +247,12 @@ class OSC:
         except Exception as error:
             logger.error("OSC acquire method, {}".format(error))
 
-    def generated_data(self, osc_in, bn, En):
+    def generated_data(self, dac_out, bn, En):
         """
         Generate data with different seed for different users/clients.
 
-        :param osc_in: output port
-        :type osc_in: int
+        :param dac_out: output port of DAC
+        :type dac_out: int
         :param bn: array of Ncarriers positions that contains the bits per symbol per subcarrier
         :type bn: int array of 512 positions
         :param En: array of Ncarriers positions that contains the power per subcarrier figure
@@ -244,11 +261,15 @@ class OSC:
         :rtype: list
         """
         try:
-            logger.debug("Generating data")
-            if osc_in % 2 != 0:  # TODO Esta be?
+            logger.debug("Generating data")  # Generate data with different seed for the different output ports
+            if dac_out == 1:
                 np.random.seed(36)
-            elif osc_in % 2 == 0:
+            elif dac_out == 2:
                 np.random.seed(42)
+            elif dac_out == 3:
+                np.random.seed(32)
+            elif dac_out == 4:
+                np.random.seed(46)
 
             data = np.random.randint(0, 2, self.bps * self.Nsymbols)
 

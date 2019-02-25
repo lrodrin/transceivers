@@ -1,4 +1,5 @@
 import collections
+import json
 import logging
 import os
 import sys
@@ -54,3 +55,17 @@ for item in params_wss_2['operation']:
     c[item["port_in"]] += 1
 
 print(len(c))
+
+logical_associations = collections.OrderedDict()
+wanted_keys = ('dac_out', 'osc_in', 'eq')
+params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'eq': 0}, {'id': 2, 'dac_out': 1, 'osc_in': 1, 'eq': 0}]
+
+data = json.dumps(params_dac_osc)
+
+for item in params_dac_osc:
+    id = item['id']
+    filtered_assoc = dict(zip(wanted_keys, [item[k] for k in wanted_keys]))  # assoc - ['id']
+    print(filtered_assoc)
+    logical_associations[id] = filtered_assoc
+
+print(logical_associations)

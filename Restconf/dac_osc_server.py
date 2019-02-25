@@ -1,15 +1,13 @@
+import collections
+import json
 import logging
-
 from logging.handlers import RotatingFileHandler
 from os import sys, path
-from subprocess import Popen, PIPE
+
 from flasgger import Swagger
 from flask import Flask, request, jsonify
 
 OPTIMAL_BER = 4.6e-3
-
-STATUS_CODE_200 = 200
-STATUS_CODE_405 = 405
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
@@ -23,8 +21,10 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
 
+logical_associations = collections.OrderedDict()
 
-@app.route('/api/dac_osc', methods=['POST'])
+
+@app.route('/api/dac_osc', methods=['GET', 'POST'])
 def dac_osc_configuration():
     """
     DAC and OSC configuration
@@ -38,145 +38,175 @@ def dac_osc_configuration():
     - application/json
     produces:
     - application/json
-    parameters: # TODO
-    - name: params
+    - name: logical_assoc
       in: body
-      type: dict
-      description: # TODO
+      type: list of dictionaries
+      description: Logical association to be configured between DAC and OSC
       example: # TODO
     responses:
         200:
             description: "Successful operation"
         405:
             description: "Invalid input"
+    get:
+    description: Get logical associations configured between DAC and OSC
+    produces:
+    - application/json
+    responses:
+        200:
+            description: "Successful operation" # TODO
+        404:
+            description: "Logical associations between DAC and OSC not found" # TODO
     """
     if request.method == 'POST':
-        params = request.json
-        if params is not None:
-            dac_out = params['dac_out']
-            osc_in = params['osc_in']
-            try:
-                dac_configuration(params)
-                osc_configuration(params)
-                return jsonify("DAC {} and OSC {} was successfully configured".format(dac_out, osc_in), STATUS_CODE_200)
+        logical_assocs = request.json
+        if logical_assocs is not None:
+            wanted_keys = ('dac_out', 'osc_in', 'eq')
+            for assoc in logical_assocs:  # for each logical association between DAC and OSC
+                assoc_id = str(assoc['id'])
+                dac_out = assoc['dac_out']
+                osc_in = assoc['osc_in']
+                # bn = assoc['bn']
+                # En = assoc['En']
+                eq = assoc['eq']
+                try:
+                    # dac_configuration(dac_out, bn, En)
+                    # osc_configuration(dac_out, osc_in, bn, En, eq)
 
-            except Exception as e:
-                logger.error(e)
-                return jsonify(
-                    "DAC {} and OSC {} was not successfully configured. Error: {}".format(dac_out, osc_in, e),
-                    STATUS_CODE_405)
+                    # Adding new logical association
+                    filtered_assoc = dict(zip(wanted_keys, [assoc[k] for k in wanted_keys]))  # assoc - ['id']
+                    if assoc_id not in logical_associations.keys():
+                        logical_associations[assoc_id] = filtered_assoc
+                    return jsonify("DAC {} and OSC {} was successfully configured".format(dac_out, osc_in), 200)
+
+                except Exception as e:
+                    logger.error(e)
+                    return jsonify(
+                        "DAC {} and OSC {} was not successfully configured. Error: {}".format(dac_out, osc_in, e), 405)
         else:
-            return jsonify("The parameters sended by the agent are not correct.", STATUS_CODE_405)
+            return jsonify("The parameters send by the agent are not correct.", 405)
+
+    elif request.method == 'GET':
+        if len(logical_associations) != 0:
+            return jsonify(logical_associations)
+        else:
+            return jsonify("Not exists any logical association between DAC and OSC")
 
 
-@app.route('/api/dac', methods=['POST'])
-def dac_configuration(params):
+def dac_configuration(dac_out, bn, En):
     """
-    DAC configuration
+    DAC configuration.
+    Performs DSP to create an OFDM signal and creates an OFDM signal and uploads it to the LEIA DAC.
+
+    :param dac_out: identify the output port of DAC
+    :type dac_out: int
+    :param bn: contains the bits per symbol per subcarrier
+    :type bn: list of floats
+    :param En: contains the power per subcarrier figure
+    :type En: list of floats
+    """
+    logger.debug("DAC {} configuration started".format(dac_out))
+    try:
+        logger.debug("Processing received data from %s" % dac_out)
+        tx = DAC()
+        tx.transmitter(dac_out, bn, En)
+        logger.debug("DAC {} configuration finished".format(dac_out))
+
+    except Exception as e:
+        logger.error("DAC {} configuration not finished. Error: {}".format(dac_out, e))
+        raise e
+
+
+def osc_configuration(dac_out, osc_in, bn, En, eq):
+    """
+    OSC configuration.
+    Adquires and process the OFDM signal. Runs the selected OSC configuration in order to process the received OFDM
+    signal and retrieve the original bitstream.
+
+    :param dac_out: identify the output port of DAC
+    :type dac_out: int
+    :param osc_in: identify the input port of OSC
+    :type osc_in: int
+    :param bn: contains the bits per symbol per subcarrier
+    :type bn: list of floats
+    :param En: contains the power per subcarrier figure
+    :type En: list of floats
+    :param eq: identify the equalization type (MMSE or ZF)
+    :type eq: str
+    """
+    logger.debug("OSC {} configuration started".format(osc_in))
+    try:
+        logger.debug("Processing received data from %s" % dac_out)
+        rx = OSC()
+        result = rx.receiver(dac_out, osc_in, bn, En, eq)
+        # logger.debug("SNR = {} and BER = {}".format(result[0], result[1]))
+        logger.debug("BER = {}".format(result[1]))
+        logger.debug("OSC {} configuration finished".format(osc_in))
+        return jsonify(result[1], 200)
+
+    except Exception as e:
+        logger.error("OSC {} configuration not finished. Error: {}".format(osc_in, e))
+        raise e
+
+
+@app.route('/api/dac_osc/<assoc_id>', methods=['GET', 'DELETE'])
+def dac_osc_logical_associations(assoc_id):
+    """
+    DAC and OSC logical association
     ---
-    post:
-    description: |
-        DAC configuration performs DSP to create an OFDM signal and creates an OFDM signal and uploads
-        it to the LEIA DAC
+    get:
+    description: Get logical association configured between DAC and OSC specified by id
     produces:
     - application/json
     parameters:
-    - name: dac_out
+    - name: assoc_id
       in: body
       type: integer
-      description: # TODO
-    - name: bn
-      in: body
-      type: array
-      description: Contains the bits per symbol per subcarrier
-    - name: En
-      in: body
-      type: array
-      description: Contains the power per subcarrier figure
+      description: Identifies the logical association configured between DAC and OSC
     responses:
         200:
             description: "Successful operation"
-        405:
-            description: "Invalid input"
-    """
-    if params is not None:
-        dac_out = params['dac_out']
-        bn = params['bn']
-        En = params['En']
-
-        logger.debug("DAC {} configuration started".format(dac_out))
-        try:
-            logger.debug("Processing received data from %s" % dac_out)
-            tx = DAC()
-            tx.transmitter(dac_out, bn, En)
-            return jsonify("DAC {} configuration finished".format(dac_out), STATUS_CODE_200)
-
-        except Exception as e:
-            logger.error(e)
-            return jsonify("DAC {} configuration not finished. Error: {}".format(dac_out, e), STATUS_CODE_405)
-    else:
-        return jsonify("The parameters sended by the agent are not correct.", STATUS_CODE_405)
-
-
-@app.route('/api/osc', methods=['POST'])
-def osc_configuration(params):
-    """
-    OSC configuration
-    ---
-    post:
-    description: |
-        OSC configuration adquires and process the OFDM signal. Runs the selected OSC configuration in order to process
-        the received OFDM signal and retrieve the original bitstream
+        400:
+            description: "Invalid ID supplied"
+    delete:
+    description: Delete logical association configured between DAC and OSC specified by id
     produces:
     - application/json
     parameters:
-    - name: dac_out
+    - name: assoc_id
       in: body
       type: integer
-      description: Identify the input port of DAC associated
-    - name: osc_in
-      in: body
-      type: integer
-      description: Identify the output port
-    - name: bn
-      in: body
-      type: array
-      description: Contains the bits per symbol per subcarrier
-    - name: En
-      in: body
-      type: array
-      description: Contains the power per subcarrier figure
-    - name: equalization
-      in: body
-      type: string
-      description: Identify the equalization type
-      example: MMSE or ZF
+      description: Identifies the logical association configured between DAC and OSC
     responses:
         200:
-            description: "Successful operation"
-        405:
-            description: "Invalid input"
+            description: "Successful operation" # TODO
+        400:
+            description: "Invalid ID supplied" # TODO
+        404:
+            description: "Logical associations between DAC and OSC not found" # TODO
     """
-    if params is not None:
-        dac_out = params['dac_out']
-        osc_in = params['osc_in']
-        bn = params['bn']
-        En = params['En']
-        eq = params['eq']
+    assoc_id = str(assoc_id)
+    msg_not_exists_associations = "Not exists logical associations between DAC and OSC with id %s." % assoc_id
+    msg_not_configured_association = "Logical association %s between DAC and OSC not configured" % assoc_id
 
-        logger.debug("OSC {} configuration started".format(osc_in))
-        try:
-            logger.debug("Processing received data from %s" % dac_out)
-            rx = OSC()
-            result = rx.receiver(osc_in, bn, En, eq)
-            logger.debug("SNR = {} and BER = {}".format(result[0], result[1]))
-            return jsonify(result, 200)
+    if request.method == 'GET':
+        if len(logical_associations) != 0:
+            if logical_associations[assoc_id]:
+                return jsonify(assoc_id, logical_associations[assoc_id])
+            else:
+                return jsonify(msg_not_exists_associations, 400)
+        else:
+            return jsonify(msg_not_configured_association, 404)
 
-        except Exception as e:
-            logger.error(e)
-            return jsonify("OSC {} configuration not finished. Error: {}".format(osc_in, e), STATUS_CODE_405)
-    else:
-        return jsonify("The parameters sended by the agent are not correct.", STATUS_CODE_405)
+    elif request.method == 'DELETE':
+        if len(logical_associations) != 0:
+            if logical_associations[assoc_id]:
+                del logical_associations[assoc_id]
+                return jsonify("WaveShaper %s operations deleted." % assoc_id, 200)
+            else:
+                return jsonify(msg_not_exists_associations, 400)
+        else:
+            return jsonify(msg_not_configured_association, 404)
 
 
 def define_logger():

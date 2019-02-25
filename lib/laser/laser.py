@@ -11,6 +11,8 @@ logger.addHandler(logging.NullHandler())
 class Laser:
     """
     This is a class for Laser module.
+
+    :var int time_sleep_enable: Time needed to enable/disable the Laser before check the status
     """
     # TODO documentar variables constants de la classe
     connection_port = 1234
@@ -23,7 +25,7 @@ class Laser:
 
     buffer_size = 100
     read_eoi = "++read eoi\n"
-    time_sleep_enable = 5  # Time needed to enable/disable the Laser before check the status
+    time_sleep_enable = 5
 
     def __init__(self, ip, addr):
         """

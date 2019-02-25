@@ -9,8 +9,8 @@ from lib.dac.dac import DAC
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
-    tx_ID = 0
+    dac_out = 1
     bn = [float(DAC.bps)] * DAC.Ncarriers
     En = [float(1)] * DAC.Ncarriers
     tx = DAC()
-    tx.transmitter(tx_ID, bn, En)  # TODO fix
+    tx.transmitter(dac_out, bn, En)  # TODO fix
