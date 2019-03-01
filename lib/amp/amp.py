@@ -12,10 +12,18 @@ class Amplifier:
     """
     This is a class for Amplifier module.
 
+    :var int connection_port:
+    :var int connection_timeout:
+    :var str controller_mode:
+    :var str read_after_write:
+    :var str read_timeout:
+    :var str eoi_1:
+    :var str eos_3:
+    :var int buffer_size:
+    :var str read_eoi:
     :var int time_sleep_mode: Time needed to enable/disable the Amplifier after changing the mode
     :var int time_sleep_enable: Time needed to enable/disable the Laser before check the status
     """
-    # TODO documentar variables constants de la classe
     connection_port = 1234
     connection_timeout = 2
     controller_mode = "++mode 1\n"
@@ -23,7 +31,6 @@ class Amplifier:
     read_timeout = "++read_tmo_ms 500\n"
     eoi_1 = "++eoi 1\n"
     eos_3 = "++eos 3\n"
-
     buffer_size = 100
     read_eoi = "++read eoi\n"
     time_sleep_mode = 1
@@ -120,6 +127,7 @@ class Amplifier:
 
     def mode(self, mod, param=0):
         """
+        Define mode and power.
         Define power or gain for mode AGC and APC in dBm, or current for mode ACC in mA.
 
             - The range of gain in mode AGC takes 20 to 35 dBm.
@@ -221,7 +229,7 @@ class Amplifier:
             logger.error("System error, {}".format(error))
 
     @staticmethod
-    def configuration(ip, addr, mode, power, status):
+    def configuration(ip, addr, mode, power):
         """
         Amplifier configuration:
 
@@ -237,20 +245,22 @@ class Amplifier:
         :type mode: str
         :param power: power
         :type power: float
-        :param status: if True is enable otherwise is disable
-        :type status: bool
+        :return:
         """
         logger.debug("Amplifier configuration started")
         try:
             manlight = Amplifier(ip, addr)
+            manlight.enable(False)  # Ensure Amplifier is off
             manlight.mode(mode, power)
-            manlight.enable(status)
+            manlight.enable(True)
             params = manlight.status()
             logger.debug(
                 "Amplifier parameters - status: {}, mode: {}, power: {}".format(params[0], params[1], params[2]))
 
             manlight.close()
             logger.debug("Amplifier configuration finished")
+            return params
 
         except Exception as error:
             logger.error("Amplifier configuration method, {}".format(error))
+            return None

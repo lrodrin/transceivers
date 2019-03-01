@@ -12,9 +12,17 @@ class Laser:
     """
     This is a class for Laser module.
 
+    :var int connection_port:
+    :var int connection_timeout:
+    :var str mode:
+    :var str read_after_write:
+    :var str read_timeout:
+    :var str eoi_1:
+    :var str eos_3:
+    :var int buffer_size:
+    :var str read_eoi:
     :var int time_sleep_enable: Time needed to enable/disable the Laser before check the status
     """
-    # TODO documentar variables constants de la classe
     connection_port = 1234
     connection_timeout = 1
     mode = "++mode 1\n"
@@ -22,7 +30,6 @@ class Laser:
     read_timeout = "++read_tmo_ms 500\n"
     eoi_1 = "++eoi 1\n"
     eos_3 = "++eos 3\n"
-
     buffer_size = 100
     read_eoi = "++read eoi\n"
     time_sleep_enable = 5
@@ -236,13 +243,12 @@ class Laser:
             logger.error("System error, {}".format(error))
 
     @staticmethod
-    def configuration(ip, addr, channel, lambda0, power, status):
+    def configuration(ip, addr, channel, lambda0, power):
         """
         Laser configuration:
 
             - Set wavelength of the Laser.
             - Set the power of the Laser.
-            - Enable or disable the Laser.
             - Check status, mode and power of the Laser and shows the values.
 
         :param ip: IP address of GPIB-ETHERNET
@@ -253,23 +259,24 @@ class Laser:
         :type channel: int
         :param lambda0: wavelength
         :type lambda0: float
-        :param power: power
-        :type power: float
         :param status: if True is enable otherwise is disable
         :type status: bool
         """
         logger.debug("Laser configuration started")
         try:
             yenista = Laser(ip, addr)
+            yenista.enable(channel, False)  # ensure laser is off
             yenista.wavelength(channel, lambda0)
             yenista.power(channel, power)
-            yenista.enable(channel, status)
+            yenista.enable(channel, True)
             params = yenista.status(channel)
             logger.debug(
                 "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
 
             yenista.close()
             logger.debug("Laser configuration finished")
+            return params
 
         except Exception as error:
             logger.error("Laser configuration method, {}".format(error))
+            return None

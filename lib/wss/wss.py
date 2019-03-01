@@ -18,7 +18,7 @@ class WSS:
     :var float frequency_start: Start frequency
     :var float frequency_end: End frequency
     :var float step: Frequency step
-    :var float speed_of_light: Speed of light
+    :var int speed_of_light: Speed of light in m/s
     :var int time_sleep: Time needed to load the WaveShaper profile before returning the bandwidth and port attenuation
     :var str folder: Folder that contains the configuration files
     :var str configfile_1: Configuration file for the WaveShaper 1
@@ -27,7 +27,7 @@ class WSS:
     frequency_start = 191.250
     frequency_end = 196.274
     step = 0.001
-    speed_of_light = 299792.458
+    speed_of_light = 299792458
     time_sleep = 5
     folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
     configfile_1 = "SN042561.wsconfig"
@@ -90,7 +90,7 @@ class WSS:
 
     def close(self):
         """
-        Close and Delete the WaveShaper.
+        Close and delete the WaveShaper.
         """
         name = str(self.id)
         try:
@@ -114,7 +114,7 @@ class WSS:
         :return: 0 if profile was loaded and -1 otherwise
         :rtype: int
         """
-        profiletext = ""
+        profiletext = str()
         freq = self.speed_of_light / self.wavelength
         startfreq = freq - self.bandwidth * 0.5 * 1e-3  # start frequency in THz
         stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # strop frequency in THz
@@ -139,7 +139,7 @@ class WSS:
         :return: 0 if profile was loaded and -1 otherwise
         :rtype: int
         """
-        profiletext = ""
+        profiletext = str()
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
             profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
