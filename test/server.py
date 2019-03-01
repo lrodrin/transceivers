@@ -52,7 +52,7 @@ def define_logger():
     """
     Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
     """
-    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)  # File Handler
+    fileHandler = RotatingFileHandler('servers.log', maxBytes=10000000, backupCount=5)  # File Handler
     streamHandler = logging.StreamHandler()  # Stream Handler
     # Create a Formatter for formatting the logs messages
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")

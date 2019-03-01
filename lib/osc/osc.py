@@ -126,9 +126,9 @@ class OSC:
                 Ncarriers_eq = self.Ncarriers
 
                 if osc_in == 1:
-                    data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
-                elif osc_in == 2:
                     data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
+                elif osc_in == 2:
+                    data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
 
                 data_acqT = data_acqT - np.mean(data_acqT)  # TODO inicialitzar com a float array
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
@@ -263,9 +263,9 @@ class OSC:
         try:
             logger.debug("Generating data")  # Generate data with different seed for the different output ports
             if dac_out == 1:
-                np.random.seed(36)
-            elif dac_out == 2:
                 np.random.seed(42)
+            elif dac_out == 2:
+                np.random.seed(36)
             elif dac_out == 3:
                 np.random.seed(32)
             elif dac_out == 4:

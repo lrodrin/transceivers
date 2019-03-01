@@ -29,38 +29,38 @@ def dac_osc_configuration():
     DAC and OSC configuration
     ---
     post:
-    description: |
-        DAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal
-        DAC configuration creates an OFDM signal and uploads it to Leia DAC
-        OSC configuration adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream
-    consumes:
-    - application/json
-    produces:
-    - application/json
-    - name: logical_assoc
-      in: body
-      type: list of dictionaries
-      description: Logical association to be configured between DAC and OSC
-      example: # TODO
-    responses:
-        200:
-            description: "Successful operation"
-        405:
-            description: "Invalid input"
+        description: |
+            DAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal
+            DAC configuration creates an OFDM signal and uploads it to Leia DAC
+            OSC configuration adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream
+        consumes:
+        - application/json
+        produces:
+        - application/json
+        - name: logical_assoc
+          in: body
+          type: list of dictionaries
+          description: Logical association to be configured between DAC and OSC
+          example: [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'bn': bn, 'En': En, 'eq': 0}]
+        responses:
+            200:
+                description: "Successful operation"
+            405:
+                description: "Invalid input"
     get:
-    description: Get all the logical associations configured between DAC and OSC
-    produces:
-    - application/json
-    responses:
-        200:
-            description: "Successful operation" # TODO
-        404:
-            description: "Logical associations between DAC and OSC not found" # TODO
+        description: Get all the logical associations configured between DAC and OSC
+        produces:
+        - application/json
+        responses:
+            200:
+                description: "Successful operation" # TODO
+            404:
+                description: "Logical associations between DAC and OSC not found" # TODO
     """
     if request.method == 'POST':
         logic_assoc = request.json
         if len(logic_assoc) != 0:
-            wanted_keys = ('dac_out', 'osc_in', 'eq')
+            wanted_keys = ('dac_out', 'osc_in', 'bn', 'En', 'eq')
             try:
                 for index in range(len(logic_assoc)):  # for each logic association between DAC and OSC
                     assoc_id = str(logic_assoc[index]['id'])
@@ -70,12 +70,12 @@ def dac_osc_configuration():
                     En = logic_assoc[index]['En']
                     eq = logic_assoc[index]['eq']
 
-                    # dac_configuration(dac_out, bn, En)
-                    # osc_configuration(dac_out, osc_in, bn, En, eq)
+                    dac_configuration(dac_out, bn, En)
+                    osc_configuration(dac_out, osc_in, bn, En, eq)
 
                     # Adding new logical association
                     filtered_assoc = dict(
-                        zip(wanted_keys, [logic_assoc[index][k] for k in wanted_keys]))  # assoc - ['id']
+                        zip(wanted_keys, [logic_assoc[index][k] for k in wanted_keys]))  # logic_assoc - ['id']
                     if assoc_id not in logical_associations.keys():
                         logical_associations[assoc_id] = filtered_assoc
 
@@ -85,7 +85,7 @@ def dac_osc_configuration():
                 logger.error(e)
                 return jsonify("DAC and OSC was not successfully configured. Error: {}".format(e), 405)
         else:
-            return jsonify("The parameters send by the agent are not correct.", 405)
+            return jsonify("Empty parameters send by the agent.", 405)
 
     elif request.method == 'GET':
         if len(logical_associations) != 0:
@@ -110,7 +110,11 @@ def dac_configuration(dac_out, bn, En):
     try:
         logger.debug("Processing received data from %s" % dac_out)
         tx = DAC()
+        temp_file = open(DAC.temp_file, "w")
         tx.transmitter(dac_out, bn, En)
+        leia_file = tx.enable_channel(dac_out, temp_file)
+        if leia_file is not None:
+            tx.execute_matlab(leia_file)
         logger.debug("DAC {} configuration finished".format(dac_out))
 
     except Exception as e:
@@ -156,35 +160,35 @@ def dac_osc_logical_associations(assoc_id):
     DAC and OSC logical association
     ---
     get:
-    description: Get logical association configured between DAC and OSC specified by id
-    produces:
-    - application/json
-    parameters:
-    - name: assoc_id
-      in: body
-      type: integer
-      description: Identifies the logical association configured between DAC and OSC
-    responses:
-        200:
-            description: "Successful operation"
-        400:
-            description: "Invalid ID supplied"
+        description: Get logical association configured between DAC and OSC specified by id
+        produces:
+        - application/json
+        parameters:
+        - name: assoc_id
+          in: body
+          type: integer
+          description: Identifies the logical association configured between DAC and OSC
+        responses:
+            200:
+                description: "Successful operation"
+            400:
+                description: "Invalid ID supplied"
     delete:
-    description: Delete logical association configured between DAC and OSC specified by id
-    produces:
-    - application/json
-    parameters:
-    - name: assoc_id
-      in: body
-      type: integer
-      description: Identifies the logical association configured between DAC and OSC
-    responses:
-        200:
-            description: "Successful operation" # TODO
-        400:
-            description: "Invalid ID supplied" # TODO
-        404:
-            description: "Logical associations between DAC and OSC not found" # TODO
+        description: Delete logical association configured between DAC and OSC specified by id
+        produces:
+        - application/json
+        parameters:
+        - name: assoc_id
+          in: body
+          type: integer
+          description: Identifies the logical association configured between DAC and OSC
+        responses:
+            200:
+                description: "Successful operation" # TODO
+            400:
+                description: "Invalid ID supplied" # TODO
+            404:
+                description: "Logical associations between DAC and OSC not found" # TODO
     """
     assoc_id = str(assoc_id)
     msg_not_exists_associations = "Not exists logical associations between DAC and OSC with id %s." % assoc_id

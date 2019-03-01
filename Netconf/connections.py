@@ -55,7 +55,7 @@ if __name__ == '__main__':
     print(xmlstr)
 
     # print ("NEW CONFIG") new_config = pybindIETFXMLDecoder.decode(pybindIETFXMLEncoder.serialise(c2),
-    # node_connectivity, 'node-connectivity') new_config = pybindIETFXMLEncoder.serialise(c2) tree_config =
+    # capability, 'node-connectivity') new_config = pybindIETFXMLEncoder.serialise(c2) tree_config =
     # etree.XML(new_config) print(etree.tostring(tree_config)) print(etree.tostring(tree_config[0]))
 
     # print("NODE_CONNECTIVITY")
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # tree_node.append(tree_config[0])
     # print(etree.tostring(tree_node))
 
-    # write_file('node_connectivity.xml', etree.tostring(tree_node))
+    # write_file('capability.xml', etree.tostring(tree_node))
 
     # delete
     # tree_node = pybindIETFXMLDecoder.decode(etree.tostring(tree_node), b, 'node-connectivity')

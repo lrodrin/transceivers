@@ -231,9 +231,9 @@ if __name__ == '__main__':
     bn = [float(DAC.bps)] * DAC.Ncarriers
     En = [float(1)] * DAC.Ncarriers
     params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'bn': bn, 'En': En, 'eq': 0},
-                      {'id': 2, 'dac_out': 1, 'osc_in': 1, 'bn': bn, 'En': En, 'eq': 0}]
+                      {'id': 2, 'dac_out': 2, 'osc_in': 2, 'bn': bn, 'En': En, 'eq': 0}]
     print(api.DACOSCConfiguration(params_dac_osc))
     print(api.getDACOSCOperationsById(1))
     print(api.getDACOSCOperationsById(2))
-    print(api.deleteDACOSCOperationsById(1))
+    # print(api.deleteDACOSCOperationsById(1))
     print(api.getDACOSCOperations())

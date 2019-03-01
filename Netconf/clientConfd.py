@@ -10,10 +10,10 @@ port = 2022
 username = "admin"
 password = "admin"
 
-# connexion to server
+# connexion to servers
 session = NetconfSSHSession(host, port, username, password)
 
-# server capabilities
+# servers capabilities
 c = session.capabilities
 print(c)
 

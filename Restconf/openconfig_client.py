@@ -9,11 +9,11 @@ if __name__ == '__main__':
     params_xc = {'client': 0, 'och': 1}
     params_f = {'och': 0, 'freq': 1, 'power': 0, 'mode': 0}
 
-    # test server
+    # test servers
     request = requests.get('http://%s:5001/api/vi/openconfig/' % ip_server + 'hello',    # TODO delete
                            headers={"Content-Type": "application/json"})
 
-    # test local assignment from server
+    # test local assignment from servers
     # request = requests.post('http://%s:5001/api/vi/openconfig/' % ip_server + 'local_assignment',
     #                         HEADERS={"Content-Type": "application/json"}, data=json.dumps(params_xc))
     if request:
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     else:
         logging.error("Client not assigned to the optical channel")
 
-    # test optical channel configuration from server
+    # test optical channel configuration from servers
     # request = requests.post('http://%s:5001/api/vi/openconfig/' % ip_server + 'optical_channel',
     #                         HEADERS={"Content-Type": "application/json"}, data=json.dumps(params_f))
     if request:

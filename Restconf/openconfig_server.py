@@ -212,8 +212,8 @@ def init_variables():
 
 if __name__ == '__main__':
     # File Handler
-    # fileHandler = RotatingFileHandler('server/server.log', maxBytes=10000000, backupCount=5)
-    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)
+    # fileHandler = RotatingFileHandler('servers/servers.log', maxBytes=10000000, backupCount=5)
+    fileHandler = RotatingFileHandler('servers.log', maxBytes=10000000, backupCount=5)
     # Stream Handler
     streamHandler = logging.StreamHandler()
     # Create a Formatter for formatting the logs messages

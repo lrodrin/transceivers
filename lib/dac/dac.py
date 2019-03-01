@@ -125,9 +125,9 @@ class DAC:
 
             logger.debug("Generating data")  # Generate data with different seed for the different output ports
             if dac_out == 1:
-                np.random.seed(36)
-            elif dac_out == 2:
                 np.random.seed(42)
+            elif dac_out == 2:
+                np.random.seed(36)
             elif dac_out == 3:
                 np.random.seed(32)
             elif dac_out == 4:
@@ -181,50 +181,50 @@ class DAC:
             logger.debug("OFDM signal is created")
 
             logger.debug("Initializing LEIA")
-            f_clock = open(self.clock_file, "w")
+            f_clock = open(DAC.clock_file, "w")
             f_clock.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
-            f_clock_ref = open(self.clock_ref_file, "w")
+            f_clock_ref = open(DAC.clock_ref_file, "w")
             f_clock_ref.write("10\n")  # 10MHz or 50MHz Ref frequency
-            np.savetxt(self.temp_file, Cx_LEIA)  # .txt with the OFDM signal
-
-            self.enable_channel(dac_out)
+            np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
 
         except Exception as error:
             logger.error("DAC transmitter method, {}".format(error))
 
-    def enable_channel(self, dac_out):
+    def enable_channel(self, dac_out, temp_file):
         """
         Enable a DAC channel (Hi, Hq, Vi or Vq). Sets 1 to the active channel and 0 to the remaining channels.
 
         :param dac_out: output port
         :type dac_out: int
+        :param temp_file:
+        :type temp_file:
         """
         seq = ""
         leia_file = ""
         try:
-            temp_file = open(self.temp_file, "w")
             if dac_out == 1:
                 logger.debug("Enable Hi channel")
                 seq = "1\n 0\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                leia_file = self.leia_hi_filename
+                leia_file = DAC.leia_hi_filename
             elif dac_out == 2:
                 logger.debug("Enable Hq channel")
                 seq = "0\n 1\n 0\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                leia_file = self.leia_hq_filename
+                leia_file = DAC.leia_hq_filename
             elif dac_out == 3:
                 logger.debug("Enable Vi channel")
                 seq = "0\n 0\n 1\n 0\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                leia_file = self.leia_vi_filename
+                leia_file = DAC.leia_vi_filename
             elif dac_out == 4:
                 logger.debug("Enable Vq channel")
                 seq = "0\n 0\n 0\n 1\n"  # Hi_en, Hq_en, Vi_en, Vq_en
-                leia_file = self.leia_vq_filename
+                leia_file = DAC.leia_vq_filename
 
             temp_file.write(seq)
-            self.execute_matlab(leia_file)
+            return leia_file
 
         except Exception as error:
             logger.error("DAC enable_channel method, {}".format(error))
+            return None
 
     def execute_matlab(self, leia_file):
         """
@@ -236,7 +236,7 @@ class DAC:
         matlab = 'C:/Program Files/MATLAB/R2010bSP1/bin/matlab.exe'
         options = '-nodisplay -nosplash -nodesktop -wait'
         try:
-            command = """{} {} -r "cd(fullfile('{}')), {}" """.format(matlab, options, self.folder, leia_file)
+            command = """{} {} -r "cd(fullfile('{}')), {}" """.format(matlab, options, DAC.folder, leia_file)
             proc = Popen(command, stdout=PIPE, stderr=PIPE)
             out, err = proc.communicate()
             if proc.returncode == 0:

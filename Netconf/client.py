@@ -10,10 +10,10 @@ port = 830
 username = "root"
 password = "netlabN."
 
-# connexion to server
+# connexion to servers
 session = NetconfSSHSession(host, port, username, password)
 
-# server capabilities
+# servers capabilities
 c = session.capabilities
 print(c)
 

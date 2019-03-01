@@ -1,3 +1,6 @@
+pyangbind
+netconf
+lxml
 flasgger
 scipy
 matplotlib
