@@ -36,11 +36,17 @@ if __name__ == '__main__':
     #           {'port_in': 4, 'port_out': 1, 'lambda0': 1548.5, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
 
     # WSS1
+    wss_id = 1
+    logging.debug("WaveShaper %s configuration started" % wss_id)
     n, m = calculateNxM(params_wss1)
-    wss = WSS(1, n, m)
+    wss = WSS(wss_id, n, m)
     wss.configuration(params_wss1)
+    logging.debug("WaveShaper %s configuration finished" % wss_id)
 
     # WSS2
+    wss_id = 2
+    logging.debug("WaveShaper %s configuration started" % wss_id)
     n, m = calculateNxM(params_wss2)
-    wss = WSS(2, n, m)
+    wss = WSS(wss_id, n, m)
     wss.configuration(params_wss2)
+    logging.debug("WaveShaper %s configuration finished" % wss_id)

@@ -14,7 +14,6 @@ headers = {"Content-Type": "application/json"}
 class RestApi:
     """
     This is a class for the REST API module.
-    Interact with WSS and DAC/OSC modules.
 
     :ivar int port_dac_osc: Port of DAC/OSC REST Server
     :ivar int port_wss: Port of WSS REST Server
@@ -26,7 +25,7 @@ class RestApi:
         """
         The constructor for the REST API class.
 
-        :param ip: ip_rest_server address
+        :param ip: REST server ip address
         :type ip: str
         """
         self.ip = ip
@@ -35,7 +34,9 @@ class RestApi:
 
     def DACOSCConfiguration(self, params):
         """
-        DAC and OSC configuration.
+        DDAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal.
+        DAC configuration creates an OFDM signal and uploads it to Leia DAC.
+        OSC configuration adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream.
 
         :param params: a transmission
         :type params: list
@@ -46,8 +47,8 @@ class RestApi:
         url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc"
         try:
             response = requests.post(url, headers=headers, data=json.dumps(params))
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
@@ -57,17 +58,18 @@ class RestApi:
 
     def getDACOSCOperations(self):
         """
-        Get all the logical associations between DAC and OSC.
+        DAC and OSC logical associations.
+        Get multiple logical associations configured between DAC and OSC.
 
-        :return: logical associations between DAC and OSC
+        :return: logical associations configured between DAC and OSC
         :rtype: dict
         """
         logging.debug('RestApi.getDACOSCOperations')
         url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc"
         try:
             response = requests.get(url, headers=headers)
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
@@ -77,19 +79,20 @@ class RestApi:
 
     def getDACOSCOperationsById(self, assoc_id):
         """
-         Get the logical associations between DAC and OSC specified by assoc_id.
+        DAC and OSC logical association by ID.
+        Returns logical association configured between DAC and OSC specified by id.
 
-        :param assoc_id: logical association id
+        :param assoc_id: id of logical association configured between DAC and OSC
         :type assoc_id: int
-        :return: logical associations between DAC and OSC assoc_id
+        :return: llogical association configured between DAC and OSC specified by assoc_id
         :rtype: dict
         """
         logging.debug('RestApi.getDACOSCOperationsById')
         url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc/" + str(assoc_id)
         try:
             response = requests.get(url, headers=headers)
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
@@ -99,9 +102,10 @@ class RestApi:
 
     def deleteDACOSCOperationsById(self, assoc_id):
         """
-        Delete the logical associations between DAC and OSC specified by assoc_id.
+        DAC and OSC logical association by ID.
+        Delete logical association configured between DAC and OSC specified by id.
 
-        :param assoc_id: logical association id
+        :param assoc_id: id of logical association configured between DAC and OSC
         :type assoc_id: int
         :return: # TODO
         :rtype: dict
@@ -110,8 +114,8 @@ class RestApi:
         url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc/" + str(assoc_id)
         try:
             response = requests.delete(url, headers=headers)
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
@@ -122,8 +126,9 @@ class RestApi:
     def WSSConfiguration(self, params):
         """
         WaveShaper configuration.
+        Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port of a WaveShaper.
 
-        :param params: id to identify the WaveShaper and a set of operations to configure it
+        :param params: id to identify the WaveShaper and operations to be configured on the WaveShaper
         :type params: dict
         :return: # TODO
         :rtype: dict
@@ -132,8 +137,8 @@ class RestApi:
         url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss"
         try:
             response = requests.post(url, headers=headers, data=json.dumps(params))
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
@@ -143,51 +148,54 @@ class RestApi:
 
     def getWSSOperations(self):
         """
-        Get all the operations from a set of WaveShapers.
+        WaveShaper operations.
+        Get multiple operations configured on the WaveShapers.
 
-        :return: operations configured to WaveShapers
+        :return: operations configured on the WaveShapers
         :rtype: dict
         """
         logging.debug('RestApi.getWSSOperations')
         url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss"
         try:
             response = requests.get(url, headers=headers)
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
             raise e
 
-        return data
+        return json.dumps(data, indent=4, sort_keys=True)
 
     def getWSSOperationsById(self, wss_id):
         """
-        Get the operations from a WaveShaper specified by wss_id.
+        WaveShaper operations by ID.
+        Returns operations configured on a WaveShaper specified by id.
 
-        :param wss_id: id to identify the WaveShaper
+        :param wss_id: id of the WaveShaper
         :type wss_id: int
-        :return: operations configured to specific WaveShaper specified by wss_id
+        :return: operations operations configured on a WaveShaper specified by wss_id
         :rtype: dict
         """
         logging.debug('RestApi.getWSSOperationsById')
         url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss/" + str(wss_id)
         try:
             response = requests.get(url, headers=headers)
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)
             raise e
 
-        return data
+        return json.dumps(data, indent=4, sort_keys=True)
 
     def deleteWSSOperationsById(self, wss_id):
         """
-        Delete the operations from a WaveShaper specified by wss_id.
+        WaveShaper operations by ID.
+        Delete operations configured on a WaveShaper specified by id.
 
-        :param wss_id: id to identify the WaveShaper
+        :param wss_id: id of the WaveShaper
         :type wss_id: int
         :return: # TODO
         :rtype: dict
@@ -197,8 +205,8 @@ class RestApi:
         print(url)
         try:
             response = requests.delete(url, headers=headers)
-            logging.debug('Response from {}:\n\t{}'.format(url, response.content))
-            data = response.content
+            data = response.json()
+            logging.debug('Response from {}:\n\t{}'.format(url, data))
 
         except Exception as e:
             logging.error(e)

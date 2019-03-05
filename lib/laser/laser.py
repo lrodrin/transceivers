@@ -80,7 +80,6 @@ class Laser:
             self.sock.send(self.read_timeout)
             self.sock.send(self.eos_3)
             self.sock.send(self.eoi_1)
-            logger.debug("Default parameters of the Laser initialized")
 
         except socket.error as error:
             logger.error("Default parameters of the Laser not initialized, {}".format(error))
@@ -259,10 +258,10 @@ class Laser:
         :type channel: int
         :param lambda0: wavelength
         :type lambda0: float
-        :param status: if True is enable otherwise is disable
-        :type status: bool
+        :param power: power
+        :type power: float
         """
-        logger.debug("Laser configuration started")
+        logger.debug("Laser on channel %s configuration started" % channel)
         try:
             yenista = Laser(ip, addr)
             yenista.enable(channel, False)  # ensure laser is off
@@ -274,7 +273,7 @@ class Laser:
                 "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
 
             yenista.close()
-            logger.debug("Laser configuration finished")
+            logger.debug("Laser on channel %s configuration finished" % channel)
             return params
 
         except Exception as error:

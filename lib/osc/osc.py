@@ -28,7 +28,8 @@ class OSC:
     :ivar int Niters: Number of iterations for BER calculation
     :ivar int f_DCO: Sampling frequency of the DPO
     :ivar int nsamplesrx: Number of received samples. Must be multiple of 4
-    :ivar int k_clip: factor for clipping the OFDM signal
+    :ivar int k_clip: factor for clipping the OFDM signal. 3.16 optimum for 256 QAM. 2.66 optimum for 32 QAM.
+    2.8 optimum for 64 QAM.
     :ivar int Qt: Quantization steps
     :ivar int bps: Number of bits per symbol
     """
@@ -53,24 +54,21 @@ class OSC:
         The constructor for Oscilloscope class.
         Define and initialize the Oscilloscope default parameters for the OFDM signal definition:
 
-            - Ncarriers (int): Set number of carriers.
-            - Constellation (str): Set modulation format.
-            - CP (float): Set cyclic prefix.
-            - NTS (int): Set number of training symbols.
-            - Nsymbols (int): Set number of generated symbols.
-            - NsymbolsTS (int): Set number of generated symbols without TS.
-            - Nframes (int): Set number of OFDM frames.
-             - sps (float): Set samples per symbol for the DAC.
-            - fs (int): Set DAC frequency sampling.
-            - Niters (int): Set number of iterations for BER calculation.
-            - f_DCO (int): Set sampling frequency of the DPO.
-            - nsamplesrx (int): Set number of received samples. Must be multiple of 4.
-            - k_clip (float): Set factor for clipping the OFDM signal.
-                - 3.16 optimum for 256 QAM.
-                - 2.66 optimum for 32 QAM.
-                - 2.8 optimum for 64 QAM.
-            - Qt (int): Set quantization steps.
-            - bps (int): Set number of bits per symbol.
+            - Set number of carriers.
+            - Set modulation format.
+            - Set cyclic prefix.
+            - Set number of training symbols.
+            - Set number of generated symbols.
+            - Set number of generated symbols without TS.
+            - Set number of OFDM frames.
+            - Set samples per symbol for the DAC.
+            - Set DAC frequency sampling.
+            - Set number of iterations for BER calculation.
+            - Set sampling frequency of the DPO.
+            - Set number of received samples. Must be multiple of 4.
+            - Set factor for clipping the OFDM signal.
+            - Set quantization steps.
+            - Set number of bits per symbol.
         """
         self.Ncarriers = OSC.Ncarriers
         self.Constellation = OSC.Constellation
@@ -130,7 +128,7 @@ class OSC:
                 elif osc_in == 2:
                     data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
 
-                data_acqT = data_acqT - np.mean(data_acqT)  # TODO inicialitzar com a float array
+                data_acqT = data_acqT - np.mean(data_acqT)  # TODO init variable
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
 
                 I_rx_BB = data_acq2 * np.cos(2 * np.math.pi * fc * ttt2[0:data_acq2.size]) + 1j * data_acq2 * np.sin(
@@ -208,6 +206,7 @@ class OSC:
                     Runs = Runs + 1
 
             BER = BERT / Runs
+            SNR = None # TODO change
             return [SNR, BER]
 
         except Exception as error:

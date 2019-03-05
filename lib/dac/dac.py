@@ -27,9 +27,11 @@ class DAC:
     :ivar int Nsymbols: Number of generated symbols
     :ivar float sps: Samples per symbol for the DAC
     :ivar int fs: DAC frequency sampling
-    :ivar int k_clip: factor for clipping the OFDM signal
+    :ivar int k_clip: factor for clipping the OFDM signal. 3.16 optimum for 256 QAM. 2.66 optimum for 32 QAM.
+    2.8 optimum for 64 QAM.
     :ivar int Qt: Quantization steps
     :ivar int bps: Number of bits per symbol
+
     :var str folder: Folder that stores all the configuration files
     :var str clock_ref_file: File to save the clock_ref for the DAC
     :var str clock_file: File to save the clock value for the DAC
@@ -65,25 +67,22 @@ class DAC:
         The constructor for the DAC class.
         Define and initialize the DAC default parameters:
 
-            - Preemphasis (bool): Enable preemphasis.
-            - BW_filter (int): Set bandwidth of the preemphasis filter.
-            - N_filter (int): Set order of the preemphasis filter.
-            - Ncarriers (int): Set number of carriers.
-            - Constellation (str): Set modulation format.
-            - CP (float): Set cyclic prefix.
-            - NTS (int): Set number of training symbols.
-            - Nsymbols (int): Set number of generated symbols.
-            - NsymbolsTS (int): Set number of generated symbols without TS.
-            - Nframes (int): Set number of OFDM frames.
-            - sps (float): Set samples per symbol for the DAC.
-            - fs (int): Set DAC frequency sampling.
-            - k_clip (float): Set factor for clipping the OFDM signal.
-                - 3.16 optimum for 256 QAM.
-                - 2.66 optimum for 32 QAM.
-                - 2.8 optimum for 64 QAM.
-            - Qt (int): Set quantization steps.
-            - bps (int): Set number of bits per symbol.
-            - BWs (int): Set bandwidth of electrical signal.
+            - Enable preemphasis.
+            - Set bandwidth of the preemphasis filter.
+            - Set order of the preemphasis filter.
+            - Set number of carriers.
+            - Set modulation format.
+            - Set cyclic prefix.
+            - Set number of training symbols.
+            - Set number of generated symbols.
+            - Set number of generated symbols without TS.
+            - Set number of OFDM frames.
+            - Set samples per symbol for the DAC.
+            - Set DAC frequency sampling.
+            - Set factor for clipping the OFDM signal.
+            - Set quantization steps.
+            - Set number of bits per symbol.
+            - Set bandwidth of electrical signal.
         """
         self.Preemphasis = DAC.Preemphasis
 
@@ -178,8 +177,6 @@ class DAC:
             Cx_LEIA = np.around(
                 Cx_bias / np.max(Cx_bias) * self.Qt - np.ceil(self.Qt / 2))  # Signal to download to LEIA
 
-            logger.debug("OFDM signal is created")
-
             logger.debug("Initializing LEIA")
             f_clock = open(DAC.clock_file, "w")
             f_clock.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
@@ -190,14 +187,15 @@ class DAC:
         except Exception as error:
             logger.error("DAC transmitter method, {}".format(error))
 
-    def enable_channel(self, dac_out, temp_file):
+    @staticmethod
+    def enable_channel(dac_out, temp_file):
         """
         Enable a DAC channel (Hi, Hq, Vi or Vq). Sets 1 to the active channel and 0 to the remaining channels.
 
         :param dac_out: output port
         :type dac_out: int
-        :param temp_file:
-        :type temp_file:
+        :param temp_file: file to save the OFDM signal that will be uploaded to LEIA DAC
+        :type temp_file: file
         """
         seq = ""
         leia_file = ""
@@ -226,7 +224,8 @@ class DAC:
             logger.error("DAC enable_channel method, {}".format(error))
             return None
 
-    def execute_matlab(self, leia_file):
+    @staticmethod
+    def execute_matlab(leia_file):
         """
         Call MATLAB program to process the OFDM signal uploaded to the Leia DAC.
 

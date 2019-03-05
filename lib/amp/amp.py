@@ -82,7 +82,6 @@ class Amplifier:
             self.sock.send(self.read_timeout)
             self.sock.send(self.eos_3)
             self.sock.send(self.eoi_1)
-            logger.debug("Default parameters of the Amplifier initialized")
 
         except socket.error as error:
             logger.error("Default parameters of the Amplifier not initialized, {}".format(error))

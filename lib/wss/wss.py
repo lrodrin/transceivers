@@ -127,7 +127,7 @@ class WSS:
                 else:
                     profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
 
-        logger.debug("WaveShaper profile created")
+        logger.debug("WaveShaper %s profile created" % str(self.id))
         return wsapi.ws_load_profile(str(self.id), profiletext)
 
     def execute_wss(self, profile):
@@ -143,7 +143,7 @@ class WSS:
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
             profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
-        logger.debug("WaveShaper profile created")
+        logger.debug("WaveShaper %s profile created" % str(self.id))
         return wsapi.ws_load_profile(str(self.id), profiletext)
 
     def configuration(self, operation):
@@ -157,7 +157,6 @@ class WSS:
         :type operation: list
         """
         wss_id = str(self.id)
-        logger.debug("WaveShaper %s configuration started" % wss_id)
         for op in operation:
             pos_x = op['port_in'] - 1
             pos_y = op['port_out'] - 1
@@ -169,12 +168,11 @@ class WSS:
         try:
             rc = self.execute()
             if rc < 0:
-                logger.error("Profile not loaded to the WaveShaper, %s" % wsapi.ws_get_result_description(rc))
+                logger.error("WaveShaper {} profile not loaded, {}".format(wss_id, wsapi.ws_get_result_description(rc)))
             else:
-                logger.debug("Profile loaded to the WaveShaper")
+                logger.debug("WaveShaper %s profile loaded" % wss_id)
                 time.sleep(self.time_sleep)
                 self.close()
-                logger.debug("WaveShaper %s configuration finished" % wss_id)
 
         except Exception as error:
             logger.error("WaveShaper configuration method, {}".format(error))
