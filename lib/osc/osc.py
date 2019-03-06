@@ -119,6 +119,7 @@ class OSC:
             cdatar = np.delete(cdatar, Subzero, axis=1)
             bn = np.delete(bn, Subzero)
             Runs = 0
+            data_acqT = np.array(np.zeros(R * self.nsamplesrx))
             logger.debug("Iterating")
             for run in range(1, self.Niters + 1):
                 Ncarriers_eq = self.Ncarriers
@@ -128,7 +129,7 @@ class OSC:
                 elif osc_in == 2:
                     data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
 
-                data_acqT = data_acqT - np.mean(data_acqT)  # TODO init variable
+                data_acqT = data_acqT - np.mean(data_acqT)
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
 
                 I_rx_BB = data_acq2 * np.cos(2 * np.math.pi * fc * ttt2[0:data_acq2.size]) + 1j * data_acq2 * np.sin(
@@ -206,7 +207,6 @@ class OSC:
                     Runs = Runs + 1
 
             BER = BERT / Runs
-            SNR = None # TODO change
             return [SNR, BER]
 
         except Exception as error:

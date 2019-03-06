@@ -15,5 +15,7 @@ if __name__ == '__main__':
     mode_oa2 = "APC"
     power_oa1 = 0
     power_oa2 = 0
-    Amplifier.configuration(ip_oa1, addr, mode_oa1, power_oa1)
-    Amplifier.configuration(ip_oa2, addr, mode_oa2, power_oa2)
+    oa1_conf = Amplifier.configuration(ip_oa1, addr, mode_oa1, power_oa1)
+    oa2_conf = Amplifier.configuration(ip_oa2, addr, mode_oa2, power_oa2)
+    print(oa1_conf)
+    print(oa2_conf)

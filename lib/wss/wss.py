@@ -155,6 +155,8 @@ class WSS:
 
         :param operation: operation to configure the WaveShaper
         :type operation: list
+        :return: True if profile was loaded and False otherwise
+        :rtype: bool
         """
         wss_id = str(self.id)
         for op in operation:
@@ -169,10 +171,14 @@ class WSS:
             rc = self.execute()
             if rc < 0:
                 logger.error("WaveShaper {} profile not loaded, {}".format(wss_id, wsapi.ws_get_result_description(rc)))
+                return False
             else:
                 logger.debug("WaveShaper %s profile loaded" % wss_id)
                 time.sleep(self.time_sleep)
                 self.close()
+                return True
 
         except Exception as error:
-            logger.error("WaveShaper configuration method, {}".format(error))
+            error_msg = "WaveShaper configuration method, {}".format(error)
+            logger.error(error_msg)
+            raise error_msg

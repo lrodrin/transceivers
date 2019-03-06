@@ -260,6 +260,8 @@ class Laser:
         :type lambda0: float
         :param power: power
         :type power: float
+        :return: status, wavelength and power
+        :rtype: list
         """
         logger.debug("Laser on channel %s configuration started" % channel)
         try:
@@ -277,5 +279,6 @@ class Laser:
             return params
 
         except Exception as error:
-            logger.error("Laser configuration method, {}".format(error))
-            return None
+            error_msg = "Laser configuration method, {}".format(error)
+            logger.error(error_msg)
+            raise error_msg

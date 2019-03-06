@@ -28,7 +28,7 @@ def wss_configuration():
     WaveShaper configuration
     ---
     post:
-    description: Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port of a WaveShaper
+    description: Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port
     consumes:
     - application/json
     produces:
@@ -38,7 +38,7 @@ def wss_configuration():
       in: body
       description: id to identify the WaveShaper and operations to be configured on the WaveShaper
       example: {'wss_id': 1, 'operation': [
-        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]}
+        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
       required: true
     responses:
         200:
@@ -57,17 +57,16 @@ def wss_configuration():
                 logger.debug("WaveShaper %s configuration started" % wss_id)
                 n, m = calculateNxM(ops)
                 wss = WSS(params['wss_id'], n, m)
-                wss.configuration(ops)
+                if wss.configuration(ops):
+                    # Adding new operation
+                    if wss_id not in operations.keys():
+                        operations[wss_id] = ops
+                    else:
+                        operations[wss_id] += ops
 
-                # Adding new operation
-                if wss_id not in operations.keys():
-                    operations[wss_id] = ops
-                else:
-                    operations[wss_id] += ops
-
-                msg = "WaveShaper %s was successfully configured" % wss_id
-                logger.debug(msg)
-                return jsonify(msg, 200)
+                    msg = "WaveShaper %s was successfully configured" % wss_id
+                    logger.debug(msg)
+                    return jsonify(msg, 200)
 
             except Exception as e:
                 error_msg = "WaveShaper {} wasn't successfully configured. Error: {}".format(wss_id, e)
@@ -97,7 +96,7 @@ def wss_operations():
             schema:
                 type: dict
                 example: {'wss_id': 1, 'operation': [
-        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]}
+        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
         404:
             description: Operations not found
     """
@@ -129,7 +128,7 @@ def wss_getOperationsByID(wss_id):
             schema:
                 type: dict
                 example: {'wss_id': 1, 'operation': [
-        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]}
+        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
         400:
             description: Invalid ID supplied
         404:

@@ -40,7 +40,7 @@ class RestApi:
 
         :param params: a transmission
         :type params: list
-        :return: # TODO
+        :return: estimated SNR per subcarrier and BER
         :rtype: dict
         """
         logging.debug('RestApi.DACOSCConfiguration')
@@ -84,7 +84,7 @@ class RestApi:
 
         :param assoc_id: id of logical association configured between DAC and OSC
         :type assoc_id: int
-        :return: llogical association configured between DAC and OSC specified by assoc_id
+        :return: logical association configured between DAC and OSC specified by assoc_id
         :rtype: dict
         """
         logging.debug('RestApi.getDACOSCOperationsById')

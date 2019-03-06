@@ -244,7 +244,8 @@ class Amplifier:
         :type mode: str
         :param power: power
         :type power: float
-        :return:
+        :return: status, mode and power
+        :rtype: list
         """
         logger.debug("Amplifier configuration started")
         try:
@@ -261,5 +262,6 @@ class Amplifier:
             return params
 
         except Exception as error:
-            logger.error("Amplifier configuration method, {}".format(error))
-            return None
+            error_msg = "Amplifier configuration method, {}".format(error)
+            logger.error(error_msg)
+            raise error_msg
