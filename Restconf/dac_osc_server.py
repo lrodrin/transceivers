@@ -64,11 +64,11 @@ def dac_osc_configuration():
                 bn = logic_assoc[index]['bn']
                 En = logic_assoc[index]['En']
                 eq = logic_assoc[index]['eq']
-                
+
                 try:
                     dac_configuration(dac_out, bn, En)
                     [snr, ber] = osc_configuration(dac_out, osc_in, bn, En, eq)
-                    logger.debug("BER = %s" % ber])  # TODO only return BER
+                    logger.debug("BER = %s" % ber)  # TODO only return BER
                     # logger.debug("SNR = {} and BER = {}".format(snr, ber))
 
                     # Adding new logical association
@@ -82,10 +82,11 @@ def dac_osc_configuration():
                         "DAC and OSC logical association with id: %s was successfully configured" % assoc_id)
 
                 except Exception as e:
-                    logger.error("DAC and OSC logical association with id: {} wasn't successfully configured. Error: {}".format(
-                        assoc_id, e))
+                    logger.error(
+                        "DAC and OSC logical association with id: {} wasn't successfully configured. Error: {}".format(
+                            assoc_id, e))
                     raise e
-                
+
                 finally:
                     return jsonify("DAC and OSC was successfully configured")
         else:

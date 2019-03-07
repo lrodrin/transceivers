@@ -138,7 +138,7 @@ class DAC:
             TS = np.random.randint(0, 2, self.NTS * self.bps * self.Ncarriers)
             BitStream = np.r_[TS, data]
             BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
-            logger.debug("BitStream: %s, Nframes: %s, Sum: %s" % (BitStream, self.Nframes, np.sum(bn))) # TODO xivato
+            logger.debug("BitStream: %s, Nframes: %s, Sum: %s" % (BitStream, self.Nframes, np.sum(bn)))  # TODO xivato
             cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
 
             logger.debug("Mapping data")
