@@ -125,9 +125,9 @@ class OSC:
                 Ncarriers_eq = self.Ncarriers
 
                 if osc_in == 1:
-                    data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
-                elif osc_in == 2:
                     data_acqT = self.acquire(1, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 1
+                elif osc_in == 2:
+                    data_acqT = self.acquire(4, R * self.nsamplesrx, self.f_DCO)  # Adquire signal in channel 4
 
                 data_acqT = data_acqT - np.mean(data_acqT)
                 data_acq2 = sgn.resample(data_acqT, len(data_acqT) / float(R))  # Recover the original signal length
@@ -211,6 +211,7 @@ class OSC:
 
         except Exception as error:
             logger.error("OSC receiver method, {}".format(error))
+            raise error
 
     @staticmethod
     def acquire(channel_ID, npoints, fs):
@@ -245,6 +246,7 @@ class OSC:
 
         except Exception as error:
             logger.error("OSC acquire method, {}".format(error))
+            raise error
 
     def generated_data(self, dac_out, bn, En):
         """
@@ -303,3 +305,4 @@ class OSC:
 
         except Exception as error:
             logger.error("OSC generated_data method, {}".format(error))
+            raise error

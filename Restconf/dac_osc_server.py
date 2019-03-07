@@ -51,12 +51,11 @@ def dac_osc_configuration():
                 example: [SNR, BER]
         400:
             description: Invalid input logical_assoc
-        405:
-            description: Configuration exception
     """
     if request.method == 'POST':
         logic_assoc = request.json
         if len(logic_assoc) != 0:
+            logger.debug("DAC and OSC configuration started")
             wanted_keys = ('dac_out', 'osc_in', 'bn', 'En', 'eq')
             for index in range(len(logic_assoc)):  # for each logic association between DAC and OSC
                 assoc_id = str(logic_assoc[index]['id'])
@@ -65,29 +64,30 @@ def dac_osc_configuration():
                 bn = logic_assoc[index]['bn']
                 En = logic_assoc[index]['En']
                 eq = logic_assoc[index]['eq']
-
+                
                 try:
                     dac_configuration(dac_out, bn, En)
-                    result = osc_configuration(dac_out, osc_in, bn, En, eq)
-                    if result is not None:
-                        logger.debug("SNR = {} and BER = {}".format(result[0], result[1]))
+                    [snr, ber] = osc_configuration(dac_out, osc_in, bn, En, eq)
+                    logger.debug("BER = %s" % ber])  # TODO only return BER
+                    # logger.debug("SNR = {} and BER = {}".format(snr, ber))
 
-                        # Adding new logical association
-                        filtered_assoc = dict(
-                            zip(wanted_keys,
-                                [logic_assoc[index][k] for k in wanted_keys]))  # logic_assoc - logic_assoc['id']
-                        if assoc_id not in logical_associations.keys():
-                            logical_associations[assoc_id] = filtered_assoc
+                    # Adding new logical association
+                    filtered_assoc = dict(
+                        zip(wanted_keys,
+                            [logic_assoc[index][k] for k in wanted_keys]))  # logic_assoc - logic_assoc['id']
+                    if assoc_id not in logical_associations.keys():
+                        logical_associations[assoc_id] = filtered_assoc
 
-                        logger.debug(
-                            "DAC and OSC logical association with id: %s was successfully configured" % assoc_id)
-                        return jsonify(result)
+                    logger.debug(
+                        "DAC and OSC logical association with id: %s was successfully configured" % assoc_id)
 
                 except Exception as e:
-                    error_msg = "DAC and OSC logical association with id: {} wasn't successfully configured. Error: {}".format(
-                        assoc_id, e)
-                    logger.error(error_msg)
-                    return jsonify(error_msg, 405)
+                    logger.error("DAC and OSC logical association with id: {} wasn't successfully configured. Error: {}".format(
+                        assoc_id, e))
+                    raise e
+                
+                finally:
+                    return jsonify("DAC and OSC was successfully configured")
         else:
             return jsonify("The parameters sent are not correct", 400)
 
@@ -120,9 +120,8 @@ def dac_configuration(dac_out, bn, En):
         logger.debug("DAC configuration finished")
 
     except Exception as e:
-        error_msg = "DAC configuration not finished. Error: {}".format(e)
-        logger.error(error_msg)
-        raise error_msg
+        logger.error("DAC configuration not finished. Error: {}".format(e))
+        raise e
 
 
 def osc_configuration(dac_out, osc_in, bn, En, eq):
@@ -152,7 +151,7 @@ def osc_configuration(dac_out, osc_in, bn, En, eq):
 
     except Exception as e:
         logger.error("OSC configuration not finished. Error: {}".format(e))
-        return None
+        raise e
 
 
 @app.route('/api/dac_osc', methods=['GET'])

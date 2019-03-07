@@ -18,7 +18,7 @@ class WSS:
     :var float frequency_start: Start frequency
     :var float frequency_end: End frequency
     :var float step: Frequency step
-    :var int speed_of_light: Speed of light in m/s
+    :var float speed_of_light: Speed of light in m/s
     :var int time_sleep: Time needed to load the WaveShaper profile before returning the bandwidth and port attenuation
     :var str folder: Folder that contains the configuration files
     :var str configfile_1: Configuration file for the WaveShaper 1
@@ -27,7 +27,7 @@ class WSS:
     frequency_start = 191.250
     frequency_end = 196.274
     step = 0.001
-    speed_of_light = 299792458
+    speed_of_light = 299792.458
     time_sleep = 5
     folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
     configfile_1 = "SN042561.wsconfig"
@@ -114,7 +114,7 @@ class WSS:
         :return: 0 if profile was loaded and -1 otherwise
         :rtype: int
         """
-        profiletext = str()
+        profiletext = ""
         freq = self.speed_of_light / self.wavelength
         startfreq = freq - self.bandwidth * 0.5 * 1e-3  # start frequency in THz
         stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # strop frequency in THz
@@ -139,7 +139,7 @@ class WSS:
         :return: 0 if profile was loaded and -1 otherwise
         :rtype: int
         """
-        profiletext = str()
+        profiletext = ""
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
             profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
@@ -155,30 +155,24 @@ class WSS:
 
         :param operation: operation to configure the WaveShaper
         :type operation: list
-        :return: True if profile was loaded and False otherwise
-        :rtype: bool
         """
         wss_id = str(self.id)
-        for op in operation:
-            pos_x = op['port_in'] - 1
-            pos_y = op['port_out'] - 1
-            self.wavelength[pos_x][pos_y] = op['lambda0']
-            self.attenuation[pos_x][pos_y] = op['att']
-            self.phase[pos_x][pos_y] = op['phase']
-            self.bandwidth[pos_x][pos_y] = op['bw']
+        for i in range(self.n):  # for each number of input ports
+            for j in range(self.m):  # for each number of output ports
+                self.wavelength[i][j] = operation[i]['lambda0']
+                self.attenuation[i][j] = operation[i]['att']
+                self.phase[i][j] = operation[i]['phase']
+                self.bandwidth[i][j] = operation[i]['bw']
 
         try:
             rc = self.execute()
             if rc < 0:
                 logger.error("WaveShaper {} profile not loaded, {}".format(wss_id, wsapi.ws_get_result_description(rc)))
-                return False
             else:
                 logger.debug("WaveShaper %s profile loaded" % wss_id)
                 time.sleep(self.time_sleep)
                 self.close()
-                return True
 
         except Exception as error:
-            error_msg = "WaveShaper configuration method, {}".format(error)
-            logger.error(error_msg)
-            raise error_msg
+            logger.error("WaveShaper configuration method, {}".format(error))
+            raise error

@@ -6,7 +6,7 @@
 ```
 $ git clone https://github.com/robshakir/pyangbind.git
 $ cd pyangbind/
-$ python setup.py install
+$ python3 setup.py install
 ```
 
 ### Generating a Set of Classes <a name="generating-classes"></a>
@@ -14,7 +14,7 @@ $ python setup.py install
 To generate a set of Python classes, Pyang needs to be provided a pointer to where PyangBind's plugin is installed. This location can be found by running:
 
 ```
-$ export PYBINDPLUGIN=`/usr/bin/env python -c \
+$ export PYBINDPLUGIN=`/usr/bin/env python3 -c \
 'import pyangbind; import os; print ("{}/plugin".format(os.path.dirname(pyangbind.__file__)))'`
 ```
 
@@ -99,11 +99,22 @@ This outputs the following XML structured text:
 **Netconf** installation:
 
 ```
-$ pip install netconf
+$ pip3 install netconf
+```
+
+Running **Netconf** server:
+
+```
+$ python3 server.py -file dataset/test.xml
 ```
 
 ### Using in a NETCONF client <a name="using-netconf-client"></a>
 
+Running **Netconf** client:
+
+```
+$ python3 client.py 
+```
 
 #### Example Code <a name="example-code"></a>
 This worked example can be found in the `Netconf` directory.

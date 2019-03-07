@@ -138,6 +138,7 @@ class DAC:
             TS = np.random.randint(0, 2, self.NTS * self.bps * self.Ncarriers)
             BitStream = np.r_[TS, data]
             BitStream = BitStream.reshape((self.Nframes, np.sum(bn)))
+            logger.debug("BitStream: %s, Nframes: %s, Sum: %s" % (BitStream, self.Nframes, np.sum(bn))) # TODO xivato
             cdatar = np.array(np.zeros((self.Nframes, self.Ncarriers)), complex)
 
             logger.debug("Mapping data")
@@ -186,6 +187,7 @@ class DAC:
 
         except Exception as error:
             logger.error("DAC transmitter method, {}".format(error))
+            raise error
 
     @staticmethod
     def enable_channel(dac_out, temp_file):
@@ -222,7 +224,7 @@ class DAC:
 
         except Exception as error:
             logger.error("DAC enable_channel method, {}".format(error))
-            return None
+            raise error
 
     @staticmethod
     def execute_matlab(leia_file):
@@ -246,3 +248,4 @@ class DAC:
                                                                                         str(err)))
         except OSError as error:
             logger.error("Failed to execute MATLAB, error = %s" % error)
+            raise error

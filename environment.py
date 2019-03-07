@@ -69,3 +69,10 @@ for item in params_dac_osc:
     logical_associations[id] = filtered_assoc
 
 print(logical_associations)
+
+l = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.92, 'att': 0.0, 'phase': 0.0, 'bw': 25},
+    {'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
+
+for i in range(2):
+    for j in range(1):
+        print(i, j, l[i], l[i]['lambda0'])

@@ -262,6 +262,5 @@ class Amplifier:
             return params
 
         except Exception as error:
-            error_msg = "Amplifier configuration method, {}".format(error)
-            logger.error(error_msg)
-            raise error_msg
+            logger.error("Amplifier configuration method, {}".format(error))
+            raise error

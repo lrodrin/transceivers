@@ -45,33 +45,32 @@ def wss_configuration():
             description: Successful configuration
         400:
             description: Invalid input params
-        405:
-            description: Configuration exception
     """
     if request.method == 'POST':
         params = request.json
-        if params is not None:
-            wss_id = str(params['wss_id'])
-            ops = params['operation']
+        wss_id = str(params['wss_id'])
+        ops = params['operation']
+        if len(ops) != 0:
+            logger.debug("WaveShaper %s configuration started" % wss_id)
             try:
-                logger.debug("WaveShaper %s configuration started" % wss_id)
                 n, m = calculateNxM(ops)
                 wss = WSS(params['wss_id'], n, m)
-                if wss.configuration(ops):
-                    # Adding new operation
-                    if wss_id not in operations.keys():
-                        operations[wss_id] = ops
-                    else:
-                        operations[wss_id] += ops
+                wss.configuration(ops)
+                
+                # Adding new operation
+                if wss_id not in operations.keys():
+                    operations[wss_id] = ops
+                else:
+                    operations[wss_id] += ops
 
-                    msg = "WaveShaper %s was successfully configured" % wss_id
-                    logger.debug(msg)
-                    return jsonify(msg, 200)
+                msg = "WaveShaper %s was successfully configured" % wss_id
+                logger.debug(msg)
+                return jsonify(msg, 200)
 
             except Exception as e:
-                error_msg = "WaveShaper {} wasn't successfully configured. Error: {}".format(wss_id, e)
-                logger.error(error_msg)
-                return jsonify(error_msg, 405)
+                logger.error("WaveShaper {} wasn't successfully configured. Error: {}".format(wss_id, e))
+                raise e
+
         else:
             return jsonify("The parameters sent are not correct", 400)
 

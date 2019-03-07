@@ -279,6 +279,5 @@ class Laser:
             return params
 
         except Exception as error:
-            error_msg = "Laser configuration method, {}".format(error)
-            logger.error(error_msg)
-            raise error_msg
+            logger.error("Laser configuration method, {}".format(error))
+            raise error
