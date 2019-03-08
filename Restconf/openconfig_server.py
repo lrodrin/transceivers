@@ -42,8 +42,6 @@ def local_channel_assignment():
             description: Successful assignation
         400:
             description: Invalid input params
-        405:
-            description: Assignation exception
     """
     if request.method == 'POST':
         params = request.json
@@ -56,16 +54,16 @@ def local_channel_assignment():
                 return jsonify(msg, 200)
 
             except Exception as e:
-                error_msg = "Local channel assignation between client {} and optical channel {} failed. Error: {}".format(
-                    c, och, e)
-                logger.error(error_msg)
-                return jsonify(error_msg, 405)
+                logger.error(
+                    "Local channel assignation between client {} and optical channel {} failed. Error: {}".format(
+                        c, och, e))
+                raise e
         else:
             return jsonify("The parameters sent are not correct", 400)
 
 
-@app.route('/api/vi/openconfig/optical_channel', methods=['POST'])
-def optical_channel_configuration():
+@app.route('/api/vi/openconfig/optical_channel<agent_id>', methods=['POST'])
+def optical_channel_configuration(agent_id):
     """
     Optical Channel Configuration
     ---
@@ -76,6 +74,11 @@ def optical_channel_configuration():
     produces:
     - application/json
     parameters:
+    - name: agent_id
+      in: path
+      type: integer
+      description: id of the bvt-agent
+      required: true
     - name: params
       in: body
       description: the client and the optical channel to be assigned
@@ -86,8 +89,6 @@ def optical_channel_configuration():
             description: Successful configuration
         400:
             description: Invalid input params
-        405:
-            description: Configuration exception
     """
     if request.method == 'POST':
         params = request.json
@@ -102,9 +103,8 @@ def optical_channel_configuration():
                 return jsonify(msg, 200)
 
             except Exception as e:
-                error_msg = "Optical channel {} configuration failed. Error: {}".format(och, e)
-                logger.error(error_msg)
-                return jsonify(error_msg, 405)
+                logger.error("Optical channel {} configuration failed. Error: {}".format(och, e))
+                raise e
         else:
             return jsonify("The parameters sent are not correct", 400)
 
@@ -113,7 +113,8 @@ def define_logger():
     """
     Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
     """
-    fileHandler = RotatingFileHandler('metro-haul/openconfig_server.log', maxBytes=10000000, backupCount=5)  # File Handler
+    fileHandler = RotatingFileHandler('openconfig_server.log', maxBytes=10000000,
+                                      backupCount=5)  # File Handler
     streamHandler = logging.StreamHandler()  # Stream Handler
     # Create a Formatter for formatting the logs messages
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")

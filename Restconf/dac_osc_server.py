@@ -67,9 +67,8 @@ def dac_osc_configuration():
 
                 try:
                     dac_configuration(dac_out, bn, En)
-                    [snr, ber] = osc_configuration(dac_out, osc_in, bn, En, eq)
-                    logger.debug("BER = %s" % ber)  # TODO only return BER
-                    # logger.debug("SNR = {} and BER = {}".format(snr, ber))
+                    [SNR, BER] = osc_configuration(dac_out, osc_in, bn, En, eq)
+                    logger.debug("SNR = {} and BER = {}".format(SNR, BER))
 
                     # Adding new logical association
                     filtered_assoc = dict(
@@ -146,9 +145,9 @@ def osc_configuration(dac_out, osc_in, bn, En, eq):
     try:
         logger.debug("Processing data from OSC input port: %s" % osc_in)
         rx = OSC()
-        result = rx.receiver(dac_out, osc_in, bn, En, eq)
+        [SNR, BER] = rx.receiver(dac_out, osc_in, bn, En, eq)
         logger.debug("OSC configuration finished")
-        return result
+        return [SNR, BER]
 
     except Exception as e:
         logger.error("OSC configuration not finished. Error: {}".format(e))

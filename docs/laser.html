@@ -42,7 +42,18 @@
 <font color="#000000" face="helvetica, arial"><a name="Laser">class <strong>Laser</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Laser">Laser</a>&nbsp;module.<br>&nbsp;</tt></td></tr>
+<td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;<a href="#Laser">Laser</a>&nbsp;module.<br>
+&nbsp;<br>
+:var&nbsp;int&nbsp;connection_port:<br>
+:var&nbsp;int&nbsp;connection_timeout:<br>
+:var&nbsp;str&nbsp;mode:<br>
+:var&nbsp;str&nbsp;read_after_write:<br>
+:var&nbsp;str&nbsp;read_timeout:<br>
+:var&nbsp;str&nbsp;eoi_1:<br>
+:var&nbsp;str&nbsp;eos_3:<br>
+:var&nbsp;int&nbsp;buffer_size:<br>
+:var&nbsp;str&nbsp;read_eoi:<br>
+:var&nbsp;int&nbsp;time_sleep_enable:&nbsp;Time&nbsp;needed&nbsp;to&nbsp;enable/disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;before&nbsp;check&nbsp;the&nbsp;status<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="Laser-__init__"><strong>__init__</strong></a>(self, ip, addr)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;class.<br>
@@ -112,11 +123,10 @@ parameters:<br>
 
 <hr>
 Static methods defined here:<br>
-<dl><dt><a name="Laser-configuration"><strong>configuration</strong></a>(ip, addr, channel, lambda0, power, status)</dt><dd><tt><a href="#Laser">Laser</a>&nbsp;configuration:<br>
+<dl><dt><a name="Laser-configuration"><strong>configuration</strong></a>(ip, addr, channel, lambda0, power)</dt><dd><tt><a href="#Laser">Laser</a>&nbsp;configuration:<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;wavelength&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;the&nbsp;power&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Enable&nbsp;or&nbsp;disable&nbsp;the&nbsp;<a href="#Laser">Laser</a>.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Check&nbsp;status,&nbsp;mode&nbsp;and&nbsp;power&nbsp;of&nbsp;the&nbsp;<a href="#Laser">Laser</a>&nbsp;and&nbsp;shows&nbsp;the&nbsp;values.<br>
 &nbsp;<br>
 :param&nbsp;ip:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET<br>
@@ -129,8 +139,8 @@ Static methods defined here:<br>
 :type&nbsp;lambda0:&nbsp;float<br>
 :param&nbsp;power:&nbsp;power<br>
 :type&nbsp;power:&nbsp;float<br>
-:param&nbsp;status:&nbsp;if&nbsp;True&nbsp;is&nbsp;enable&nbsp;otherwise&nbsp;is&nbsp;disable<br>
-:type&nbsp;status:&nbsp;bool</tt></dd></dl>
+:return:&nbsp;status,&nbsp;wavelength&nbsp;and&nbsp;power<br>
+:rtype:&nbsp;list</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>

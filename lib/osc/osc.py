@@ -207,7 +207,7 @@ class OSC:
                     Runs = Runs + 1
 
             BER = BERT / Runs
-            return [SNR, BER]
+            return [SNR.tolist(), BER]
 
         except Exception as error:
             logger.error("OSC receiver method, {}".format(error))

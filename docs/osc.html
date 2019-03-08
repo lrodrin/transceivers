@@ -45,35 +45,49 @@
 <font color="#000000" face="helvetica, arial"><a name="OSC">class <strong>OSC</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;Oscilloscope&nbsp;module.<br>&nbsp;</tt></td></tr>
+<td colspan=2><tt>This&nbsp;is&nbsp;a&nbsp;class&nbsp;for&nbsp;Oscilloscope&nbsp;module.<br>
+&nbsp;<br>
+:ivar&nbsp;int&nbsp;Ncarriers:&nbsp;Number&nbsp;of&nbsp;carriers<br>
+:ivar&nbsp;str&nbsp;Constellation:&nbsp;Modulation&nbsp;format<br>
+:ivar&nbsp;float&nbsp;CP:&nbsp;Cyclic&nbsp;prefix<br>
+:ivar&nbsp;int&nbsp;NTS:&nbsp;Number&nbsp;of&nbsp;training&nbsp;symbols<br>
+:ivar&nbsp;int&nbsp;Nsymbols:&nbsp;Number&nbsp;of&nbsp;generated&nbsp;symbols<br>
+:ivar&nbsp;int&nbsp;NsymbolsTS:&nbsp;Number&nbsp;of&nbsp;generated&nbsp;symbols&nbsp;without&nbsp;TS<br>
+:ivar&nbsp;int&nbsp;Nframes:&nbsp;Number&nbsp;of&nbsp;OFDM&nbsp;frames<br>
+:ivar&nbsp;float&nbsp;sps:&nbsp;Samples&nbsp;per&nbsp;symbol&nbsp;for&nbsp;the&nbsp;DAC<br>
+:ivar&nbsp;int&nbsp;fs:&nbsp;DAC&nbsp;frequency&nbsp;sampling<br>
+:ivar&nbsp;int&nbsp;Niters:&nbsp;Number&nbsp;of&nbsp;iterations&nbsp;for&nbsp;BER&nbsp;calculation<br>
+:ivar&nbsp;int&nbsp;f_DCO:&nbsp;Sampling&nbsp;frequency&nbsp;of&nbsp;the&nbsp;DPO<br>
+:ivar&nbsp;int&nbsp;nsamplesrx:&nbsp;Number&nbsp;of&nbsp;received&nbsp;samples.&nbsp;Must&nbsp;be&nbsp;multiple&nbsp;of&nbsp;4<br>
+:ivar&nbsp;int&nbsp;k_clip:&nbsp;factor&nbsp;for&nbsp;clipping&nbsp;the&nbsp;OFDM&nbsp;signal.&nbsp;3.16&nbsp;optimum&nbsp;for&nbsp;256&nbsp;QAM.&nbsp;2.66&nbsp;optimum&nbsp;for&nbsp;32&nbsp;QAM.<br>
+2.8&nbsp;optimum&nbsp;for&nbsp;64&nbsp;QAM.<br>
+:ivar&nbsp;int&nbsp;Qt:&nbsp;Quantization&nbsp;steps<br>
+:ivar&nbsp;int&nbsp;bps:&nbsp;Number&nbsp;of&nbsp;bits&nbsp;per&nbsp;symbol<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="OSC-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;Oscilloscope&nbsp;class.<br>
-Define&nbsp;and&nbsp;initialize&nbsp;the&nbsp;Oscilloscope&nbsp;default&nbsp;parameters:<br>
+Define&nbsp;and&nbsp;initialize&nbsp;the&nbsp;Oscilloscope&nbsp;default&nbsp;parameters&nbsp;for&nbsp;the&nbsp;OFDM&nbsp;signal&nbsp;definition:<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Ncarriers&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;carriers.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Constellation&nbsp;(str):&nbsp;Set&nbsp;modulation&nbsp;format.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;CP&nbsp;(float):&nbsp;Set&nbsp;cyclic&nbsp;prefix.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;NTS&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;training&nbsp;symbols.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Nsymbols&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;generated&nbsp;symbols.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;NsymbolsTS&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;generated&nbsp;symbols&nbsp;without&nbsp;TS.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Nframes&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;OFDM&nbsp;frames.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;sps&nbsp;(float):&nbsp;Set&nbsp;samples&nbsp;per&nbsp;symbol&nbsp;for&nbsp;the&nbsp;DAC.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;fs&nbsp;(int):&nbsp;Set&nbsp;DAC&nbsp;frequency&nbsp;sampling.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Niters&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;iterations&nbsp;for&nbsp;BER&nbsp;calculation.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;f_DCO&nbsp;(int):&nbsp;Sampling&nbsp;frequency&nbsp;of&nbsp;the&nbsp;DPO.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;nsamplesrx&nbsp;(int):&nbsp;Number&nbsp;of&nbsp;received&nbsp;samples.&nbsp;Must&nbsp;be&nbsp;multiple&nbsp;of&nbsp;4.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;k_clip&nbsp;(float):&nbsp;Set&nbsp;factor&nbsp;for&nbsp;clipping&nbsp;the&nbsp;OFDM&nbsp;signal.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;3.16&nbsp;optimum&nbsp;for&nbsp;256&nbsp;QAM.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;2.66&nbsp;optimum&nbsp;for&nbsp;32&nbsp;QAM.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;2.8&nbsp;optimum&nbsp;for&nbsp;64&nbsp;QAM.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Qt&nbsp;(int):&nbsp;Set&nbsp;quantization&nbsp;steps.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;bps&nbsp;(int):&nbsp;Set&nbsp;number&nbsp;of&nbsp;bits&nbsp;per&nbsp;symbol.</tt></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;carriers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;modulation&nbsp;format.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;cyclic&nbsp;prefix.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;training&nbsp;symbols.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;generated&nbsp;symbols.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;generated&nbsp;symbols&nbsp;without&nbsp;TS.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;OFDM&nbsp;frames.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;samples&nbsp;per&nbsp;symbol&nbsp;for&nbsp;the&nbsp;DAC.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;DAC&nbsp;frequency&nbsp;sampling.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;iterations&nbsp;for&nbsp;BER&nbsp;calculation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;sampling&nbsp;frequency&nbsp;of&nbsp;the&nbsp;DPO.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;received&nbsp;samples.&nbsp;Must&nbsp;be&nbsp;multiple&nbsp;of&nbsp;4.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;factor&nbsp;for&nbsp;clipping&nbsp;the&nbsp;OFDM&nbsp;signal.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;quantization&nbsp;steps.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;number&nbsp;of&nbsp;bits&nbsp;per&nbsp;symbol.</tt></dd></dl>
 
-<dl><dt><a name="OSC-generated_data"><strong>generated_data</strong></a>(self, rx_ID, bn, En)</dt><dd><tt>Generate&nbsp;data&nbsp;with&nbsp;different&nbsp;seed&nbsp;for&nbsp;different&nbsp;users/clients.<br>
+<dl><dt><a name="OSC-generated_data"><strong>generated_data</strong></a>(self, dac_out, bn, En)</dt><dd><tt>Generate&nbsp;data&nbsp;with&nbsp;different&nbsp;seed&nbsp;for&nbsp;different&nbsp;users/clients.<br>
 &nbsp;<br>
-:param&nbsp;rx_ID:&nbsp;identify&nbsp;the&nbsp;channel&nbsp;of&nbsp;the&nbsp;<a href="#OSC">OSC</a>&nbsp;to&nbsp;be&nbsp;used&nbsp;and&nbsp;the&nbsp;local&nbsp;files&nbsp;to&nbsp;use&nbsp;for&nbsp;storing&nbsp;data.<br>
-:type&nbsp;rx_ID:&nbsp;int&nbsp;(0&nbsp;or&nbsp;1)<br>
+:param&nbsp;dac_out:&nbsp;output&nbsp;port&nbsp;of&nbsp;DAC<br>
+:type&nbsp;dac_out:&nbsp;int<br>
 :param&nbsp;bn:&nbsp;array&nbsp;of&nbsp;Ncarriers&nbsp;positions&nbsp;that&nbsp;contains&nbsp;the&nbsp;bits&nbsp;per&nbsp;symbol&nbsp;per&nbsp;subcarrier<br>
 :type&nbsp;bn:&nbsp;int&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
 :param&nbsp;En:&nbsp;array&nbsp;of&nbsp;Ncarriers&nbsp;positions&nbsp;that&nbsp;contains&nbsp;the&nbsp;power&nbsp;per&nbsp;subcarrier&nbsp;figure<br>
@@ -81,13 +95,12 @@ Define&nbsp;and&nbsp;initialize&nbsp;the&nbsp;Oscilloscope&nbsp;default&nbsp;par
 :return:&nbsp;Mapped&nbsp;data,&nbsp;transmitted&nbsp;bitstream&nbsp;and&nbsp;OFDM&nbsp;signal<br>
 :rtype:&nbsp;list</tt></dd></dl>
 
-<dl><dt><a name="OSC-receiver"><strong>receiver</strong></a>(self, trx_mode, rx_ID, bn, En, eq)</dt><dd><tt>Adquires&nbsp;the&nbsp;OFDM&nbsp;signal&nbsp;received&nbsp;at&nbsp;the&nbsp;DPO&nbsp;and&nbsp;recovers&nbsp;by&nbsp;offline&nbsp;DSP&nbsp;the&nbsp;transmitted&nbsp;BitStream.<br>
+<dl><dt><a name="OSC-receiver"><strong>receiver</strong></a>(self, dac_out, osc_in, bn, En, eq)</dt><dd><tt>Adquires&nbsp;the&nbsp;OFDM&nbsp;signal&nbsp;received&nbsp;at&nbsp;the&nbsp;DPO&nbsp;and&nbsp;recovers&nbsp;by&nbsp;offline&nbsp;DSP&nbsp;the&nbsp;transmitted&nbsp;BitStream.<br>
 &nbsp;<br>
-:param&nbsp;trx_mode:&nbsp;identify&nbsp;the&nbsp;mode&nbsp;of&nbsp;the&nbsp;transceiver.&nbsp;0&nbsp;for&nbsp;estimation&nbsp;mode&nbsp;(uniform&nbsp;loading)&nbsp;and&nbsp;1&nbsp;for<br>
-transmission&nbsp;mode&nbsp;(loading)<br>
-:type&nbsp;trx_mode:&nbsp;int<br>
-:param&nbsp;rx_ID:&nbsp;identify&nbsp;the&nbsp;channel&nbsp;of&nbsp;the&nbsp;<a href="#OSC">OSC</a>&nbsp;to&nbsp;be&nbsp;used&nbsp;and&nbsp;the&nbsp;local&nbsp;files&nbsp;to&nbsp;use&nbsp;for&nbsp;storing&nbsp;data<br>
-:type&nbsp;rx_ID:&nbsp;int&nbsp;(0&nbsp;or&nbsp;1)<br>
+:param&nbsp;dac_out:&nbsp;output&nbsp;port&nbsp;of&nbsp;DAC<br>
+:type&nbsp;dac_out:&nbsp;int<br>
+:param&nbsp;osc_in:&nbsp;input&nbsp;port<br>
+:type&nbsp;osc_in:&nbsp;int<br>
 :param&nbsp;bn:&nbsp;array&nbsp;of&nbsp;Ncarriers&nbsp;positions&nbsp;that&nbsp;contains&nbsp;the&nbsp;bits&nbsp;per&nbsp;symbol&nbsp;per&nbsp;subcarrier<br>
 :type&nbsp;bn:&nbsp;int&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
 :param&nbsp;En:&nbsp;array&nbsp;of&nbsp;Ncarriers&nbsp;positions&nbsp;that&nbsp;contains&nbsp;the&nbsp;power&nbsp;per&nbsp;subcarrier&nbsp;figure<br>
@@ -103,11 +116,11 @@ Static methods defined here:<br>
 &nbsp;<br>
 :param&nbsp;channel_ID:&nbsp;DPO&nbsp;channel&nbsp;used&nbsp;to&nbsp;adquire&nbsp;data<br>
 :type&nbsp;channel_ID:&nbsp;int<br>
-:param&nbsp;npoints:&nbsp;Number&nbsp;of&nbsp;points&nbsp;to&nbsp;adquire<br>
+:param&nbsp;npoints:&nbsp;number&nbsp;of&nbsp;points&nbsp;to&nbsp;adquire<br>
 :type&nbsp;npoints:&nbsp;int&nbsp;<br>
 :param&nbsp;fs:&nbsp;sampling&nbsp;frequency&nbsp;of&nbsp;the&nbsp;DPO<br>
 :type:&nbsp;int<br>
-:return:&nbsp;Adquired&nbsp;signal<br>
+:return:&nbsp;adquired&nbsp;signal<br>
 :rtype:&nbsp;float&nbsp;array</tt></dd></dl>
 
 <hr>

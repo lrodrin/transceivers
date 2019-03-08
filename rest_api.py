@@ -5,7 +5,7 @@ import logging
 
 import requests
 
-logger = logging.getLogger("API")
+logger = logging.getLogger("REST_API")
 logger.addHandler(logging.NullHandler())
 
 headers = {"Content-Type": "application/json"}

@@ -27,7 +27,7 @@ class WSS:
     frequency_start = 191.250
     frequency_end = 196.274
     step = 0.001
-    speed_of_light = 299792.458
+    speed_of_light = 299792458
     time_sleep = 5
     folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
     configfile_1 = "SN042561.wsconfig"

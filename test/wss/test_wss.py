@@ -28,29 +28,23 @@ def calculateNxM(operation):
 
 
 if __name__ == '__main__':
-    params_wss1 = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
+    params_wss1 = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]
 
-    params_wss2 = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.92, 'att': 0.0, 'phase': 0.0, 'bw': 25},
-    {'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
-    # params_wss2 = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25},
-    #           {'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25},
-    #           {'port_in': 3, 'port_out': 1, 'lambda0': 1549.3, 'att': 0.0, 'phase': 0.0, 'bw': 25},
-    #           {'port_in': 4, 'port_out': 1, 'lambda0': 1548.5, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
+    params_wss2 = [{'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 65.0}]
+    # params_wss2 = [{'port_in': 3, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]
 
     # WSS1
     wss_id = 1
     logging.debug("WaveShaper %s configuration started" % wss_id)
     n, m = calculateNxM(params_wss1)
-    print(n, m)
-    # wss = WSS(wss_id, n, m)
-    # wss.configuration(params_wss1)
-    # logging.debug("WaveShaper %s configuration finished" % wss_id)
+    wss = WSS(wss_id, n, m)
+    wss.configuration(params_wss1)
+    logging.debug("WaveShaper %s configuration finished" % wss_id)
 
     # WSS2
     wss_id = 2
     logging.debug("WaveShaper %s configuration started" % wss_id)
     n, m = calculateNxM(params_wss2)
-    print(n, m)
-    #wss = WSS(wss_id, n, m)
-    #wss.configuration(params_wss2)
-    #logging.debug("WaveShaper %s configuration finished" % wss_id)
+    wss = WSS(wss_id, n, m)
+    wss.configuration(params_wss2)
+    logging.debug("WaveShaper %s configuration finished" % wss_id)
