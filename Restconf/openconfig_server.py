@@ -1,3 +1,4 @@
+import argparse
 import logging
 from logging.handlers import RotatingFileHandler
 from os import sys, path
@@ -16,6 +17,26 @@ Swagger(app)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
+
+
+def startup(*margs):
+    """
+    Define BVT-Agent.
+
+    :param margs: id of bvt-agent
+    :type margs: int
+    :return: AgentCore specified for bvt-agent defined
+    :rtype: AgentCore
+    """
+    parser = argparse.ArgumentParser("OPENCONFIG Server Startup")
+    parser.add_argument('-id', type=int, help='BVT-agent id')
+
+    args = parser.parse_args(*margs)
+    agent = AgentCore(args.id)
+    return agent
+
+
+ac = startup()
 
 
 @app.route('/api/vi/openconfig/local_channel_assignment', methods=['POST'])
@@ -49,7 +70,7 @@ def local_channel_assignment():
             c = params['client']
             och = params['och']
             try:
-                msg = AgentCore.local_channel_assignment(c, och)
+                msg = ac.local_channel_assignment(c, och)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 
@@ -62,8 +83,8 @@ def local_channel_assignment():
             return jsonify("The parameters sent are not correct", 400)
 
 
-@app.route('/api/vi/openconfig/optical_channel<agent_id>', methods=['POST'])
-def optical_channel_configuration(agent_id):
+@app.route('/api/vi/openconfig/optical_channel', methods=['POST'])
+def optical_channel_configuration():
     """
     Optical Channel Configuration
     ---
@@ -74,11 +95,6 @@ def optical_channel_configuration(agent_id):
     produces:
     - application/json
     parameters:
-    - name: agent_id
-      in: path
-      type: integer
-      description: id of the bvt-agent
-      required: true
     - name: params
       in: body
       description: the client and the optical channel to be assigned
@@ -98,7 +114,7 @@ def optical_channel_configuration(agent_id):
             power = params['power']
             mode = params['mode']
             try:
-                msg = AgentCore.optical_channel_configuration(och, freq, power, mode)
+                msg = ac.optical_channel_configuration(och, freq, power, mode)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 

@@ -1,7 +1,6 @@
 """This is the Agent Core module.
 """
 import logging
-
 from os import sys, path
 
 import numpy as np
@@ -37,10 +36,15 @@ class AgentCore:
     ip_rest_server = '10.1.1.10'
     speed_of_light = 299792458
 
-    def __init__(self):
+    def __init__(self, id):
         """
         The constructor for the Agent Core class.
+
+        :param id: identify the bvt-agent. 1 for bvt-agent 1 and 2 for bvt-agent 2.
+        :type id: int
         """
+        self.id = id
+
         # Laser parameters
         self.ip_laser = AgentCore.ip_laser
         self.addr_laser = AgentCore.addr_laser
@@ -49,20 +53,18 @@ class AgentCore:
         self.addr_amplifier = AgentCore.addr_amplifier
         self.mode_amplifier = AgentCore.mode_amplifier
         self.power_amplifier = AgentCore.power_amplifier
-        #
+
         # REST API
         self.ip_rest_server = AgentCore.ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def bvtConfiguration(self, id, NCF, bps, pps, equalization):  # CALLED FROM netconf_server.py
+    def bvtConfiguration(self, NCF, bps, pps, equalization):  # CALLED FROM netconf_server.py
         """
         BVT-Agent Configuration.
 
             - Laser configuration.
             - DAC and OSC configuration.
 
-        :param id: identify the bvt-agent. 1 for bvt-agent 1 and 2 for bvt-agent 2.
-        :type id: int
         :param NCF: nominal central frequency
         :param NCF: int
         :param bps: bits per symbol
@@ -78,7 +80,7 @@ class AgentCore:
             {'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bps, 'En': pps, 'eq': equalization},
             {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bps, 'En': pps, 'eq': equalization}]
 
-        if id == 1:
+        if self.id == 1:
             # Laser1 startup
             channel_laser = 2
             laser_conf = Laser.configuration(self.ip_laser, self.addr_laser, channel_laser, lambda0, power_laser)
@@ -88,7 +90,7 @@ class AgentCore:
             osc_conf = self.api.DACOSCConfiguration(logical_associations[0])
             print(osc_conf)
 
-        elif id == 2:
+        elif self.id == 2:
             # Laser2 startup
             channel_laser = 3
             laser_conf = Laser.configuration(self.ip_laser, self.addr_laser, channel_laser, lambda0, power_laser)
@@ -98,7 +100,7 @@ class AgentCore:
             osc_conf = self.api.DACOSCConfiguration(logical_associations[1])
             print(osc_conf)
 
-    def optical_channel_configuration(self, id, och, freq, power, mode):  # CALLED FROM openconfig_server.py
+    def optical_channel_configuration(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py
         """
         Configuration of an Optical Channel by setting frequency, power and mode.
 
@@ -107,8 +109,6 @@ class AgentCore:
             - Run Laser configuration.
             - Run DAC/OSC configuration.
 
-        :param id: identify the bvt-agent. 1 for bvt-agent 1 and 2 for bvt-agent 2.
-        :type id: int
         :param och: id to identify the optical channel
         :type och: str
         :param freq: frequency of the optical channel expressed in MHz. 193.3e6 (1550.99 nm) for channel 1 or 193.4e6
@@ -130,7 +130,7 @@ class AgentCore:
             {'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
             {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
 
-        if id == 1:
+        if self.id == 1:
             # WSS1 startup
             params_wss = {'wss_id': 1, 'operation': [
                 {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
@@ -157,7 +157,7 @@ class AgentCore:
             osc_conf = self.api.DACOSCConfiguration(logical_associations[0])
             print(osc_conf)
 
-        elif id == 2:
+        elif self.id == 2:
             # WSS2 startup
             params_wss = {'wss_id': 2, 'operation': [
                 {'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 65.0}]}
