@@ -2,19 +2,20 @@
 """
 import argparse
 import logging
-import sys
 import time
 
+from os import sys, path
 from lxml import etree
 from netconf import server, util, nsmap_add, NSMAP
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
 
-# from callback import *
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from agent_core import AgentCore
 from Netconf.bindings.bindingCapability import blueSPACE_DRoF_TP_capability
 from Netconf.bindings.bindingConfiguration import blueSPACE_DRoF_configuration
 
-logger = logging.getLogger('werkzeug')
-logger.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 nsmap_add("blueSPACE-DRoF-configuration", "urn:blueSPACE-DRoF-configuration")
 nsmap_add("blueSPACE-DRoF-TP-capability", "urn:blueSPACE-DRoF-TP-capability")
@@ -29,7 +30,7 @@ class NETCONFServer(object):
     :ivar list capabilities: Lis of capabilities of NETCONF Server
     """
 
-    def __init__(self, username, password, port):
+    def __init__(self, username, password, port, agent_id):
         """
         The constructor for the NETCONF Server class.
         Creates the NETCONF server.
@@ -40,28 +41,31 @@ class NETCONFServer(object):
         :type password: str
         :param port: port number to bind the NETCONF server
         :type port: int
+        :param port: number of BVT Agent
+        :type port: int
         """
+        self.ac = AgentCore(agent_id)
         self.configuration = None
         self.capability = None
         self.capabilities = ["blueSPACE-DRoF-configuration", "blueSPACE-DRoF-TP-capability"]
         try:
             auth = server.SSHUserPassController(username=username, password=password)
             self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
-            logger.debug("Connection to NETCONF Server on port {} created".format(port))
+            logging.debug("Connection to NETCONF Server on port {} created".format(port))
 
         except Exception as e:
-            logger.error("Connection to NETCONF Server refused, {}".format(e))
+            logging.error("Connection to NETCONF Server refused, {}".format(e))
 
     def close(self):
         """
         Close the NETCONF Server.
         """
         try:
-            logger.debug("Connection to NETCONF Server closed")
+            logging.debug("Connection to NETCONF Server closed")
             self.server.close()
 
         except Exception as e:
-            logger.error("Connection to NETCONF Server not closed, {}".format(e))
+            logging.error("Connection to NETCONF Server not closed, {}".format(e))
 
     def load_file(self, filename, binding, module):
         """
@@ -74,7 +78,7 @@ class NETCONFServer(object):
         :param module: YANG module
         :type module: str
         """
-        logger.debug("Startup configuration")
+        logging.debug("Startup configuration")
         try:
             xml_root = open(filename, 'r').read()
             conf = pybindIETFXMLDecoder.decode(xml_root, binding, module)
@@ -82,12 +86,12 @@ class NETCONFServer(object):
             tree = etree.XML(xml)
             data = util.elm("nc:data")
             data.append(tree)
-            logger.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
+            logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
             self.configuration = data  # save configuration
-            logger.debug("Configuration {} loaded".format(filename))
+            logging.debug("Configuration {} loaded".format(filename))
 
         except Exception as e:
-            logger.error("Configuration {} not loaded, {}".format(filename, e))
+            logging.error("Configuration {} not loaded, {}".format(filename, e))
 
     def nc_append_capabilities(self):  # pylint: disable=W0613
         """
@@ -100,7 +104,7 @@ class NETCONFServer(object):
                 util.subelm(self.capabilities, "capability").text = NSMAP[c]
 
         except Exception as e:
-            logger.error("Capabilities not added".format(e))
+            logging.error("Capabilities not added".format(e))
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
         """
@@ -126,11 +130,10 @@ class NETCONFServer(object):
             return util.filter_results(rpc, self.configuration, filter_or_none)
 
         except Exception as e:
-            logger.error("Get Config, error: {}".format(e))
+            logging.error("Get Config, error: {}".format(e))
             return None
 
-    def rpc_edit_config(self, session, rpc, target, method, new_config):  # pylint:
-        # disable=W0613
+    def rpc_edit_config(self, session, rpc, target, method, new_config):  # pylint disable=W0613
         """
         NETCONF edit-config operation.
         Loads all or part of the specified new_config to the NETCONF Server datastore.
@@ -151,6 +154,7 @@ class NETCONFServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(method))
         # print(etree.tostring(new_config))
+        print(self.ac.id)
         path = str()
         namespace = str()
         config = None
@@ -192,7 +196,7 @@ class NETCONFServer(object):
             return util.filter_results(rpc, config, None)
 
         except Exception as e:
-            logger.error("Edit Config, error: {}".format(e))
+            logging.error("Edit Config, error: {}".format(e))
             return None
 
 
@@ -238,29 +242,27 @@ def merge(one, other):
 
 
 def main(*margs):
-    parser = argparse.ArgumentParser("Example Netconf Server")
-    parser.add_argument("-username", default="root", help='netconf servers username')
-    parser.add_argument("-password", default="netlabN.", help='netconf servers password')
-    parser.add_argument('-port', type=int, default=830, help='netconf servers port')
-    parser.add_argument('-file', metavar="FILENAME", help='netconf servers configuration file to process')
-    parser.add_argument('-model', metavar="YANG MODEL", type=str, default="configuration",
-                        help='netconf servers model yang to process')
+    parser = argparse.ArgumentParser("NETCONF Server")
+    parser.add_argument("-username", default="root", help='NETCONF Server username')
+    parser.add_argument("-password", default="netlabN.", help='NETCONF Server password')
+    parser.add_argument('-port', type=int, default=830, help='NETCONF Server port')
+    parser.add_argument('-file', metavar="FILENAME", help='NETCONF Server configuration file to process')
+    parser.add_argument('-id', type=int, help='BVT-agent id')
 
     args = parser.parse_args(*margs)
     s = NETCONFServer(args.username, args.password, args.port)
-    s.load_file(args.file, blueSPACE_DRoF_configuration, args.model)
-    s.load_file(args.file, blueSPACE_DRoF_TP_capability, args.model)
+    # s.load_file(args.file, blueSPACE_DRoF_configuration, "blueSPACE_DRoF_configuration")
+    # s.load_file(args.file, blueSPACE_DRoF_TP_capability, "blueSPACE_DRoF_TP_capability")
 
     if sys.stdout.isatty():
-        print("^C to quit servers")
+        print("^C to quit NETCONF Server")
 
-    # noinspection PyBroadException
     try:
         while True:
             time.sleep(1)
 
     except Exception:
-        print("quitting servers")
+        print("quitting NETCONF Server")
 
     s.close()
 

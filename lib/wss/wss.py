@@ -2,7 +2,7 @@
 """
 import logging
 import time
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 from lib.wss import wsapi
@@ -27,7 +27,7 @@ class WSS:
     frequency_start = 191.250
     frequency_end = 196.274
     step = 0.001
-    speed_of_light = 299792458
+    speed_of_light = 299792.458
     time_sleep = 5
     folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
     configfile_1 = "SN042561.wsconfig"
@@ -64,10 +64,10 @@ class WSS:
             - phase (float): Set phase.
             - attenuation (float): Set port attenuation.
         """
-        self.wavelength = np.ones([self.n, self.m], dtype=float)
-        self.bandwidth = np.zeros([self.n, self.m], dtype=float)
-        self.phase = np.zeros([self.n, self.m], dtype=float)
-        self.attenuation = 60 * np.ones([self.n, self.m], dtype=float)
+        self.wavelength = np.ones(shape=(self.n, self.m), dtype=float)
+        self.bandwidth = np.zeros(shape=(self.n, self.m), dtype=float)
+        self.phase = np.zeros(shape=(self.n, self.m), dtype=float)
+        self.attenuation = 60 * np.ones(shape=(self.n, self.m), dtype=float)
 
     def open(self):
         """
@@ -122,10 +122,25 @@ class WSS:
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
             for k in range(self.n):  # for each input port
                 if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
-                    profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (
+                    profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (
                         frequency, self.attenuation[k], self.phase[k], k + 1)
                 else:
-                    profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
+                    profiletext = profiletext + "%.3f\t60.0\t0.0\t0\n" % frequency
+
+        ################DELETE########################
+        profiletext_out = profiletext.split("\n")
+        profile_wss = np.array(np.zeros(len(profiletext_out) * 4))
+        profile_wss = profile_wss.reshape((len(profiletext_out), 4))
+        for index in range(0, len(profiletext_out) - 1):
+            profile_wss[index] = profiletext_out[index].split("\t")
+
+        profile_wss = profile_wss[0:len(profile_wss) - 1, :]
+        peakind = (profile_wss[:, 1] == self.attenuation[0]).nonzero()
+
+        plt.figure()
+        plt.plot(profile_wss[:, 0], profile_wss[:, 1])
+        plt.show()
+        ################DELETE########################
 
         logger.debug("WaveShaper %s profile created" % str(self.id))
         return wsapi.ws_load_profile(str(self.id), profiletext)
@@ -141,28 +156,32 @@ class WSS:
         """
         profiletext = ""
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-            profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
+            profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
         logger.debug("WaveShaper %s profile created" % str(self.id))
         return wsapi.ws_load_profile(str(self.id), profiletext)
 
-    def configuration(self, operation):
+    def configuration(self, operations):
         """
         WaveShaper configuration:
 
             - Set the wavelength, port attenuation, phase and bandwidth for the filter configuration of the WaveShaper.
             - Load the desired profile according to the WaveShaper values of filter configuration.
 
-        :param operation: operation to configure the WaveShaper
-        :type operation: list
+        :param operations: operations to configure the WaveShaper
+        :type operations: list
         """
+        print(self.wavelength)  # TODO delete
         wss_id = str(self.id)
-        for i in range(self.n):  # for each number of input ports
-            for j in range(self.m):  # for each number of output ports
-                self.wavelength[i][j] = operation[i]['lambda0']
-                self.attenuation[i][j] = operation[i]['att']
-                self.phase[i][j] = operation[i]['phase']
-                self.bandwidth[i][j] = operation[i]['bw']
+        for i in range(len(operations)):  # for each operation
+            pos_x = operations[i]['port_in']
+            pos_y = operations[i]['port_out']
+            self.wavelength[pos_x - 1][pos_y - 1] = operations[i]['lambda0']
+            self.attenuation[pos_x - 1][pos_y - 1] = operations[i]['att']
+            self.phase[pos_x - 1][pos_y - 1] = operations[i]['phase']
+            self.bandwidth[pos_x - 1][pos_y - 1] = operations[i]['bw']
+
+        print(self.wavelength)  # TODO delete
 
         try:
             rc = self.execute()

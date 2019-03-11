@@ -1,6 +1,5 @@
 import collections
 import logging
-from collections import Counter
 from logging.handlers import RotatingFileHandler
 from os import sys, path
 
@@ -53,7 +52,7 @@ def wss_configuration():
         if len(ops) != 0:
             logger.debug("WaveShaper %s configuration started" % wss_id)
             try:
-                n, m = calculateNxM(ops)
+                n, m = n_max(ops, 'port_in')
                 wss = WSS(params['wss_id'], n, m)
                 wss.configuration(ops)
                 
@@ -186,22 +185,22 @@ def wss_deleteOperationsByID(wss_id):
             return jsonify(msg_not_exists, 404)
 
 
-def calculateNxM(ops):
+def n_max(ops, key_func):
     """
-    Calculate the total number of input and output ports of a set of operations.
+    Return the maximum element of input ports into operations.
 
-    :param ops: operations that configure a WaveShaper
+    :param ops: operations to configure the WaveShaper
     :type ops: list
-    :return: number of input (n) and output ports (m)
-    :rtype: int, int
+    :param key_func: comparison key
+    :type key_func: str
+    :return: maximum element of input ports
+    :rtype: int
     """
-    n = Counter()
-    m = Counter()
-    for op in ops:
-        n[op["port_in"]] += 1
-        m[op["port_out"]] += 1
-
-    return len(n), len(m)
+    maximum = 0
+    for i in range(len(ops)):
+        if ops[i][key_func] > maximum:
+            maximum = ops[i][key_func]
+    return maximum
 
 
 def define_logger():

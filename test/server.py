@@ -62,10 +62,8 @@ def hello_world():
     """
     if request.method == 'GET':
         data = request.json
-        print(data)
         if data is not None:
             try:
-                print(ac.id)
                 return jsonify("Hello World %s!" % str(data), 200)
 
             except Exception as e:
@@ -79,7 +77,7 @@ def define_logger():
     """
     Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
     """
-    fileHandler = RotatingFileHandler('servers.log', maxBytes=10000000, backupCount=5)  # File Handler
+    fileHandler = RotatingFileHandler('server.log', maxBytes=10000000, backupCount=5)  # File Handler
     streamHandler = logging.StreamHandler()  # Stream Handler
     # Create a Formatter for formatting the logs messages
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(filename)s: %(message)s")

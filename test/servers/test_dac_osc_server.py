@@ -12,7 +12,7 @@ from lib.dac.dac import DAC
 if __name__ == '__main__':
     headers = {"Content-Type": "application/json"}
     bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
-    bn2 = np.array(np.ones(DAC.Ncarriers)).tolist()
+    bn2 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
 

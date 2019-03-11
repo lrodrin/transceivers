@@ -68,7 +68,7 @@ def dac_osc_configuration():
                 try:
                     dac_configuration(dac_out, bn, En)
                     [SNR, BER] = osc_configuration(dac_out, osc_in, bn, En, eq)
-                    logger.debug("SNR = {} and BER = {}".format(SNR, BER))
+                    logger.debug("SNR = {}\nBER = {}".format(SNR, BER))
 
                     # Adding new logical association
                     filtered_assoc = dict(
@@ -86,8 +86,8 @@ def dac_osc_configuration():
                             assoc_id, e))
                     raise e
 
-                finally:
-                    return jsonify("DAC and OSC was successfully configured")
+            return jsonify("DAC and OSC was successfully configured")
+        
         else:
             return jsonify("The parameters sent are not correct", 400)
 
