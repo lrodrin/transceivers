@@ -1,8 +1,7 @@
+"""This is the NETCONF Server module.
+"""
 from lxml import etree
 from netconf.client import NetconfSSHSession
-
-__author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
-__copyright__ = "Copyright 2018, CTTC"
 
 # connexion parameters
 host = '10.1.7.64'
@@ -10,29 +9,18 @@ port = 830
 username = "root"
 password = "netlabN."
 
-# connexion to servers
+# connexion to NETCONF Server
 session = NetconfSSHSession(host, port, username, password)
 
-# servers capabilities
+# NETCONF Server capabilities
 c = session.capabilities
 print(c)
 
-# get config
+# get config operation
 print("---GET CONFIG---")
-config = session.get_config()
-xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
-print(xmlstr)
-
-# edit config
-print("---EDIT CONFIG---")
-xml = etree.parse('new_config.xml')  # new configuration
-config = session.edit_config(method='none', newconf=etree.tostring(xml))
-xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
-print(xmlstr)
-
-# print("---GET---")
-# config = session.get_config()
-# xmlstr = etree.tostring(config, encoding='utf8', xml_declaration=True)
-# print(xmlstr)
+request = session.get_config()
+if request:
+    response = etree.tostring(request, encoding='utf8', xml_declaration=True)
+    print(response)
 
 session.close()

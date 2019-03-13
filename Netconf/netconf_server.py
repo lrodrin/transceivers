@@ -1,19 +1,20 @@
-"""This is the NETCONF server module.
+"""This is the NETCONF Server module.
 """
 import argparse
 import logging
 import time
+import ast
 
-from os import sys, path
+from six.moves import configparser
 from lxml import etree
 from netconf import server, util, nsmap_add, NSMAP
-from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
+from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from agent_core import AgentCore
-from Netconf.bindings.bindingCapability import blueSPACE_DRoF_TP_capability
-from Netconf.bindings.bindingConfiguration import blueSPACE_DRoF_configuration
+from bindings.bindingCapability import blueSPACE_DRoF_TP_capability
+from bindings.bindingConfiguration import blueSPACE_DRoF_configuration
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -25,26 +26,25 @@ class NETCONFServer(object):
     """
     This is a class for NETCONF server module.
 
-    :ivar lxml.Element configuration:    # TODO
-    :ivar lxml.Element capability:   # TODO
-    :ivar list capabilities: Lis of capabilities of NETCONF Server
+    :ivar lxml.Element configuration:
+    :ivar lxml.Element capability:
+    :ivar list capabilities: List of capabilities from the NETCONF server.
     """
 
-    def __init__(self, username, password, port, agent_id):
+    def __init__(self, username, password, port, agent):
         """
         The constructor for the NETCONF Server class.
         Creates the NETCONF server.
 
-        :param username: username to allow
+        :param username: username to allow the NETCONF server
         :type username: str
-        :param password: password to allow
+        :param password: password to allow the NETCONF server
         :type password: str
         :param port: port number to bind the NETCONF server
         :type port: int
-        :param port: number of BVT Agent
-        :type port: int
         """
-        self.ac = AgentCore(agent_id)
+        self.ac = agent
+        print(self.ac.dac_out)
         self.configuration = None
         self.capability = None
         self.capabilities = ["blueSPACE-DRoF-configuration", "blueSPACE-DRoF-TP-capability"]
@@ -55,6 +55,7 @@ class NETCONFServer(object):
 
         except Exception as e:
             logging.error("Connection to NETCONF Server refused, {}".format(e))
+            raise e
 
     def close(self):
         """
@@ -66,32 +67,33 @@ class NETCONFServer(object):
 
         except Exception as e:
             logging.error("Connection to NETCONF Server not closed, {}".format(e))
+            raise e
 
-    def load_file(self, filename, binding, module):
-        """
-        Load and save the configuration to the NETCONF Server datastore.
-
-        :param filename: configuration file
-        :type filename: str
-        :param binding: data instance from a YANG data model specified by module_name
-        :type binding: PybindBase
-        :param module: YANG module
-        :type module: str
-        """
-        logging.debug("Startup configuration")
-        try:
-            xml_root = open(filename, 'r').read()
-            conf = pybindIETFXMLDecoder.decode(xml_root, binding, module)
-            xml = pybindIETFXMLEncoder.serialise(conf)
-            tree = etree.XML(xml)
-            data = util.elm("nc:data")
-            data.append(tree)
-            logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
-            self.configuration = data  # save configuration
-            logging.debug("Configuration {} loaded".format(filename))
-
-        except Exception as e:
-            logging.error("Configuration {} not loaded, {}".format(filename, e))
+    # def load_file(self, filename, binding, module):
+    #     """
+    #     Load and save the configuration into the NETCONF Server datastore.
+    #
+    #     :param filename: configuration file
+    #     :type filename: str
+    #     :param binding: data instance from a YANG data model specified by module_name
+    #     :type binding: PybindBase
+    #     :param module: YANG module
+    #     :type module: str
+    #     """
+    #     try:
+    #         xml_root = open(filename, 'r').read()
+    #         conf = pybindIETFXMLDecoder.decode(xml_root, binding, module)
+    #         xml = pybindIETFXMLEncoder.serialise(conf)
+    #         tree = etree.XML(xml)
+    #         data = util.elm("nc:data")
+    #         data.append(tree)
+    #         logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
+    #         self.configuration = data  # save configuration
+    #         logging.debug("Configuration file {} loaded".format(filename))
+    #
+    #     except Exception as e:
+    #         logging.error("Configuration file {} not loaded, {}".format(filename, e))
+    #         raise e
 
     def nc_append_capabilities(self):  # pylint: disable=W0613
         """
@@ -105,10 +107,11 @@ class NETCONFServer(object):
 
         except Exception as e:
             logging.error("Capabilities not added".format(e))
+            raise e
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
         """
-        NETCONF get-config operation.
+        NETCONF Get-config operation.
         Retrieve all or part of specified configuration.
 
         :param session: the server session with the client
@@ -125,13 +128,13 @@ class NETCONFServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
         # print_current_config(self.configuration)
-        logging.debug("Get Config")  # TODO filter_or_none options
+        logging.debug("GET CONFIG")
         try:
             return util.filter_results(rpc, self.configuration, filter_or_none)
 
         except Exception as e:
-            logging.error("Get Config, error: {}".format(e))
-            return None
+            logging.error("GET CONFIG, error: {}".format(e))
+            raise e
 
     def rpc_edit_config(self, session, rpc, target, method, new_config):  # pylint disable=W0613
         """
@@ -154,50 +157,45 @@ class NETCONFServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(method))
         # print(etree.tostring(new_config))
-        print(self.ac.id)
-        path = str()
-        namespace = str()
-        config = None
-        logging.debug("Edit Config")
+        path = namespace = ""
+        logging.debug("EDIT CONFIG")
         try:
             if 'configuration' in new_config[0].tag:
                 path = ".//xmlns:blueSPACE-DRoF-configuration"
                 namespace = "urn:blueSPACE-DRoF-configuration"
-                config = self.configuration
 
             elif 'capability' in new_config[0].tag:
                 path = ".//xmlns:DRoF-TP-capability"
                 namespace = "urn:blueSPACE-DRoF-TP-capability"
-                config = self.capability
 
-            data_list = new_config.findall(path, namespaces={'xmlns': namespace})
-            for data in data_list:
-                # found = False
-                print(etree.tostring(data))
-                # for node_id in data.iter("{" + namespace + "}node-id"):
-                #     topo_list = config.findall(path, namespaces={'xmlns': namespace})
-                #     for topo in topo_list:
-                #         # print(etree.tostring(topo))
-                #         for node_id2 in topo.iter("{" + namespace + "}node-id"):
-                #             logging.debug("COMPARING %s - %s" % (node_id.text, node_id2.text))
-                #             if node_id.text == node_id2.text:
-                #                 found = True
-                #                 logging.debug("MATCH")
-                #                 logging.debug("MERGING " + node_id.text)
-                #                 merge(topo, data)
-                #             else:
-                #                 logging.debug("NOT MATCH")
-                #
-                #     if not found:
-                #         logging.debug("APPENDING " + node_id.text)
-                #         config[0].append(data)
+            # data_list = new_config.findall(path, namespaces={'xmlns': namespace})
+            # for data in data_list:
+            # found = False
+            # print(etree.tostring(data))
+            # for node_id in data.iter("{" + namespace + "}node-id"):
+            #     topo_list = config.findall(path, namespaces={'xmlns': namespace})
+            #     for topo in topo_list:
+            #         # print(etree.tostring(topo))
+            #         for node_id2 in topo.iter("{" + namespace + "}node-id"):
+            #             logging.debug("COMPARING %s - %s" % (node_id.text, node_id2.text))
+            #             if node_id.text == node_id2.text:
+            #                 found = True
+            #                 logging.debug("MATCH")
+            #                 logging.debug("MERGING " + node_id.text)
+            #                 merge(topo, data)
+            #             else:
+            #                 logging.debug("NOT MATCH")
+            #
+            #     if not found:
+            #         logging.debug("APPENDING " + node_id.text)
+            #         config[0].append(data)
 
             # print(etree.tostring(configuration, encoding='utf8', xml_declaration=True))
-            return util.filter_results(rpc, config, None)
+            return util.filter_results(rpc, None, None)
 
         except Exception as e:
             logging.error("Edit Config, error: {}".format(e))
-            return None
+            raise e
 
 
 def merge(one, other):
@@ -243,24 +241,34 @@ def merge(one, other):
 
 def main(*margs):
     parser = argparse.ArgumentParser("NETCONF Server")
-    parser.add_argument("-username", default="root", help='NETCONF Server username')
-    parser.add_argument("-password", default="netlabN.", help='NETCONF Server password')
-    parser.add_argument('-port', type=int, default=830, help='NETCONF Server port')
-    parser.add_argument('-file', metavar="FILENAME", help='NETCONF Server configuration file to process')
-    parser.add_argument('-id', type=int, help='BVT-agent id')
+    parser.add_argument("-user", default="root", help='Username')
+    parser.add_argument("-passwd", default="netlabN.", help='Password')
+    parser.add_argument('-p', type=int, default=830, metavar="PORT", help='Port')
+    # parser.add_argument('-xml', metavar="FILENAME", help='DRoF Configuration file')
+    parser.add_argument('-file', metavar="FILENAME", help='Agent Configuration file')
 
     args = parser.parse_args(*margs)
-    s = NETCONFServer(args.username, args.password, args.port)
+    config = configparser.RawConfigParser()
+    config.read(args.file)
+    agent = AgentCore(
+        config.get('laser', 'ip'),
+        config.get('laser', 'addr'),
+        config.get('laser', 'channel'),
+        config.get('laser', 'power'),
+        config.get('dac_osc', 'id'),
+        config.get('dac_osc', 'dac_out'),
+        config.get('dac_osc', 'osc_in'),
+        config.get('api', 'ip')
+    )
+    s = NETCONFServer(args.user, args.passwd, args.p, agent)
     # s.load_file(args.file, blueSPACE_DRoF_configuration, "blueSPACE_DRoF_configuration")
     # s.load_file(args.file, blueSPACE_DRoF_TP_capability, "blueSPACE_DRoF_TP_capability")
 
     if sys.stdout.isatty():
         print("^C to quit NETCONF Server")
-
     try:
         while True:
             time.sleep(1)
-
     except Exception:
         print("quitting NETCONF Server")
 
