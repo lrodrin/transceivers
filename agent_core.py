@@ -160,7 +160,8 @@ class AgentCore:
         elif self.id == 2:
             # WSS2 startup
             params_wss = {'wss_id': 2, 'operation': [
-                {'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 65.0}]}
+        {'port_in': 2, 'port_out': 1, 'lambda0': 1550.88, 'att': 0.0, 'phase': 0.0, 'bw': 50.0},
+        {'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 50.0}]}
             wss_conf = self.api.WSSConfiguration(params_wss)
             logging.debug(wss_conf)
             print(wss_conf)
