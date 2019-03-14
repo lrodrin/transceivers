@@ -68,7 +68,7 @@ class AgentCore:
                 try:
                     logical_association = {'id': self.assoc_id, 'dac_out': self.dac_out, 'osc_in': self.osc_in, 'bn': bn,
                                            'En': En, 'eq': eq}
-                    SNR, BER = self.api.DACOSCConfiguration(logical_association)
+                    SNR, BER = self.api.dacOscConfiguration(logical_association)
                     if SNR is not None:
                         print(SNR)
                 except Exception as e:
@@ -80,7 +80,7 @@ class AgentCore:
         try:
             logical_association = {'id': self.assoc_id, 'dac_out': self.dac_out, 'osc_in': self.osc_in, 'bn': bn,
                                    'En': En, 'eq': eq}
-            SNR, BER = self.api.DACOSCConfiguration(logical_association)
+            SNR, BER = self.api.dacOscConfiguration(logical_association)
             if SNR is not None:
                 return SNR
         except Exception as e:

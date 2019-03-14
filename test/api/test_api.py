@@ -30,8 +30,8 @@ if __name__ == '__main__':
 
     # WSS
     logging.debug("WSS")
-    print(api.WSSConfiguration(wss1))
-    print(api.WSSConfiguration(wss2))
+    print(api.wSSConfiguration(wss1))
+    print(api.wSSConfiguration(wss2))
     print(api.getWSSOperations())
     print(api.getWSSOperationsById(1))
     print(api.getWSSOperationsById(2))
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # DAC/OSC
     logging.debug("DAC and OSC")
-    print(api.DACOSCConfiguration(params))
+    print(api.dacOscConfiguration(params))
     print(api.getDACOSCOperations())
     print(api.getDACOSCOperationsById(1))
     print(api.getDACOSCOperationsById(2))

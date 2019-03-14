@@ -31,7 +31,7 @@ class RestApi:
         self.port_dac_osc = RestApi.port_dac_osc
         self.port_wss = RestApi.port_wss
 
-    def DACOSCConfiguration(self, params):
+    def dacOscConfiguration(self, params):
         """
         DAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal.
         DAC configuration creates an OFDM signal and uploads it to Leia DAC.
@@ -42,7 +42,7 @@ class RestApi:
         :return: estimated SNR per subcarrier and BER
         :rtype: dict
         """
-        logging.debug('RestApi.DACOSCConfiguration')
+        logging.debug('RestApi.dacOscConfiguration')
         url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc"
         try:
             response = requests.post(url, headers=headers, data=json.dumps(params))
@@ -122,7 +122,7 @@ class RestApi:
 
         return data
 
-    def WSSConfiguration(self, params):
+    def wSSConfiguration(self, params):
         """
         WaveShaper configuration.
         Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port of a WaveShaper.
@@ -132,7 +132,7 @@ class RestApi:
         :return: successful operation and error otherwise
         :rtype: dict
         """
-        logging.debug('RestApi.WSSConfiguration')
+        logging.debug('RestApi.wSSConfiguration')
         url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss"
         try:
             response = requests.post(url, headers=headers, data=json.dumps(params))
