@@ -18,10 +18,11 @@
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
-</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
-</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+<a href="time.html">time</a><br>
 </td><td width="25%" valign=top><a href="lib.wss.wsapi.html">lib.wss.wsapi</a><br>
-</td></tr></table></td></tr></table><p>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -56,29 +57,39 @@
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="WSS-__init__"><strong>__init__</strong></a>(self, id, n, m)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;the&nbsp;WaveShaper&nbsp;class.<br>
+Initialize&nbsp;the&nbsp;WaveShaper&nbsp;default&nbsp;parameters:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;wavelength&nbsp;(float):&nbsp;Central&nbsp;frequency.&nbsp;The&nbsp;range&nbsp;of&nbsp;wavelength&nbsp;takes&nbsp;1528'773&nbsp;to&nbsp;1566'723&nbsp;nm.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;attenuation&nbsp;(float):&nbsp;Port&nbsp;attenuation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;phase&nbsp;(float):&nbsp;Phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;bandwidth&nbsp;(float):&nbsp;Bandwidth.<br>
 &nbsp;<br>
 :param&nbsp;id:&nbsp;id&nbsp;of&nbsp;the&nbsp;WaveShaper<br>
 :type&nbsp;id:&nbsp;int<br>
-:param&nbsp;n:&nbsp;number&nbsp;to&nbsp;identify&nbsp;the&nbsp;input&nbsp;ports<br>
+:param&nbsp;n:&nbsp;max&nbsp;number&nbsp;of&nbsp;the&nbsp;input&nbsp;ports<br>
 :type&nbsp;n:&nbsp;int<br>
-:param&nbsp;m:&nbsp;number&nbsp;to&nbsp;identify&nbsp;the&nbsp;output&nbsp;ports<br>
+:param&nbsp;m:&nbsp;max&nbsp;number&nbsp;of&nbsp;the&nbsp;output&nbsp;ports<br>
 :type&nbsp;m:&nbsp;int</tt></dd></dl>
 
 <dl><dt><a name="WSS-close"><strong>close</strong></a>(self)</dt><dd><tt>Close&nbsp;and&nbsp;delete&nbsp;the&nbsp;WaveShaper.</tt></dd></dl>
 
-<dl><dt><a name="WSS-configuration"><strong>configuration</strong></a>(self, operation)</dt><dd><tt>WaveShaper&nbsp;configuration:<br>
+<dl><dt><a name="WSS-configuration"><strong>configuration</strong></a>(self, operations)</dt><dd><tt>WaveShaper&nbsp;configuration:<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;the&nbsp;wavelength,&nbsp;port&nbsp;attenuation,&nbsp;phase&nbsp;and&nbsp;bandwidth&nbsp;for&nbsp;the&nbsp;filter&nbsp;configuration&nbsp;of&nbsp;the&nbsp;WaveShaper.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;WaveShaper&nbsp;values&nbsp;of&nbsp;filter&nbsp;configuration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Set&nbsp;the&nbsp;wavelength,&nbsp;port&nbsp;attenuation,&nbsp;phase&nbsp;and&nbsp;bandwidth&nbsp;for&nbsp;the&nbsp;filter&nbsp;configuration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;WaveShaper&nbsp;filter&nbsp;configuration.<br>
 &nbsp;<br>
-:param&nbsp;operation:&nbsp;operation&nbsp;to&nbsp;configure&nbsp;the&nbsp;WaveShaper<br>
-:type&nbsp;operation:&nbsp;list</tt></dd></dl>
+:param&nbsp;operations:&nbsp;operations&nbsp;to&nbsp;configure&nbsp;the&nbsp;filter&nbsp;of&nbsp;the&nbsp;WaveShaper<br>
+:type&nbsp;operations:&nbsp;list</tt></dd></dl>
 
-<dl><dt><a name="WSS-execute"><strong>execute</strong></a>(self)</dt><dd><tt>Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;WaveShaper&nbsp;wavelength,&nbsp;port&nbsp;attenuation,&nbsp;phase&nbsp;and&nbsp;bandwidth&nbsp;for&nbsp;the<br>
-filter&nbsp;configuration.<br>
+<dl><dt><a name="WSS-execute"><strong>execute</strong></a>(self, profiletext, k)</dt><dd><tt>Create&nbsp;and&nbsp;update&nbsp;the&nbsp;desired&nbsp;profile&nbsp;according&nbsp;to&nbsp;the&nbsp;WaveShaper&nbsp;wavelength,&nbsp;port&nbsp;attenuation,<br>
+phase&nbsp;and&nbsp;bandwidth&nbsp;for&nbsp;the&nbsp;filter&nbsp;configuration.<br>
 &nbsp;<br>
-:return:&nbsp;0&nbsp;if&nbsp;profile&nbsp;was&nbsp;loaded&nbsp;and&nbsp;-1&nbsp;otherwise<br>
-:rtype:&nbsp;int</tt></dd></dl>
+:param&nbsp;profiletext:&nbsp;text&nbsp;to&nbsp;save&nbsp;frequency,&nbsp;attenuation,&nbsp;phase&nbsp;for&nbsp;each&nbsp;input&nbsp;port&nbsp;specified&nbsp;by&nbsp;k<br>
+:rtype&nbsp;profiletext:&nbsp;str<br>
+:param&nbsp;k:&nbsp;input&nbsp;port<br>
+:rtype&nbsp;k:&nbsp;int<br>
+:return:&nbsp;profiletext<br>
+:rtype:&nbsp;str</tt></dd></dl>
 
 <dl><dt><a name="WSS-execute_wss"><strong>execute_wss</strong></a>(self, profile)</dt><dd><tt>Load&nbsp;the&nbsp;desired&nbsp;profile&nbsp;to&nbsp;the&nbsp;WaveShaper.<br>
 &nbsp;<br>
@@ -86,13 +97,6 @@ filter&nbsp;configuration.<br>
 :type&nbsp;profile:&nbsp;float&nbsp;array<br>
 :return:&nbsp;0&nbsp;if&nbsp;profile&nbsp;was&nbsp;loaded&nbsp;and&nbsp;-1&nbsp;otherwise<br>
 :rtype:&nbsp;int</tt></dd></dl>
-
-<dl><dt><a name="WSS-initialization"><strong>initialization</strong></a>(self)</dt><dd><tt>Initialize&nbsp;the&nbsp;WaveShaper&nbsp;default&nbsp;parameters:<br>
-&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;wavelength&nbsp;(float):&nbsp;Set&nbsp;central&nbsp;frequency.&nbsp;The&nbsp;range&nbsp;of&nbsp;wavelength&nbsp;takes&nbsp;1528'773&nbsp;to&nbsp;1566'723&nbsp;nm.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;bandwidth&nbsp;(float):&nbsp;Set&nbsp;bandwidth.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;phase&nbsp;(float):&nbsp;Set&nbsp;phase.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;attenuation&nbsp;(float):&nbsp;Set&nbsp;port&nbsp;attenuation.</tt></dd></dl>
 
 <dl><dt><a name="WSS-open"><strong>open</strong></a>(self)</dt><dd><tt>Create&nbsp;and&nbsp;open&nbsp;the&nbsp;WaveShaper.</tt></dd></dl>
 
