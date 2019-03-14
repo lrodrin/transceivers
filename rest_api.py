@@ -2,7 +2,6 @@
 """
 import json
 import logging
-
 import requests
 
 logger = logging.getLogger("REST_API")
@@ -25,7 +24,7 @@ class RestApi:
         """
         The constructor for the REST API class.
 
-        :param ip: REST server ip address
+        :param ip: REST Server ip address
         :type ip: str
         """
         self.ip = ip
@@ -34,7 +33,7 @@ class RestApi:
 
     def DACOSCConfiguration(self, params):
         """
-        DDAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal.
+        DAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal.
         DAC configuration creates an OFDM signal and uploads it to Leia DAC.
         OSC configuration adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream.
 
@@ -107,7 +106,7 @@ class RestApi:
 
         :param assoc_id: id of logical association configured between DAC and OSC
         :type assoc_id: int
-        :return: # TODO
+        :return: successful operation and error otherwise
         :rtype: dict
         """
         logging.debug('RestApi.deleteDACOSCOperationsById')
@@ -130,7 +129,7 @@ class RestApi:
 
         :param params: id to identify the WaveShaper and operations to be configured on the WaveShaper
         :type params: dict
-        :return: # TODO
+        :return: successful operation and error otherwise
         :rtype: dict
         """
         logging.debug('RestApi.WSSConfiguration')
@@ -197,7 +196,7 @@ class RestApi:
 
         :param wss_id: id of the WaveShaper
         :type wss_id: int
-        :return: # TODO
+        :return: successful operation and error otherwise
         :rtype: dict
         """
         logging.debug('RestApi.deleteWSSOperationsById')

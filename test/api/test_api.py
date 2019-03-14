@@ -10,10 +10,10 @@ from rest_api import RestApi
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
-    params_wss1 = {'wss_id': 1, 'operation': [
+    wss1 = {'wss_id': 1, 'operations': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
 
-    params_wss2 = {'wss_id': 2, 'operation': [
+    wss2 = {'wss_id': 2, 'operations': [
         {'port_in': 2, 'port_out': 1, 'lambda0': 1550.88, 'att': 0.0, 'phase': 0.0, 'bw': 50.0},
         {'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 50.0}]}
 
@@ -21,32 +21,26 @@ if __name__ == '__main__':
     bn2 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
-
-    # print(bn1)
-    # print(bn2)
-    # print(En1)
-    # print(En2)
-
     eq1 = eq2 = "MMSE"
-    params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
-                      {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
+    params = [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
+              {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
 
-    api = RestApi('10.1.1.10')
     logging.debug("Testing REST API")
+    api = RestApi('10.1.1.10')
 
     # WSS
-    # logging.debug("WSS")
-    # print(api.WSSConfiguration(params_wss_1))
-    # print(api.WSSConfiguration(params_wss_2))
-    # print(api.getWSSOperations())
-    # print(api.getWSSOperationsById(1))
-    # print(api.getWSSOperationsById(2))
-    # print(api.deleteWSSOperationsById(2))
-    # print(api.getWSSOperations())
+    logging.debug("WSS")
+    print(api.WSSConfiguration(wss1))
+    print(api.WSSConfiguration(wss2))
+    print(api.getWSSOperations())
+    print(api.getWSSOperationsById(1))
+    print(api.getWSSOperationsById(2))
+    print(api.deleteWSSOperationsById(2))
+    print(api.getWSSOperations())
 
     # DAC/OSC
     logging.debug("DAC and OSC")
-    print(api.DACOSCConfiguration(params_dac_osc))
+    print(api.DACOSCConfiguration(params))
     print(api.getDACOSCOperations())
     print(api.getDACOSCOperationsById(1))
     print(api.getDACOSCOperationsById(2))
