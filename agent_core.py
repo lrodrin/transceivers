@@ -6,8 +6,6 @@ from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
-from lib.amp.amp import Amplifier
-from lib.dac.dac import DAC
 from rest_api import RestApi
 
 logger = logging.getLogger("AGENT_CORE")
@@ -21,17 +19,21 @@ class AgentCore:
     This is the class for the Agent Core module.
     """
 
-    def __init__(self, ip_laser, addr_laser, channel_laser, power_laser, logical_associations, ip_rest_server):
+    def __init__(self, ip_laser, addr_laser, channel_laser, power_laser, ip_rest_server, logical_associations):
         """
         The constructor for the Agent Core class.
 
-        :param ip_laser:
-        :param addr_laser:
-        :param channel_laser:
-        :param power_laser:
-        :param assoc_id:
-        :param dac_out:
-        :param
+        :param ip_laser: IP address of GPIB-ETHERNET of the Laser
+        :type ip_laser: str
+        :param addr_laser: GPIB address of the Laser
+        :param channel_laser: channel of the Laser
+        :type channel_laser: int
+        :param power_laser: Power of the Laser in dBm
+        :type power_laser: float
+        :param ip_rest_server: IP address of GPIB-ETHERNET of the DAC/OSC REST Server
+        :type ip_rest_server: str
+        :param logical_associations: a transmission between DAC and OSC
+        :type logical_associations: list
         """
         # Laser parameters
         self.ip_laser = ip_laser
@@ -40,22 +42,18 @@ class AgentCore:
         self.power_laser = power_laser
 
         # DAC/OSC parameters
-        self.assoc_id = assoc_id
-        self.dac_out = dac_out
-        self.osc_in = osc_in
-
-        # Amplifier parameters
-        # self.addr_amplifier =
-        # self.mode_amplifier =
-        # self.power_amplifier =
+        self.logical_associations = list(logical_associations)
 
         # REST API
         self.ip_rest_server = ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def laser_dac_startup(self, NCF, bn, En, eq):  # CALL FROM netconf_server.py
+    def blueStartup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
         """
-        Laser and DAC/OSC configuration.
+        BLUESPACE configuration.
+
+            - Laser startup.
+            - DAC startup.
 
         :param NCF: nominal central frequency
         :param NCF: int
@@ -69,30 +67,43 @@ class AgentCore:
         try:
             lambda0 = (speed_of_light / (NCF * 1e6)) * 1e9  # calculate lambda0
             params = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
+            print(params)
             if params is not None:
-                print(params)
                 try:
-                    logical_association = {'id': self.assoc_id, 'dac_out': self.dac_out, 'osc_in': self.osc_in, 'bn': bn,
-                                           'En': En, 'eq': eq}
-                    SNR, BER = self.api.dacOscConfiguration(logical_association)
-                    if SNR is not None:
-                        print(SNR)
+                    # TODO NETCONF Server needs to construct the logical_association or here?
+                    SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
+                    print(SNR, BER)
                 except Exception as e:
                     raise e
+            else:
+                raise ValueError("Parameters returned from Laser are not correct")
+
         except Exception as e:
             raise e
 
-    def get_SNR(self, bn, En, eq):
+    def getSNR(self):  # CALLED FROM netconf_server.py
+        """
+        Return the estimated SNR per subcarrier.
+
+        :return: estimated SNR per subcarrier
+        :rtype: list of floats
+        """
         try:
-            logical_association = {'id': self.assoc_id, 'dac_out': self.dac_out, 'osc_in': self.osc_in, 'bn': bn,
-                                   'En': En, 'eq': eq}
-            SNR, BER = self.api.dacOscConfiguration(logical_association)
-            if SNR is not None:
-                return SNR
+            result = self.api.dacOscConfiguration(self.logical_associations)
+            print(result[0])
+            return result[0]
+
         except Exception as e:
             raise e
 
-    # TODO delete method - Laser OFF
+    def blueStop(self):  # CALLED FROM netconf_server.py
+        """
+        Stop BLUESPACE configuration.
+
+            - Disable Laser.
+        """
+        yenista = Laser(self.ip_laser, self.addr_laser)
+        yenista.enable(self.channel_laser, False)
 
     # def optical_channel_configuration(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py
     #     """
