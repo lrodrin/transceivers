@@ -7,5 +7,3 @@ __pycache__/
 
 # LOG files
 *.log
-
-docs/wsapi.html
