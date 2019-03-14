@@ -48,7 +48,12 @@
 :ivar&nbsp;int&nbsp;port_wss:&nbsp;Port&nbsp;of&nbsp;WSS&nbsp;REST&nbsp;Server<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="RestApi-DACOSCConfiguration"><strong>DACOSCConfiguration</strong></a>(self, params)</dt><dd><tt>DAC&nbsp;and&nbsp;OSC&nbsp;configuration&nbsp;performs&nbsp;DSP&nbsp;to&nbsp;modulate/demodulate&nbsp;an&nbsp;OFDM&nbsp;signal.<br>
+<dl><dt><a name="RestApi-__init__"><strong>__init__</strong></a>(self, ip)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;the&nbsp;REST&nbsp;API&nbsp;class.<br>
+&nbsp;<br>
+:param&nbsp;ip:&nbsp;REST&nbsp;Server&nbsp;ip&nbsp;address<br>
+:type&nbsp;ip:&nbsp;str</tt></dd></dl>
+
+<dl><dt><a name="RestApi-dacOscConfiguration"><strong>dacOscConfiguration</strong></a>(self, params)</dt><dd><tt>DAC&nbsp;and&nbsp;OSC&nbsp;configuration&nbsp;performs&nbsp;DSP&nbsp;to&nbsp;modulate/demodulate&nbsp;an&nbsp;OFDM&nbsp;signal.<br>
 DAC&nbsp;configuration&nbsp;creates&nbsp;an&nbsp;OFDM&nbsp;signal&nbsp;and&nbsp;uploads&nbsp;it&nbsp;to&nbsp;Leia&nbsp;DAC.<br>
 OSC&nbsp;configuration&nbsp;adquires&nbsp;the&nbsp;transmitted&nbsp;OFDM&nbsp;signal&nbsp;and&nbsp;perform&nbsp;DSP&nbsp;to&nbsp;retrieve&nbsp;the&nbsp;original&nbsp;datastream.<br>
 &nbsp;<br>
@@ -56,19 +61,6 @@ OSC&nbsp;configuration&nbsp;adquires&nbsp;the&nbsp;transmitted&nbsp;OFDM&nbsp;si
 :type&nbsp;params:&nbsp;list<br>
 :return:&nbsp;estimated&nbsp;SNR&nbsp;per&nbsp;subcarrier&nbsp;and&nbsp;BER<br>
 :rtype:&nbsp;dict</tt></dd></dl>
-
-<dl><dt><a name="RestApi-WSSConfiguration"><strong>WSSConfiguration</strong></a>(self, params)</dt><dd><tt>WaveShaper&nbsp;configuration.<br>
-Sets&nbsp;the&nbsp;configuration&nbsp;file,&nbsp;central&nbsp;wavelength,&nbsp;bandwidth&nbsp;and&nbsp;attenuation/phase&nbsp;per&nbsp;port&nbsp;of&nbsp;a&nbsp;WaveShaper.<br>
-&nbsp;<br>
-:param&nbsp;params:&nbsp;id&nbsp;to&nbsp;identify&nbsp;the&nbsp;WaveShaper&nbsp;and&nbsp;operations&nbsp;to&nbsp;be&nbsp;configured&nbsp;on&nbsp;the&nbsp;WaveShaper<br>
-:type&nbsp;params:&nbsp;dict<br>
-:return:&nbsp;successful&nbsp;operation&nbsp;and&nbsp;error&nbsp;otherwise<br>
-:rtype:&nbsp;dict</tt></dd></dl>
-
-<dl><dt><a name="RestApi-__init__"><strong>__init__</strong></a>(self, ip)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;the&nbsp;REST&nbsp;API&nbsp;class.<br>
-&nbsp;<br>
-:param&nbsp;ip:&nbsp;REST&nbsp;Server&nbsp;ip&nbsp;address<br>
-:type&nbsp;ip:&nbsp;str</tt></dd></dl>
 
 <dl><dt><a name="RestApi-deleteDACOSCOperationsById"><strong>deleteDACOSCOperationsById</strong></a>(self, assoc_id)</dt><dd><tt>DAC&nbsp;and&nbsp;OSC&nbsp;logical&nbsp;association&nbsp;by&nbsp;ID.<br>
 Delete&nbsp;logical&nbsp;association&nbsp;configured&nbsp;between&nbsp;DAC&nbsp;and&nbsp;OSC&nbsp;specified&nbsp;by&nbsp;id.<br>
@@ -112,6 +104,14 @@ Returns&nbsp;operations&nbsp;configured&nbsp;on&nbsp;a&nbsp;WaveShaper&nbsp;spec
 :param&nbsp;wss_id:&nbsp;id&nbsp;of&nbsp;the&nbsp;WaveShaper<br>
 :type&nbsp;wss_id:&nbsp;int<br>
 :return:&nbsp;operations&nbsp;operations&nbsp;configured&nbsp;on&nbsp;a&nbsp;WaveShaper&nbsp;specified&nbsp;by&nbsp;wss_id<br>
+:rtype:&nbsp;dict</tt></dd></dl>
+
+<dl><dt><a name="RestApi-wSSConfiguration"><strong>wSSConfiguration</strong></a>(self, params)</dt><dd><tt>WaveShaper&nbsp;configuration.<br>
+Sets&nbsp;the&nbsp;configuration&nbsp;file,&nbsp;central&nbsp;wavelength,&nbsp;bandwidth&nbsp;and&nbsp;attenuation/phase&nbsp;per&nbsp;port&nbsp;of&nbsp;a&nbsp;WaveShaper.<br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;id&nbsp;to&nbsp;identify&nbsp;the&nbsp;WaveShaper&nbsp;and&nbsp;operations&nbsp;to&nbsp;be&nbsp;configured&nbsp;on&nbsp;the&nbsp;WaveShaper<br>
+:type&nbsp;params:&nbsp;dict<br>
+:return:&nbsp;successful&nbsp;operation&nbsp;and&nbsp;error&nbsp;otherwise<br>
 :rtype:&nbsp;dict</tt></dd></dl>
 
 <hr>
