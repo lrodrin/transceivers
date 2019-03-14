@@ -114,9 +114,7 @@ def dac_configuration(dac_out, bn, En):
         temp_file = open(DAC.temp_file, "w")
         tx.transmitter(dac_out, bn, En)
         leia_file = tx.enable_channel(dac_out, temp_file)
-        if leia_file is not None:
-            tx.execute_matlab(leia_file)
-
+        tx.execute_matlab(leia_file)
         logger.debug("DAC configuration finished")
 
     except Exception as e:

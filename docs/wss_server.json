@@ -1,0 +1,165 @@
+{
+  "definitions": {},
+  "info": {
+    "description": "powered by Flasgger",
+    "termsOfService": "/tos",
+    "title": "A swagger API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/api/wss": {
+      "get": {
+        "description": "Get multiple operations configured on the WaveShapers",
+        "parameters": [
+          {
+            "description": "operations configured on the WaveShapers",
+            "in": "query",
+            "name": "operations",
+            "type": "dict"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "example": {
+                "operations": [
+                  {
+                    "att": 0.0,
+                    "bw": 112.5,
+                    "lambda0": 1550.52,
+                    "phase": 0.0,
+                    "port_in": 1,
+                    "port_out": 1
+                  }
+                ],
+                "wss_id": 1
+              },
+              "type": "dict"
+            }
+          },
+          "404": {
+            "description": "Operations not found"
+          }
+        },
+        "summary": "WaveShaper operations"
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port",
+        "parameters": [
+          {
+            "description": "id to identify the WaveShaper and operations to be configured on the WaveShaper",
+            "example": {
+              "operations": [
+                {
+                  "att": 0.0,
+                  "bw": 112.5,
+                  "lambda0": 1550.52,
+                  "phase": 0.0,
+                  "port_in": 1,
+                  "port_out": 1
+                }
+              ],
+              "wss_id": 1
+            },
+            "in": "body",
+            "name": "params",
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful configuration"
+          },
+          "400": {
+            "description": "Invalid input params"
+          }
+        },
+        "summary": "WaveShaper configuration"
+      }
+    },
+    "/api/wss/{wss_id}": {
+      "delete": {
+        "description": "Delete operations configured on a WaveShaper specified by id",
+        "parameters": [
+          {
+            "description": "id of the WaveShaper",
+            "example": 1,
+            "in": "path",
+            "name": "wss_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Operations not found"
+          }
+        },
+        "summary": "WaveShaper operations by ID"
+      },
+      "get": {
+        "description": "Returns operations configured on a WaveShaper specified by id",
+        "parameters": [
+          {
+            "description": "id of the WaveShaper",
+            "in": "path",
+            "name": "wss_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "example": {
+                "operations": [
+                  {
+                    "att": 0.0,
+                    "bw": 112.5,
+                    "lambda0": 1550.52,
+                    "phase": 0.0,
+                    "port_in": 1,
+                    "port_out": 1
+                  }
+                ],
+                "wss_id": 1
+              },
+              "type": "dict"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Operations not found"
+          }
+        },
+        "summary": "WaveShaper operations by ID"
+      }
+    }
+  },
+  "swagger": "2.0"
+}

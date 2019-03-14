@@ -36,7 +36,7 @@ def wss_configuration():
     - name: params
       in: body
       description: id to identify the WaveShaper and operations to be configured on the WaveShaper
-      example: {'wss_id': 1, 'operation': [
+      example: {'wss_id': 1, 'operations': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
       required: true
     responses:
@@ -48,7 +48,7 @@ def wss_configuration():
     if request.method == 'POST':
         params = request.json
         wss_id = str(params['wss_id'])
-        ops = params['operation']
+        ops = params['operations']
         if len(ops) != 0:
             logger.debug("WaveShaper %s configuration started" % wss_id)
             try:
@@ -93,7 +93,7 @@ def wss_operations():
             description: Successful operation
             schema:
                 type: dict
-                example: {'wss_id': 1, 'operation': [
+                example: {'wss_id': 1, 'operations': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
         404:
             description: Operations not found
@@ -125,7 +125,7 @@ def wss_getOperationsByID(wss_id):
             description: Successful operation
             schema:
                 type: dict
-                example: {'wss_id': 1, 'operation': [
+                example: {'wss_id': 1, 'operations': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
         400:
             description: Invalid ID supplied

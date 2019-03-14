@@ -1,0 +1,186 @@
+{
+  "definitions": {},
+  "info": {
+    "description": "powered by Flasgger",
+    "termsOfService": "/tos",
+    "title": "A swagger API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/api/dac_osc": {
+      "get": {
+        "description": "Get multiple logical associations configured between DAC and OSC",
+        "parameters": [
+          {
+            "description": "logical associations configured between DAC and OSC",
+            "in": "query",
+            "name": "associations",
+            "type": "list"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "example": [
+                {
+                  "En": "En1",
+                  "bn": "bn1",
+                  "dac_out": 1,
+                  "eq": "eq1",
+                  "id": 1,
+                  "osc_in": 2
+                },
+                {
+                  "En": "En2",
+                  "bn": "bn2",
+                  "dac_out": 2,
+                  "eq": "eq2",
+                  "id": 2,
+                  "osc_in": 1
+                }
+              ],
+              "type": "list"
+            }
+          },
+          "404": {
+            "description": "Associations not found"
+          }
+        },
+        "summary": "DAC and OSC logical associations"
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "DAC and OSC configuration performs DSP to modulate/demodulate an OFDM signal.\nDAC configuration creates an OFDM signal and uploads it to Leia DAC.\nOSC configuration adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream.\n",
+        "parameters": [
+          {
+            "description": "logical association to be configured between DAC and OSC",
+            "example": [
+              {
+                "En": "En1",
+                "bn": "bn1",
+                "dac_out": 1,
+                "eq": "eq1",
+                "id": 1,
+                "osc_in": 2
+              },
+              {
+                "En": "En2",
+                "bn": "bn2",
+                "dac_out": 2,
+                "eq": "eq2",
+                "id": 2,
+                "osc_in": 1
+              }
+            ],
+            "in": "body",
+            "name": "logical_assoc",
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful configuration",
+            "schema": {
+              "example": [
+                "SNR",
+                "BER"
+              ],
+              "type": "list"
+            }
+          },
+          "400": {
+            "description": "Invalid input logical_assoc"
+          }
+        },
+        "summary": "DAC and OSC configuration"
+      }
+    },
+    "/api/dac_osc/{assoc_id}": {
+      "delete": {
+        "description": "Delete logical association configured between DAC and OSC specified by id",
+        "parameters": [
+          {
+            "description": "id of logical association configured between DAC and OSC",
+            "in": "path",
+            "name": "assoc_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Association not found"
+          }
+        },
+        "summary": "DAC and OSC logical association by ID"
+      },
+      "get": {
+        "description": "Returns logical association configured between DAC and OSC specified by id",
+        "parameters": [
+          {
+            "description": "id of logical association configured between DAC and OSC",
+            "in": "path",
+            "name": "assoc_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "example": [
+                {
+                  "En": "En1",
+                  "bn": "bn1",
+                  "dac_out": 1,
+                  "eq": "eq1",
+                  "id": 1,
+                  "osc_in": 2
+                },
+                {
+                  "En": "En2",
+                  "bn": "bn2",
+                  "dac_out": 2,
+                  "eq": "eq2",
+                  "id": 2,
+                  "osc_in": 1
+                }
+              ],
+              "type": "list"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Association not found"
+          }
+        },
+        "summary": "DAC and OSC logical association by ID"
+      }
+    }
+  },
+  "swagger": "2.0"
+}
