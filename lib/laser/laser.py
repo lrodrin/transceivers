@@ -73,13 +73,13 @@ class Laser:
 
         # Initialization
         try:
-            self.sock.send(self.mode)
+            self.sock.send(bytes(self.mode))
             addr_GPIB = "++addr " + self.addr + "\n"
-            self.sock.send(addr_GPIB)
-            self.sock.send(self.read_after_write)
-            self.sock.send(self.read_timeout)
-            self.sock.send(self.eos_3)
-            self.sock.send(self.eoi_1)
+            self.sock.send(bytes(addr_GPIB))
+            self.sock.send(bytes(self.read_after_write))
+            self.sock.send(bytes(self.read_timeout))
+            self.sock.send(bytes(self.eos_3))
+            self.sock.send(bytes(self.eoi_1))
 
         except socket.error as error:
             logger.error("Default parameters of the Laser not initialized, {}".format(error))
@@ -92,8 +92,8 @@ class Laser:
         :rtype: str
         """
         try:
-            self.sock.send("*IDN?\n")
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("*IDN?\n"))
+            self.sock.send(bytes(self.read_eoi))
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
@@ -112,8 +112,8 @@ class Laser:
         """
         try:
             logger.debug("Set wavelength %s" % lambda0)
-            self.sock.send("CH%d:NM\n" % ch)  # set units in nm
-            self.sock.send("CH%d:L=%.3f\n" % (ch, lambda0))
+            self.sock.send(bytes("CH%d:NM\n" % ch))  # set units in nm
+            self.sock.send(bytes("CH%d:L=%.3f\n" % (ch, lambda0)))
 
         except socket.error as error:
             logger.error("Wavelength not configured, {}".format(error))
@@ -131,8 +131,8 @@ class Laser:
         """
         try:
             logger.debug("Set power %s" % power)
-            self.sock.send("CH%d:DBM\n" % ch)  # set units in dBm
-            self.sock.send("CH%d:P=%.3f\n" % (ch, power))
+            self.sock.send(bytes("CH%d:DBM\n" % ch))  # set units in dBm
+            self.sock.send(bytes("CH%d:P=%.3f\n" % (ch, power)))
 
         except socket.error as error:
             logger.error("Power not configured, {}".format(error))
@@ -149,14 +149,14 @@ class Laser:
         logger.debug("Set status %s" % stat)
         if stat:
             try:
-                self.sock.send("CH%d:ENABLE\n" % ch)
+                self.sock.send(bytes("CH%d:ENABLE\n" % ch))
                 time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't enable, {}".format(error))
         else:
             try:
-                self.sock.send("CH%d:DISABLE\n" % ch)
+                self.sock.send(bytes("CH%d:DISABLE\n" % ch))
                 time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
@@ -181,10 +181,10 @@ class Laser:
 
         # Check status
         try:
-            self.sock.send("CH%d:ENABLE?\n" % ch)
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("CH%d:ENABLE?\n" % ch))
+            self.sock.send(bytes(self.read_eoi))
             s = self.sock.recv(self.buffer_size)
-            if s.split(":")[1] == "ENABLED\n":
+            if s.split(bytes(":"))[1] == "ENABLED\n":
                 stat = True
 
         except socket.error as error:
@@ -192,21 +192,21 @@ class Laser:
 
         # Check wavelength
         try:
-            self.sock.send("CH%d:L?\n" % ch)
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("CH%d:L?\n" % ch))
+            self.sock.send(bytes(self.read_eoi))
             s = self.sock.recv(self.buffer_size)
-            wavelength = float(s.split("=")[1])
+            wavelength = float(s.split(bytes("="))[1])
 
         except socket.error as error:
             logger.error("Checking wavelength, {}".format(error))
 
         # Check power
         try:
-            self.sock.send("CH%d:P?\n" % ch)
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("CH%d:P?\n" % ch))
+            self.sock.send(bytes(self.read_eoi))
             s = self.sock.recv(self.buffer_size)
             if stat:
-                power = float(s.split("=")[1])
+                power = float(s.split(bytes("="))[1])
             else:
                 power = -60
 
@@ -234,8 +234,8 @@ class Laser:
         :rtype: str
         """
         try:
-            self.sock.send("SYST:ERR?\n")
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("SYST:ERR?\n"))
+            self.sock.send(bytes(self.read_eoi))
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
@@ -266,18 +266,18 @@ class Laser:
         logger.debug("Laser on channel %s configuration started" % channel)
         try:
             yenista = Laser(ip, addr)
-            yenista.enable(channel, False)  # ensure laser is off
+            yenista.enable(channel, False)  # Ensure Laser is off
             yenista.wavelength(channel, lambda0)
             yenista.power(channel, power)
             yenista.enable(channel, True)
-            params = yenista.status(channel)
+            result = yenista.status(channel)
             logger.debug(
-                "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
+                "Laser parameters - status: {}, wavelength: {}, power: {}".format(result[0], result[1], result[2]))
 
             yenista.close()
             logger.debug("Laser on channel %s configuration finished" % channel)
-            return params
+            return result
 
         except Exception as error:
-            logger.error("Laser configuration method, {}".format(error))
+            logger.error("Laser configuration failed, {}".format(error))
             raise error

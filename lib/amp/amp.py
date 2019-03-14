@@ -75,13 +75,13 @@ class Amplifier:
 
         # Initialization
         try:
-            self.sock.send(self.controller_mode)
-            addr_GPIB = "++addr " + self.addr + "\n"
+            self.sock.send(bytes(self.controller_mode))
+            addr_GPIB = bytes("++addr " + self.addr + "\n")
             self.sock.send(addr_GPIB)
-            self.sock.send(self.read_after_write)
-            self.sock.send(self.read_timeout)
-            self.sock.send(self.eos_3)
-            self.sock.send(self.eoi_1)
+            self.sock.send(bytes(self.read_after_write))
+            self.sock.send(bytes(self.read_timeout))
+            self.sock.send(bytes(self.eos_3))
+            self.sock.send(bytes(self.eoi_1))
 
         except socket.error as error:
             logger.error("Default parameters of the Amplifier not initialized, {}".format(error))
@@ -94,8 +94,8 @@ class Amplifier:
         :rtype: str
         """
         try:
-            self.sock.send("*IDN?\n")
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("*IDN?\n"))
+            self.sock.send(bytes(self.read_eoi))
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
@@ -111,14 +111,14 @@ class Amplifier:
         logger.debug("Set status %s" % stat)
         if stat:
             try:
-                self.sock.send("POW:ON\n")
+                self.sock.send(bytes("POW:ON\n"))
                 time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't enable the Amplifier, {}".format(error))
         else:
             try:
-                self.sock.send("POW:OFF\n")
+                self.sock.send(bytes("POW:OFF\n"))
                 time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
@@ -141,21 +141,21 @@ class Amplifier:
         try:
             logger.debug("Set mode %s" % mod)
             if mod == "AGC":
-                self.sock.send("mode:AGC\n")
+                self.sock.send(bytes("mode:AGC\n"))
                 cmd = "SEL:GM:%.2f\n" % param
-                self.sock.send(cmd + "\n")
+                self.sock.send(bytes(cmd + "\n"))
                 logger.debug("Set gain %s" % param)
 
             elif mod == "APC":
-                self.sock.send("mode:APC\n")
+                self.sock.send(bytes("mode:APC\n"))
                 cmd = "SEL:PM:%.2f\n" % param
-                self.sock.send(cmd + "\n")
+                self.sock.send(bytes(cmd + "\n"))
                 logger.debug("Set power %s" % param)
 
             elif mod == "ACC":
-                self.sock.send("mode:ACC\n")
+                self.sock.send(bytes("mode:ACC\n"))
                 cmd = "SEL:IL1:%.2f\n" % param
-                self.sock.send(cmd + "\n")
+                self.sock.send(bytes(cmd + "\n"))
                 logger.debug("Set current %s" % param)
 
             time.sleep(self.time_sleep_mode)
@@ -179,21 +179,21 @@ class Amplifier:
 
         # Check mode
         try:
-            self.sock.send("MODE\n")
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("MODE\n"))
+            self.sock.send(bytes(self.read_eoi))
             s = self.sock.recv(self.buffer_size)
-            mod = s.split(" ")[1]  # mode
-            power = float(s.split(" ")[2])  # power
+            mod = s.split(bytes(" "))[1]  # mode
+            power = float(s.split(bytes(" "))[2])  # power
 
         except socket.error as error:
             logger.error("Checking mode, {}".format(error))
 
         # Check status
         try:
-            self.sock.send("POW?\n")
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("POW?\n"))
+            self.sock.send(bytes(self.read_eoi))
             s = self.sock.recv(self.buffer_size)
-            if s.find("OFF") == -1:
+            if s.find(bytes("OFF")) == -1:
                 stat = True
 
         except socket.error as error:
@@ -220,8 +220,8 @@ class Amplifier:
         :rtype: str
         """
         try:
-            self.sock.send("SYST:ERR?\n")
-            self.sock.send(self.read_eoi)
+            self.sock.send(bytes("SYST:ERR?\n"))
+            self.sock.send(bytes(self.read_eoi))
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
@@ -253,14 +253,14 @@ class Amplifier:
             manlight.enable(False)  # Ensure Amplifier is off
             manlight.mode(mode, power)
             manlight.enable(True)
-            params = manlight.status()
+            result = manlight.status()
             logger.debug(
-                "Amplifier parameters - status: {}, mode: {}, power: {}".format(params[0], params[1], params[2]))
+                "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
 
             manlight.close()
             logger.debug("Amplifier configuration finished")
-            return params
+            return result
 
         except Exception as error:
-            logger.error("Amplifier configuration method, {}".format(error))
+            logger.error("Amplifier configuration failed, error: {}".format(error))
             raise error
