@@ -187,7 +187,7 @@ def wss_deleteOperationsByID(wss_id):
 
 def n_max(ops, key_func):
     """
-    Return the maximum element of input ports into operations.
+    Return the maximum element of input ports in operations.
 
     :param ops: operations to configure the WaveShaper
     :type ops: list

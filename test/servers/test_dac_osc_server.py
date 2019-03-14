@@ -1,9 +1,8 @@
 import json
+from os import sys, path
 
 import numpy as np
 import requests
-
-from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 
@@ -15,12 +14,6 @@ if __name__ == '__main__':
     bn2 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
-
-    # print(bn1)
-    # print(bn2)
-    # print(En1)
-    # print(En2)
-
     eq1 = eq2 = "MMSE"
     params = [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
               {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
