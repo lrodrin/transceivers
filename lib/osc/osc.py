@@ -1,9 +1,10 @@
 """This is the OSC module.
 """
+import logging
+
 import numpy as np
 import scipy.signal as sgn
 import visa
-import logging
 
 import lib.constellationV2 as modulation
 import lib.ofdm as ofdm
@@ -173,7 +174,7 @@ class OSC:
                         FHTdatarx_eq = ofdm.equalize_fft(FHTdatarx, cdatar, Ncarriers_eq, self.NTS)
 
                     logger.debug("Estimating SNR")
-                    # TODO take into account in the controler that we only use the SNR corresponding to estimation
+                    # TODO take into account in the controller that we only use the SNR corresponding to estimation
                     #  mode defined at the controller
                     SNR = ofdm.SNR_estimation(cdatar[self.NTS:, ], FHTdatarx_eq, self.Nframes - self.NTS,
                                               Ncarriers_eq)

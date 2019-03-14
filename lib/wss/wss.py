@@ -2,6 +2,7 @@
 """
 import logging
 import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -36,12 +37,18 @@ class WSS:
     def __init__(self, id, n, m):
         """
         The constructor for the WaveShaper class.
+        Initialize the WaveShaper default parameters:
+
+            - wavelength (float): Central frequency. The range of wavelength takes 1528'773 to 1566'723 nm.
+            - attenuation (float): Port attenuation.
+            - phase (float): Phase.
+            - bandwidth (float): Bandwidth.
 
         :param id: id of the WaveShaper
         :type id: int
-        :param n: number to identify the input ports
+        :param n: max number of the input ports
         :type n: int
-        :param m: number to identify the output ports
+        :param m: max number of the output ports
         :type m: int
         """
         self.id = id
@@ -52,22 +59,11 @@ class WSS:
 
         self.n = n
         self.m = m
-        self.initialization()
-        self.open()
-
-    def initialization(self):
-        """
-        Initialize the WaveShaper default parameters:
-
-            - wavelength (float): Set central frequency. The range of wavelength takes 1528'773 to 1566'723 nm.
-            - bandwidth (float): Set bandwidth.
-            - phase (float): Set phase.
-            - attenuation (float): Set port attenuation.
-        """
         self.wavelength = np.ones(shape=(self.n, self.m), dtype=float)
-        self.bandwidth = np.zeros(shape=(self.n, self.m), dtype=float)
-        self.phase = np.zeros(shape=(self.n, self.m), dtype=float)
         self.attenuation = 60 * np.ones(shape=(self.n, self.m), dtype=float)
+        self.phase = np.zeros(shape=(self.n, self.m), dtype=float)
+        self.bandwidth = np.zeros(shape=(self.n, self.m), dtype=float)
+        self.open()
 
     def open(self):
         """
@@ -108,28 +104,28 @@ class WSS:
 
     def execute(self, profiletext, k):
         """
-        Load the desired profile according to the WaveShaper wavelength, port attenuation, phase and bandwidth for the
-        filter configuration.
+        Create and update the desired profile according to the WaveShaper wavelength, port attenuation,
+        phase and bandwidth for the filter configuration.
 
-        :param profiletext: # TODO
+        :param profiletext: text to save frequency, attenuation, phase for each input port specified by k
         :rtype profiletext: str
-        :param k: number of port in to calculate the frequency
+        :param k: input port
         :rtype k: int
         :return: profiletext
         :rtype: str
         """
         freq = self.speed_of_light / self.wavelength
         startfreq = freq - self.bandwidth * 0.5 * 1e-3  # start frequency in THz
-        stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # strop frequency in THz
+        stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # stop frequency in THz
 
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-                if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
-                    profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (
-                        frequency, self.attenuation[k], self.phase[k], k)
-                else:
-                    profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
+            if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
+                profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (
+                    frequency, self.attenuation[k], self.phase[k], k)
+            else:
+                profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
 
-        ################DELETE########################
+        ################DELETE######################################
         profiletext_out = profiletext.split("\n")
         profile_wss = np.array(np.zeros(len(profiletext_out) * 4))
         profile_wss = profile_wss.reshape((len(profiletext_out), 4))
@@ -137,14 +133,13 @@ class WSS:
             profile_wss[index] = profiletext_out[index].split("\t")
 
         profile_wss = profile_wss[0:len(profile_wss) - 1, :]
-        peakind = (profile_wss[:, 1] == self.attenuation[0]).nonzero()
 
         plt.figure()
         plt.plot(profile_wss[:, 0], profile_wss[:, 1])
         plt.show()
-        ################DELETE########################
+        #################DELETE######################################
 
-        logger.debug("WaveShaper %s profile created" % str(self.id))
+        logger.debug("WaveShaper %s profile updated for input port %s" % (str(self.id), str(k)))
         return profiletext
 
     def execute_wss(self, profile):
@@ -167,33 +162,37 @@ class WSS:
         """
         WaveShaper configuration:
 
-            - Set the wavelength, port attenuation, phase and bandwidth for the filter configuration of the WaveShaper.
-            - Load the desired profile according to the WaveShaper values of filter configuration.
+            - Set the wavelength, port attenuation, phase and bandwidth for the filter configuration.
+            - Load the desired profile according to the WaveShaper filter configuration.
 
-        :param operations: operations to configure the WaveShaper
+        :param operations: operations to configure the filter of the WaveShaper
         :type operations: list
         """
-        profiletext = ""
+        profiletext = str()
         wss_id = str(self.id)
-        for i in range(len(operations)):  # for each operation
-            pos_x = operations[i]['port_in'] - 1
-            pos_y = operations[i]['port_out'] - 1
-            self.wavelength[pos_x][pos_y] = operations[i]['lambda0']
-            self.attenuation[pos_x][pos_y] = operations[i]['att']
-            self.phase[pos_x][pos_y] = operations[i]['phase']
-            self.bandwidth[pos_x][pos_y] = operations[i]['bw']
-
-            profiletext += self.execute(profiletext, pos_x)
-            
         try:
+            for i in range(len(operations)):  # for each operation
+                x = operations[i]['port_in'] - 1
+                y = operations[i]['port_out'] - 1
+                self.wavelength[x][y] = operations[i]['lambda0']
+                self.attenuation[x][y] = operations[i]['att']
+                self.phase[x][y] = operations[i]['phase']
+                self.bandwidth[x][y] = operations[i]['bw']
+
+                profiletext += self.execute(profiletext, x)  # update profile
+
+        except Exception as error:
+            logger.error("WaveShaper {} filter configuration failed, error: {}".format(wss_id, error))
+            raise error
+
+        finally:
             rc = wsapi.ws_load_profile(wss_id, profiletext)
             if rc < 0:
-                logger.error("WaveShaper {} profile not loaded, {}".format(wss_id, wsapi.ws_get_result_description(rc)))
+                logger.error("WaveShaper {} profile not loaded, description: {}".format(wss_id,
+                                                                                        wsapi.ws_get_result_description(
+                                                                                            rc)))
             else:
                 logger.debug("WaveShaper %s profile loaded" % wss_id)
                 time.sleep(self.time_sleep)
                 self.close()
-
-        except Exception as error:
-            logger.error("WaveShaper configuration method, {}".format(error))
-            raise error
+                logger.debug("WaveShaper %s configuration finished" % wss_id)

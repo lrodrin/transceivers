@@ -182,7 +182,7 @@ class DAC:
             f_clock.write("2.0\n")  # freq. synth. control [GHz] (60GS/s--> 1.87, 64GS/s--->2GHz)
             f_clock_ref = open(DAC.clock_ref_file, "w")
             f_clock_ref.write("10\n")  # 10MHz or 50MHz Ref frequency
-            np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal
+            np.savetxt(DAC.temp_file, Cx_LEIA)  # .txt with the OFDM signal # TODO init Cx_LEIA
 
         except Exception as error:
             logger.error("DAC transmitter method, {}".format(error))
@@ -198,8 +198,8 @@ class DAC:
         :param temp_file: file to save the OFDM signal that will be uploaded to LEIA DAC
         :type temp_file: file
         """
-        seq = ""
-        leia_file = ""
+        seq = str()
+        leia_file = str()
         try:
             if dac_out == 1:
                 logger.debug("Enable Hi channel")
@@ -246,5 +246,5 @@ class DAC:
                     "MATLAB call {} failed, exit-code = {} returned, error = {}".format(command, proc.returncode,
                                                                                         str(err)))
         except OSError as error:
-            logger.error("Failed to execute MATLAB, error = %s" % error)
+            logger.error("Failed executing MATLAB, error = %s" % error)
             raise error
