@@ -1,4 +1,3 @@
-import argparse
 import logging
 from logging.handlers import RotatingFileHandler
 from os import sys, path
@@ -9,34 +8,12 @@ from flask.json import jsonify
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from agent_core import AgentCore
-
 app = Flask(__name__)
 Swagger(app)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
-
-
-def startup(*margs):
-    """
-    Define BVT-Agent.
-
-    :param margs: id of bvt-agent
-    :type margs: int
-    :return: AgentCore specified for bvt-agent defined
-    :rtype: AgentCore
-    """
-    parser = argparse.ArgumentParser("OPENCONFIG Server Startup")
-    parser.add_argument('-id', type=int, help='BVT-agent id')
-
-    args = parser.parse_args(*margs)
-    agent = AgentCore(args.id)
-    return agent
-
-
-ac = startup()
 
 
 @app.route('/api/vi/openconfig/local_channel_assignment', methods=['POST'])

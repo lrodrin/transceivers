@@ -3,8 +3,6 @@
 import logging
 from os import sys, path
 
-import numpy as np
-
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
@@ -15,17 +13,25 @@ from rest_api import RestApi
 logger = logging.getLogger("AGENT_CORE")
 logger.addHandler(logging.NullHandler())
 
-SPEED_OF_LIGHT = 299792.458
+speed_of_light = 299792.458
 
 
 class AgentCore:
     """
-    This is the class for Agent Core module.
+    This is the class for the Agent Core module.
     """
 
-    def __init__(self, ip_laser, addr_laser, channel_laser, power_laser, assoc_id, dac_out, osc_in, ip_rest_server):
+    def __init__(self, ip_laser, addr_laser, channel_laser, power_laser, logical_associations, ip_rest_server):
         """
         The constructor for the Agent Core class.
+
+        :param ip_laser:
+        :param addr_laser:
+        :param channel_laser:
+        :param power_laser:
+        :param assoc_id:
+        :param dac_out:
+        :param
         """
         # Laser parameters
         self.ip_laser = ip_laser
@@ -61,7 +67,7 @@ class AgentCore:
         :type eq: str
         """
         try:
-            lambda0 = (SPEED_OF_LIGHT / (NCF * 1e6)) * 1e9  # calculate lambda0
+            lambda0 = (speed_of_light / (NCF * 1e6)) * 1e9  # calculate lambda0
             params = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
             if params is not None:
                 print(params)
