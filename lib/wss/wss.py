@@ -106,26 +106,28 @@ class WSS:
         except Exception as e:
             logger.error("WaveShaper {} not deleted, {}".format(name, e))
 
-    def execute(self):
+    def execute(self, profiletext, k):
         """
         Load the desired profile according to the WaveShaper wavelength, port attenuation, phase and bandwidth for the
         filter configuration.
 
-        :return: 0 if profile was loaded and -1 otherwise
-        :rtype: int
+        :param profiletext: # TODO
+        :rtype profiletext: str
+        :param k: number of port in to calculate the frequency
+        :rtype k: int
+        :return: profiletext
+        :rtype: str
         """
-        profiletext = ""
         freq = self.speed_of_light / self.wavelength
         startfreq = freq - self.bandwidth * 0.5 * 1e-3  # start frequency in THz
         stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # strop frequency in THz
 
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-            for k in range(self.n):  # for each input port
                 if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
-                    profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (
-                        frequency, self.attenuation[k], self.phase[k], k + 1)
+                    profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (
+                        frequency, self.attenuation[k], self.phase[k], k)
                 else:
-                    profiletext = profiletext + "%.3f\t60.0\t0.0\t0\n" % frequency
+                    profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
 
         ################DELETE########################
         profiletext_out = profiletext.split("\n")
@@ -143,7 +145,7 @@ class WSS:
         ################DELETE########################
 
         logger.debug("WaveShaper %s profile created" % str(self.id))
-        return wsapi.ws_load_profile(str(self.id), profiletext)
+        return profiletext
 
     def execute_wss(self, profile):
         """
@@ -156,7 +158,7 @@ class WSS:
         """
         profiletext = ""
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-            profiletext = profiletext + "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
+            profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
 
         logger.debug("WaveShaper %s profile created" % str(self.id))
         return wsapi.ws_load_profile(str(self.id), profiletext)
@@ -171,20 +173,20 @@ class WSS:
         :param operations: operations to configure the WaveShaper
         :type operations: list
         """
-        print(self.wavelength)  # TODO delete
+        profiletext = ""
         wss_id = str(self.id)
         for i in range(len(operations)):  # for each operation
-            pos_x = operations[i]['port_in']
-            pos_y = operations[i]['port_out']
-            self.wavelength[pos_x - 1][pos_y - 1] = operations[i]['lambda0']
-            self.attenuation[pos_x - 1][pos_y - 1] = operations[i]['att']
-            self.phase[pos_x - 1][pos_y - 1] = operations[i]['phase']
-            self.bandwidth[pos_x - 1][pos_y - 1] = operations[i]['bw']
+            pos_x = operations[i]['port_in'] - 1
+            pos_y = operations[i]['port_out'] - 1
+            self.wavelength[pos_x][pos_y] = operations[i]['lambda0']
+            self.attenuation[pos_x][pos_y] = operations[i]['att']
+            self.phase[pos_x][pos_y] = operations[i]['phase']
+            self.bandwidth[pos_x][pos_y] = operations[i]['bw']
 
-        print(self.wavelength)  # TODO delete
-
+            profiletext += self.execute(profiletext, pos_x)
+            
         try:
-            rc = self.execute()
+            rc = wsapi.ws_load_profile(wss_id, profiletext)
             if rc < 0:
                 logger.error("WaveShaper {} profile not loaded, {}".format(wss_id, wsapi.ws_get_result_description(rc)))
             else:
