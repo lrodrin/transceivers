@@ -53,8 +53,8 @@ def make_DRoF_configuration(model, namespace, stat, NCF, FEC, eq, sub_id, bn, En
 
 
 if __name__ == '__main__':
-    bn = np.array(np.ones(512) * 2).tolist()
-    En = np.array(np.ones(512)).tolist()
+    bn = list(np.array(np.ones(512) * 2))
+    En = list(np.array(np.ones(512)))
     xml = make_DRoF_configuration("DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
                                   "HD-FEC", "MMSE", 1, bn, En)
     print(xml)

@@ -91,7 +91,7 @@ def optical_channel_configuration():
             power = params['power']
             mode = params['mode']
             try:
-                msg = ac.optical_channel_configuration(och, freq, power, mode)
+                msg = ac.metroStartup(och, freq, power, mode)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 
