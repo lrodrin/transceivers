@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module agent_core</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>agent_core</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/laurarodriguez/PycharmProjects/TP/agent_core.py">/Users/laurarodriguez/PycharmProjects/TP/agent_core.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;is&nbsp;the&nbsp;Agent&nbsp;Core&nbsp;module.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="posixpath.html">posixpath</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="agent_core.html#AgentCore">AgentCore</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="AgentCore">class <strong>AgentCore</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#AgentCore">AgentCore</a>(ip_laser,&nbsp;addr_laser,&nbsp;channel_laser,&nbsp;power_laser,&nbsp;ip_amplifier,&nbsp;addr_amplifier,&nbsp;mode_amplifier,&nbsp;power_amplifier,&nbsp;wss_operations,&nbsp;logical_associations,&nbsp;ip_rest_server)<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;the&nbsp;class&nbsp;for&nbsp;the&nbsp;Agent&nbsp;Core&nbsp;module.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="AgentCore-__init__"><strong>__init__</strong></a>(self, ip_laser, addr_laser, channel_laser, power_laser, ip_amplifier, addr_amplifier, mode_amplifier, power_amplifier, wss_operations, logical_associations, ip_rest_server)</dt><dd><tt>The&nbsp;constructor&nbsp;for&nbsp;the&nbsp;Agent&nbsp;Core&nbsp;class.<br>
+&nbsp;<br>
+:param&nbsp;ip_laser:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET&nbsp;of&nbsp;the&nbsp;Laser<br>
+:type&nbsp;ip_laser:&nbsp;str<br>
+:param&nbsp;addr_laser:&nbsp;GPIB&nbsp;address&nbsp;of&nbsp;the&nbsp;Laser<br>
+:param&nbsp;channel_laser:&nbsp;channel&nbsp;of&nbsp;the&nbsp;Laser<br>
+:type&nbsp;channel_laser:&nbsp;int<br>
+:param&nbsp;power_laser:&nbsp;power&nbsp;of&nbsp;the&nbsp;Laser&nbsp;in&nbsp;dBm<br>
+:type&nbsp;power_laser:&nbsp;float<br>
+:param&nbsp;ip_amplifier:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET&nbsp;of&nbsp;the&nbsp;Amplifier<br>
+:type&nbsp;ip_amplifier:&nbsp;str<br>
+:param&nbsp;addr_amplifier:&nbsp;GPIB&nbsp;address&nbsp;of&nbsp;the&nbsp;Amplifier<br>
+:type&nbsp;addr_amplifier:&nbsp;str<br>
+:param&nbsp;mode_amplifier:&nbsp;mode&nbsp;of&nbsp;the&nbsp;Amplifier<br>
+:type&nbsp;mode_amplifier:&nbsp;str<br>
+:param&nbsp;power_amplifier:&nbsp;power&nbsp;of&nbsp;the&nbsp;Amplifier&nbsp;in&nbsp;dBm<br>
+:type&nbsp;power_amplifier:&nbsp;float<br>
+:param&nbsp;wss_operations:&nbsp;id&nbsp;of&nbsp;WaveShaper&nbsp;and&nbsp;list&nbsp;of&nbsp;operations&nbsp;to&nbsp;be&nbsp;configured&nbsp;on&nbsp;the&nbsp;WaveShaper<br>
+:type&nbsp;wss_operations:&nbsp;dict<br>
+:param&nbsp;logical_associations:&nbsp;a&nbsp;transmission&nbsp;between&nbsp;DAC&nbsp;and&nbsp;OSC<br>
+:type&nbsp;logical_associations:&nbsp;list<br>
+:param&nbsp;ip_rest_server:&nbsp;IP&nbsp;address&nbsp;of&nbsp;GPIB-ETHERNET&nbsp;of&nbsp;the&nbsp;DAC/OSC&nbsp;REST&nbsp;Server<br>
+:type&nbsp;ip_rest_server:&nbsp;str</tt></dd></dl>
+
+<dl><dt><a name="AgentCore-blueStartup"><strong>blueStartup</strong></a>(self, NCF, bn, En, eq)</dt><dd><tt>Configuration&nbsp;of&nbsp;an&nbsp;Optical&nbsp;Channel&nbsp;by&nbsp;setting&nbsp;nominal&nbsp;central&nbsp;frequency,&nbsp;constellation&nbsp;and&nbsp;equalization.<br>
+&nbsp;<br>
+:param&nbsp;NCF:&nbsp;nominal&nbsp;central&nbsp;frequency<br>
+:param&nbsp;NCF:&nbsp;float<br>
+:param&nbsp;bn:&nbsp;bits&nbsp;per&nbsp;symbol<br>
+:type&nbsp;bn:&nbsp;float&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
+:param&nbsp;En:&nbsp;power&nbsp;per&nbsp;symbol<br>
+:type&nbsp;En:&nbsp;float&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
+:param&nbsp;eq:&nbsp;equalization<br>
+:type&nbsp;eq:&nbsp;str</tt></dd></dl>
+
+<dl><dt><a name="AgentCore-blueStop"><strong>blueStop</strong></a>(self)</dt><dd><tt>Disable&nbsp;Laser.<br>
+#&nbsp;TODO&nbsp;delete&nbsp;DAC/OSC&nbsp;associations</tt></dd></dl>
+
+<dl><dt><a name="AgentCore-getSNR"><strong>getSNR</strong></a>(self, bn, En, eq)</dt><dd><tt>Return&nbsp;the&nbsp;estimated&nbsp;SNR&nbsp;per&nbsp;subcarrier.<br>
+&nbsp;<br>
+:param&nbsp;bn:&nbsp;bits&nbsp;per&nbsp;symbol<br>
+:type&nbsp;bn:&nbsp;float&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
+:param&nbsp;En:&nbsp;power&nbsp;per&nbsp;symbol<br>
+:type&nbsp;En:&nbsp;float&nbsp;array&nbsp;of&nbsp;512&nbsp;positions<br>
+:param&nbsp;eq:&nbsp;equalization<br>
+:type&nbsp;eq:&nbsp;str<br>
+:return:&nbsp;estimated&nbsp;SNR&nbsp;per&nbsp;subcarrier<br>
+:rtype:&nbsp;list&nbsp;of&nbsp;floats</tt></dd></dl>
+
+<dl><dt><a name="AgentCore-metroStartup"><strong>metroStartup</strong></a>(self, och, freq, power, mode)</dt><dd><tt>Configuration&nbsp;of&nbsp;an&nbsp;Optical&nbsp;Channel&nbsp;by&nbsp;setting&nbsp;frequency,&nbsp;power&nbsp;and&nbsp;mode.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;WSS&nbsp;startup.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Amplifier&nbsp;startup.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Laser&nbsp;startup.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;DAC/OSC&nbsp;startup.<br>
+&nbsp;<br>
+:param&nbsp;och:&nbsp;id&nbsp;to&nbsp;identify&nbsp;the&nbsp;optical&nbsp;channel<br>
+:type&nbsp;och:&nbsp;str<br>
+:param&nbsp;freq:&nbsp;frequency&nbsp;of&nbsp;the&nbsp;optical&nbsp;channel&nbsp;expressed&nbsp;in&nbsp;MHz.&nbsp;193.3e6&nbsp;(1550.99&nbsp;nm)&nbsp;for&nbsp;channel&nbsp;1&nbsp;or&nbsp;193.4e6<br>
+(1550.12&nbsp;nm)&nbsp;for&nbsp;channel&nbsp;2<br>
+:type&nbsp;freq:&nbsp;float<br>
+:param&nbsp;power:&nbsp;target&nbsp;output&nbsp;power&nbsp;level&nbsp;of&nbsp;the&nbsp;optical&nbsp;channel&nbsp;expressed&nbsp;in&nbsp;increments&nbsp;of&nbsp;0.01&nbsp;dBm.<br>
+3.20&nbsp;dBm&nbsp;for&nbsp;uniform&nbsp;loading&nbsp;or&nbsp;0.4&nbsp;dBm&nbsp;for&nbsp;loading<br>
+:type&nbsp;power:&nbsp;float<br>
+:param&nbsp;mode:&nbsp;vendor-specific&nbsp;mode&nbsp;identifier&nbsp;for&nbsp;identify&nbsp;the&nbsp;operational&nbsp;mode&nbsp;of&nbsp;the&nbsp;optical&nbsp;channel.&nbsp;SD-FEC<br>
+or&nbsp;HD-FEC<br>
+:type&nbsp;mode:&nbsp;str</tt></dd></dl>
+
+<dl><dt><a name="AgentCore-metroStop"><strong>metroStop</strong></a>(self)</dt><dd><tt>Disable&nbsp;Laser&nbsp;and&nbsp;Amplifier.<br>
+#&nbsp;TODO&nbsp;delete&nbsp;WSS&nbsp;operations<br>
+#&nbsp;TODO&nbsp;delete&nbsp;DAC/OSC&nbsp;associations</tt></dd></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="AgentCore-channelAssignment"><strong>channelAssignment</strong></a>(client, och)</dt><dd><tt>Client&nbsp;assignation&nbsp;to&nbsp;an&nbsp;Optical&nbsp;Channel.<br>
+&nbsp;<br>
+:param&nbsp;client:&nbsp;id&nbsp;to&nbsp;identify&nbsp;the&nbsp;client<br>
+:type&nbsp;client:&nbsp;str<br>
+:param&nbsp;och:&nbsp;id&nbsp;to&nbsp;identify&nbsp;the&nbsp;optical&nbsp;channel<br>
+:type&nbsp;och:&nbsp;str<br>
+:return:&nbsp;the&nbsp;client&nbsp;and&nbsp;the&nbsp;optical&nbsp;channel&nbsp;assigned<br>
+:rtype:&nbsp;str</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>logger</strong> = &lt;Logger AGENT_CORE (WARNING)&gt;<br>
+<strong>speed_of_light</strong> = 299792.458</td></tr></table>
+</body></html>
