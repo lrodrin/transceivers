@@ -60,7 +60,10 @@ class AgentCore:
         self.power_amplifier = power_amplifier
 
         # WSS parameters
-        self.wss_operations = dict(wss_operations)
+        if wss_operations is not None:  # if WSS is needed
+            self.wss_operations = dict(wss_operations)
+        else:  # WSS is not needed
+            self.wss_operations = None
 
         # DAC/OSC parameters
         self.logical_associations = list(logical_associations)
