@@ -47,7 +47,7 @@ def local_channel_assignment():
             c = params['client']
             och = params['och']
             try:
-                msg = ac.local_channel_assignment(c, och)
+                msg = ac.channelAssignment(c, och)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 
