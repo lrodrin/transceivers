@@ -72,7 +72,7 @@ class AgentCore:
         self.ip_rest_server = ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def blueStartup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
+    def blueSetup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
         """
         Configuration of an Optical Channel by setting nominal central frequency, constellation and equalization.
 
@@ -86,14 +86,19 @@ class AgentCore:
         :type eq: str
         """
         try:
+            # Laser setup
             lambda0 = (speed_of_light / (NCF * 1e6)) * 1e9  # calculate lambda0 with NCF
             params = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
             logger.debug(
                 "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
+
             if params is not None:
                 try:
-                    # TODO more than one association
-                    # TODO store bn, En and eq to logical_associations
+                    # DAC/OSC setup
+                    # TODO store bn, En, eq ?
+                    self.logical_associations[0]['bn'] = bn
+                    self.logical_associations[0]['En'] = En
+                    self.logical_associations[0]['eq'] = eq
                     SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
                     logger.debug("SNR = %s" % SNR)
 
@@ -109,14 +114,69 @@ class AgentCore:
             logger.error(e)
             raise e
 
-    def metroStartup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py
+    def getSNR(self, bn, En, eq):  # CALLED FROM netconf_server.py
+        """
+        Return the estimated SNR per subcarrier by setting nominal central frequency, constellation and equalization.
+
+        :param bn: bits per symbol
+        :type bn: float array of 512 positions
+        :param En: power per symbol
+        :type En: float array of 512 positions
+        :param eq: equalization
+        :type eq: str
+        :return: estimated SNR per subcarrier
+        :rtype: list of floats
+        """
+        try:
+            # DAC/OSC setup
+            # TODO store bn, En, eq ?
+            self.logical_associations[1]['bn'] = bn
+            self.logical_associations[1]['En'] = En
+            self.logical_associations[1]['eq'] = eq
+            SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
+            logger.debug("SNR = %s" % SNR)
+            return SNR
+
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    def blueDisconnect(self):  # CALLED FROM netconf_server.py
+        """
+        Disable Laser and remove the logical associations between DAC and OSC.
+        """
+        try:
+            # disable Laser
+            yenista = Laser(self.ip_laser, self.addr_laser)
+            yenista.enable(self.channel_laser, False)
+            logger.debug("Laser {} on channel {} disabled".format(self.ip_laser, self.channel_laser))
+
+            try:
+                # remove the logical associations
+                for i in range(len(self.logical_associations)):  # for each operation
+                    assoc_id = self.logical_associations[i]['id']
+                    dac_out = self.logical_associations[i]['dac_out']
+                    osc_in = self.logical_associations[i]['osc_in']
+                    self.api.deleteDACOSCOperationsById(assoc_id)
+                    logger.debug(
+                        "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
+
+            except Exception as e:
+                logger.error("Logical associations between DAC and OSC not removed, Error: %s" % e)
+                raise e
+
+        except Exception as e:
+            logger.error("Laser {} on channel {} not disabled, Error: {}".format(self.ip_laser, self.channel_laser, e))
+            raise e
+
+    def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py
         """
         Configuration of an Optical Channel by setting frequency, power and mode.
 
-            - WSS startup.
-            - Amplifier startup.
-            - Laser startup.
-            - DAC/OSC startup.
+            - WSS setup.
+            - Amplifier setup.
+            - Laser setup.
+            - DAC/OSC setup.
 
         :param och: id to identify the optical channel
         :type och: str
@@ -131,18 +191,19 @@ class AgentCore:
         :type mode: str
         """
         try:
-            # WSS startup
+            # WSS setup
             result = self.api.wSSConfiguration(self.wss_operations)
             logging.debug(result)
             try:
-                # OA startup
+                # OA setup
                 params = Amplifier.configuration(self.ip_amplifier, self.addr_amplifier, self.mode_amplifier,
                                                  self.power_amplifier)
                 logger.debug(
                     "Amplifier parameters - status: {}, mode: {}, power: {}".format(params[0], params[1], params[2]))
+
                 if params is not None:
                     try:
-                        # Laser startup
+                        # Laser setup
                         lambda0 = (speed_of_light / (freq * 1e6)) * 1e9  # calculate lambda0 with freq
                         self.power_laser = power + 9  # considering the losses of the modulation MZM
                         params = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0,
@@ -152,9 +213,7 @@ class AgentCore:
                                                                                               params[2]))
                         if params is not None:
                             try:
-                                # DAC/OSC startup
-                                # TODO more than one association
-                                # TODO store bn, En and eq to logical_associations
+                                # DAC/OSC setup
                                 SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
                                 logger.debug("BER = %s" % BER)
 
@@ -196,49 +255,10 @@ class AgentCore:
         """
         return "Client {} assigned to the Optical Channel {}".format(client, och)
 
-    def getSNR(self, bn, En, eq):  # CALLED FROM netconf_server.py
-        """
-        Return the estimated SNR per subcarrier.
-
-        :param bn: bits per symbol
-        :type bn: float array of 512 positions
-        :param En: power per symbol
-        :type En: float array of 512 positions
-        :param eq: equalization
-        :type eq: str
-        :return: estimated SNR per subcarrier
-        :rtype: list of floats
-        """
-        try:
-            # TODO more than one association
-            # TODO store bn, En and eq to logical_associations
-            SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
-            logger.debug("SNR = %s" % SNR)
-            return SNR
-
-        except Exception as e:
-            logger.error(e)
-            raise e
-
-    def blueStop(self):  # CALLED FROM netconf_server.py
-        """
-        Disable Laser.
-        # TODO delete DAC/OSC associations
-        """
-        try:
-            yenista = Laser(self.ip_laser, self.addr_laser)
-            yenista.enable(self.channel_laser, False)
-            logger.debug("Laser {} on channel {} disabled".format(self.ip_laser, self.channel_laser))
-
-        except Exception as e:
-            logger.error("Laser {} on channel {} not disabled, Error: {}".format(self.ip_laser, self.channel_laser, e))
-            raise e
-
-    def metroStop(self):  # CALLED FROM openconfig_server.py
+    def metroDisconnect(self):  # CALLED FROM openconfig_server.py
         """
         Disable Laser and Amplifier.
-        # TODO delete WSS operations
-        # TODO delete DAC/OSC associations
+        Remove the logical associations between DAC and OSC, and operations configured to WSS
         """
         try:
             yenista = Laser(self.ip_laser, self.addr_laser)
@@ -248,6 +268,29 @@ class AgentCore:
                 manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
                 manlight.enable(False)
                 logger.debug("Amplifier %s disabled" % self.ip_amplifier)
+                try:
+                    # remove the logical associations
+                    for i in range(len(self.logical_associations)):  # for each operation
+                        assoc_id = self.logical_associations[i]['id']
+                        dac_out = self.logical_associations[i]['dac_out']
+                        osc_in = self.logical_associations[i]['osc_in']
+                        self.api.deleteDACOSCOperationsById(assoc_id)
+                        logger.debug(
+                            "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
+
+                        try:
+                            # remove the operations
+                            wss_id = self.wss_operations['wss_id']
+                            self.api.deleteWSSOperationsById(wss_id)
+                            logger.debug("Operations on WaveShaper %s removed" % wss_id)
+
+                        except Exception as e:
+                            logger.error("Operations on WaveShaper not removed, Error: %s" % e)
+                            raise e
+
+                except Exception as e:
+                    logger.error("Logical associations between DAC and OSC not removed, Error: %s" % e)
+                    raise e
 
             except Exception as e:
                 logger.error("Amplifier {} not disabled, error: {}".format(self.ip_amplifier, e))

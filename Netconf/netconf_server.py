@@ -244,7 +244,7 @@ def main(*margs):
     parser.add_argument("-user", default="root", help='Username')
     parser.add_argument("-passwd", default="netlabN.", help='Password')
     parser.add_argument('-p', type=int, default=830, metavar="PORT", help='Port')
-    # parser.add_argument('-xml', metavar="FILENAME", help='DRoF Configuration file')
+    # parser.add_argument('-c', metavar="FILENAME", help='DRoF Configuration file')
     parser.add_argument('-file', metavar="FILENAME", help='Agent Configuration file')
 
     args = parser.parse_args(*margs)

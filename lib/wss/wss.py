@@ -119,9 +119,9 @@ class WSS:
         stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # stop frequency in THz
 
         for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-            if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
+            if self.wavelength[k-1] > 1 and startfreq[k-1] < frequency < stopfreq[k-1]:
                 profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (
-                    frequency, self.attenuation[k], self.phase[k], k)
+                    frequency, self.attenuation[k-1], self.phase[k-1], k)
             else:
                 profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
 
