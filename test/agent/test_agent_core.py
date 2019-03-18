@@ -55,9 +55,9 @@ if __name__ == '__main__':
             print("channel laser = %s" % ac.channel_laser)
             print(ac.logical_associations)
 
-            # print(ac.blueStartup(NCF, bn, En, eq))
-            # print(ac.getSNR(bn, En, eq))
-            # print(ac.blueStop())
+            print(ac.blueSetup(NCF, bn, En, eq))
+            print(ac.getSNR(bn, En, eq))
+            print(ac.blueDisconnect())
 
         else:
             print("channel laser = %s" % ac.channel_laser)
@@ -65,6 +65,6 @@ if __name__ == '__main__':
             print(ac.wss_operations)
             print(ac.logical_associations)
 
-            # print(ac.metroStartup(och, freq, power, mode))
-            # print(ac.channelAssignment(client, och))
-            # print(ac.metroStop())
+            print(ac.channelAssignment(client, och))
+            print(ac.metroSetup(och, freq, power, mode))
+            print(ac.metroDisconnect())

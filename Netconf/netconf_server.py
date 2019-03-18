@@ -3,18 +3,17 @@
 import argparse
 import logging
 import time
-import ast
+from os import sys, path
 
-from six.moves import configparser
 from lxml import etree
 from netconf import server, util, nsmap_add, NSMAP
-from os import sys, path
+from six.moves import configparser
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from agent_core import AgentCore
-from bindings.bindingCapability import blueSPACE_DRoF_TP_capability
-from bindings.bindingConfiguration import blueSPACE_DRoF_configuration
+import Netconf.bindings.bindingConfiguration
+from Netconf.bindings.bindingCapability import blueSPACE_DRoF_TP_capability
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -42,11 +41,14 @@ class NETCONFServer(object):
         :type password: str
         :param port: port number to bind the NETCONF server
         :type port: int
+        :param agent: Agent Core
+        :type agent: AgentCore
         """
         self.ac = agent
-        print(self.ac.dac_out)
+        print(self.ac.ip_laser)
+
         self.configuration = None
-        self.capability = None
+        self.capability = blueSPACE_DRoF_TP_capability()
         self.capabilities = ["blueSPACE-DRoF-configuration", "blueSPACE-DRoF-TP-capability"]
         try:
             auth = server.SSHUserPassController(username=username, password=password)
@@ -69,31 +71,31 @@ class NETCONFServer(object):
             logging.error("Connection to NETCONF Server not closed, {}".format(e))
             raise e
 
-    # def load_file(self, filename, binding, module):
-    #     """
-    #     Load and save the configuration into the NETCONF Server datastore.
-    #
-    #     :param filename: configuration file
-    #     :type filename: str
-    #     :param binding: data instance from a YANG data model specified by module_name
-    #     :type binding: PybindBase
-    #     :param module: YANG module
-    #     :type module: str
-    #     """
-    #     try:
-    #         xml_root = open(filename, 'r').read()
-    #         conf = pybindIETFXMLDecoder.decode(xml_root, binding, module)
-    #         xml = pybindIETFXMLEncoder.serialise(conf)
-    #         tree = etree.XML(xml)
-    #         data = util.elm("nc:data")
-    #         data.append(tree)
-    #         logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
-    #         self.configuration = data  # save configuration
-    #         logging.debug("Configuration file {} loaded".format(filename))
-    #
-    #     except Exception as e:
-    #         logging.error("Configuration file {} not loaded, {}".format(filename, e))
-    #         raise e
+    def load_file(self, filename, binding, module):
+        """
+        Load and save the configuration into the NETCONF Server datastore.
+
+        :param filename: configuration file
+        :type filename: str
+        :param binding: data instance from a YANG data model specified by module_name
+        :type binding: PybindBase
+        :param module: YANG module
+        :type module: str
+        """
+        try:
+            xml_root = open(filename, 'r').read()
+            conf = pybindIETFXMLDecoder.decode(xml_root, binding, module)
+            xml = pybindIETFXMLEncoder.serialise(conf)
+            tree = etree.XML(xml)
+            data = util.elm("nc:data")
+            data.append(tree)
+            logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
+            self.configuration = data  # save configuration
+            logging.debug("Configuration file {} loaded".format(filename))
+
+        except Exception as e:
+            logging.error("Configuration file {} not loaded, {}".format(filename, e))
+            raise e
 
     def nc_append_capabilities(self):  # pylint: disable=W0613
         """
@@ -164,7 +166,7 @@ class NETCONFServer(object):
                 path = ".//xmlns:blueSPACE-DRoF-configuration"
                 namespace = "urn:blueSPACE-DRoF-configuration"
 
-            elif 'capability' in new_config[0].tag:
+            elif 'capability' in new_config.tag:
                 path = ".//xmlns:DRoF-TP-capability"
                 namespace = "urn:blueSPACE-DRoF-TP-capability"
 
@@ -241,11 +243,11 @@ def merge(one, other):
 
 def main(*margs):
     parser = argparse.ArgumentParser("NETCONF Server")
-    parser.add_argument("-user", default="root", help='Username')
-    parser.add_argument("-passwd", default="netlabN.", help='Password')
+    parser.add_argument("-u", default="root", help='Username')
+    parser.add_argument("-pwd", default="netlabN.", help='Password')
     parser.add_argument('-p', type=int, default=830, metavar="PORT", help='Port')
-    # parser.add_argument('-c', metavar="FILENAME", help='DRoF Configuration file')
-    parser.add_argument('-file', metavar="FILENAME", help='Agent Configuration file')
+    parser.add_argument('-c', metavar="FILENAME", help='DRoF Configuration file')
+    parser.add_argument('-f', metavar="FILENAME", help='BVT Agent Configuration file')
 
     args = parser.parse_args(*margs)
     config = configparser.RawConfigParser()
@@ -261,8 +263,7 @@ def main(*margs):
         config.get('api', 'ip')
     )
     s = NETCONFServer(args.user, args.passwd, args.p, agent)
-    # s.load_file(args.file, blueSPACE_DRoF_configuration, "blueSPACE_DRoF_configuration")
-    # s.load_file(args.file, blueSPACE_DRoF_TP_capability, "blueSPACE_DRoF_TP_capability")
+    s.load_file(args.file, bindingConfiguration, "blueSPACE_DRoF_configuration")
 
     if sys.stdout.isatty():
         print("^C to quit NETCONF Server")
