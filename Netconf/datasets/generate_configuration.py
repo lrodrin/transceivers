@@ -58,7 +58,7 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
         write_file(config, n, op)
 
 
-def set_constellation(En, bn, root):
+def set_constellation(bn, En, root):
     """
     Creates the constellation list inside the XML configuration.
 
