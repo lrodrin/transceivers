@@ -54,22 +54,16 @@ class AgentCore:
         self.power_laser = power_laser
 
         # OA parameters
-        if ip_amplifier is not None:  # if OA is needed
-            self.ip_amplifier = ip_amplifier
-            self.addr_amplifier = addr_amplifier
-            self.mode_amplifier = mode_amplifier
-            self.power_amplifier = power_amplifier
-        else:
-            self.ip_amplifier = None
-            self.addr_amplifier = None
-            self.mode_amplifier = None
-            self.power_amplifier = None
+        self.ip_amplifier = ip_amplifier
+        self.addr_amplifier = addr_amplifier
+        self.mode_amplifier = mode_amplifier
+        self.power_amplifier = power_amplifier
 
         # WSS parameters
-        if wss_operations is not None:  # if WSS is needed
+        if wss_operations is not None:
             self.wss_operations = dict(wss_operations)
         else:
-            self.wss_operations = None
+            self.wss_operations = wss_operations
 
         # DAC/OSC parameters
         self.logical_associations = list(logical_associations)
@@ -220,78 +214,78 @@ class AgentCore:
             logger.error(e)
             raise e
 
-    def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py   # TODO
-        """
-        Configuration of an Optical Channel by setting frequency, power and mode.
-
-            - WSS setup.
-            - Amplifier setup.
-            - Laser setup.
-            - DAC/OSC setup.
-
-        :param och: id to identify the optical channel
-        :type och: str
-        :param freq: frequency of the optical channel expressed in MHz. 193.3e6 (1550.99 nm) for channel 1 or 193.4e6
-        (1550.12 nm) for channel 2
-        :type freq: float
-        :param power: target output power level of the optical channel expressed in increments of 0.01 dBm.
-        3.20 dBm for uniform loading or 0.4 dBm for loading
-        :type power: float
-        :param mode: vendor-specific mode identifier for identify the operational mode of the optical channel. SD-FEC
-        or HD-FEC
-        :type mode: str
-        """
-        try:
-            # WSS setup
-            result = self.api.wSSConfiguration(self.wss_operations)
-            logging.debug(result)
-
-            # OA setup
-            result = Amplifier.configuration(self.ip_amplifier, self.addr_amplifier, self.mode_amplifier,
-                                             self.power_amplifier)
-            logger.debug(
-                "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
-
-            # Laser and DAC/OSC setup
-            # TODO
-
-        except Exception as e:
-            logger.error(e)
-            raise e
-
-    @staticmethod
-    def channelAssignment(client, och):  # CALLED FROM openconfig_server.py
-        """
-        Client assignation to an Optical Channel.
-
-        :param client: id to identify the client
-        :type client: str
-        :param och: id to identify the optical channel
-        :type och: str
-        :return: the client and the optical channel assigned
-        :rtype: str
-        """
-        return "Client {} assigned to the Optical Channel {}".format(client, och)
-
-    def metroDisconnect(self):  # CALLED FROM openconfig_server.py  # TODO
-        """
-        Disable Laser and Amplifier.
-        Remove the logical associations between DAC and OSC and remove the operations configured to WSS.
-        """
-        try:
-            # disable laser and remove the logical associations
-            self.disconnect()
-
-            # disable amplifier
-            manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
-            manlight.enable(False)
-            logger.debug("Amplifier %s disabled" % self.ip_amplifier)
-
-            # remove the operations
-            wss_id = self.wss_operations['wss_id']
-            self.api.deleteWSSOperationsById(wss_id)
-            logger.debug("Operations on WaveShaper %s removed" % wss_id)
-
-        except Exception as e:
-            logger.error(e)
-            raise e
+    # def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py   # TODO
+    #     """
+    #     Configuration of an Optical Channel by setting frequency, power and mode.
+    #
+    #         - WSS setup.
+    #         - Amplifier setup.
+    #         - Laser setup.
+    #         - DAC/OSC setup.
+    #
+    #     :param och: id to identify the optical channel
+    #     :type och: str
+    #     :param freq: frequency of the optical channel expressed in MHz. 193.3e6 (1550.99 nm) for channel 1 or 193.4e6
+    #     (1550.12 nm) for channel 2
+    #     :type freq: float
+    #     :param power: target output power level of the optical channel expressed in increments of 0.01 dBm.
+    #     3.20 dBm for uniform loading or 0.4 dBm for loading
+    #     :type power: float
+    #     :param mode: vendor-specific mode identifier for identify the operational mode of the optical channel. SD-FEC
+    #     or HD-FEC
+    #     :type mode: str
+    #     """
+    #     try:
+    #         # WSS setup
+    #         result = self.api.wSSConfiguration(self.wss_operations)
+    #         logging.debug(result)
+    #
+    #         # OA setup
+    #         result = Amplifier.configuration(self.ip_amplifier, self.addr_amplifier, self.mode_amplifier,
+    #                                          self.power_amplifier)
+    #         logger.debug(
+    #             "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
+    #
+    #         # Laser and DAC/OSC setup
+    #         # TODO
+    #
+    #     except Exception as e:
+    #         logger.error(e)
+    #         raise e
+    #
+    # @staticmethod
+    # def channelAssignment(client, och):  # CALLED FROM openconfig_server.py
+    #     """
+    #     Client assignation to an Optical Channel.
+    #
+    #     :param client: id to identify the client
+    #     :type client: str
+    #     :param och: id to identify the optical channel
+    #     :type och: str
+    #     :return: the client and the optical channel assigned
+    #     :rtype: str
+    #     """
+    #     return "Client {} assigned to the Optical Channel {}".format(client, och)
+    #
+    # def metroDisconnect(self):  # CALLED FROM openconfig_server.py  # TODO
+    #     """
+    #     Disable Laser and Amplifier.
+    #     Remove the logical associations between DAC and OSC and remove the operations configured to WSS.
+    #     """
+    #     try:
+    #         # disable laser and remove the logical associations
+    #         self.disconnect()
+    #
+    #         # disable amplifier
+    #         manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
+    #         manlight.enable(False)
+    #         logger.debug("Amplifier %s disabled" % self.ip_amplifier)
+    #
+    #         # remove the operations
+    #         wss_id = self.wss_operations['wss_id']
+    #         self.api.deleteWSSOperationsById(wss_id)
+    #         logger.debug("Operations on WaveShaper %s removed" % wss_id)
+    #
+    #     except Exception as e:
+    #         logger.error(e)
+    #         raise e
