@@ -55,9 +55,9 @@ if __name__ == '__main__':
             print("channel laser = %s" % ac.channel_laser)
             print(ac.logical_associations)
 
-            print(ac.blueSetup(NCF, bn, En, eq))
+            print(ac.setup(NCF, bn, En, eq))
             print(ac.getSNR(bn, En, eq))
-            print(ac.blueDisconnect())
+            print(ac.disconnect())
 
         else:
             print("channel laser = %s" % ac.channel_laser)

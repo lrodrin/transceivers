@@ -10,8 +10,8 @@ from lib.dac.dac import DAC
 
 if __name__ == '__main__':
     headers = {"Content-Type": "application/json"}
-    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
-    bn2 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
+    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
+    bn2 = np.array(np.ones(DAC.Ncarriers), dtype=int).tolist()
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
     eq1 = eq2 = "MMSE"

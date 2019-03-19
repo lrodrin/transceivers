@@ -30,7 +30,7 @@ class WSS:
     step = 0.001
     speed_of_light = 299792.458
     time_sleep = 5
-    folder = "C:/Users/CTTC/Desktop/agent-bvt/conf/"
+    folder = "C:/Users/CTTC/Desktop/agent-bvt/config/"
     configfile_1 = "SN042561.wsconfig"
     configfile_2 = "SN200162.wsconfig"
 

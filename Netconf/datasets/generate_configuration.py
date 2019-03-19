@@ -64,13 +64,13 @@ def make_DRoF_configuration(n, model, namespace, stat, NCF, FEC, eq, sub_id, bn,
 
 
 if __name__ == '__main__':
-    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
-    bn2 = np.array(np.ones(DAC.Ncarriers)).tolist()
+    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
+    bn2 = np.array(np.ones(DAC.Ncarriers), dtype=int).tolist()
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
     eq1 = eq2 = "MMSE"
 
-    make_DRoF_configuration(1, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 1550.12,
+    make_DRoF_configuration(1, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
                             "HD-FEC", "MMSE", 1, bn1, En1)
-    make_DRoF_configuration(2, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 1550.12,
+    make_DRoF_configuration(2, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
                             "HD-FEC", "MMSE", 2, bn1, En1)

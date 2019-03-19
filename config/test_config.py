@@ -9,7 +9,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC
 
 
-def get_config(id, file):
+def get_config(file):
     config = configparser.RawConfigParser()
     config.read(file)
 
@@ -26,24 +26,26 @@ def get_config(id, file):
     # REST API section
     print(config.get('rest_api', 'ip'))
 
-    if id == 2:
+    print(config.get('wss', 'operations'))
+
+    if config.get('wss', 'operations') is not None:
         # OA section
         print(config.get('oa', 'ip'))
         print(config.get('oa', 'power'))
-
-        # WSS section
-        d = ast.literal_eval(config.get('wss', 'operations'))
-        print(dict(d))
+    #
+    #     # WSS section
+    #     d = ast.literal_eval(config.get('wss', 'operations'))
+    #     print(dict(d))
 
 
 if __name__ == '__main__':
     files = ["blue_bvt1.cfg", "blue_bvt2.cfg", "metro_bvt1.cfg", "metro_bvt2.cfg"]
 
     print("BLUE")
-    get_config(1, files[0])
+    get_config(files[0])
 
     print("METRO")
-    get_config(2, files[2])
+    get_config(files[2])
 
     bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
     En = np.array(np.ones(DAC.Ncarriers)).tolist()
@@ -60,7 +62,3 @@ if __name__ == '__main__':
 
     for i in range(len(l)):
         print(l[i]['dac_out'])
-
-
-
-

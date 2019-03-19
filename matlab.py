@@ -24,6 +24,6 @@ def run(folder, filename, timeout_sec):
 
 
 if __name__ == '__main__':
-    folder = 'C:/Users/cttc/Desktop/agent-bvt/conf'
+    folder = 'C:/Users/cttc/Desktop/agent-bvt/config'
     filename = 'Leia_DAC_up.m'
     run(folder, filename, 50)

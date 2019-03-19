@@ -17,8 +17,8 @@ if __name__ == '__main__':
         {'port_in': 2, 'port_out': 1, 'lambda0': 1550.88, 'att': 0.0, 'phase': 0.0, 'bw': 50.0},
         {'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 50.0}]}
 
-    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
-    bn2 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
+    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
+    bn2 = np.array(np.ones(DAC.Ncarriers), dtype=int).tolist()
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
     eq1 = eq2 = "MMSE"

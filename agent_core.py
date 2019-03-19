@@ -54,15 +54,21 @@ class AgentCore:
         self.power_laser = power_laser
 
         # OA parameters
-        self.ip_amplifier = ip_amplifier
-        self.addr_amplifier = addr_amplifier
-        self.mode_amplifier = mode_amplifier
-        self.power_amplifier = power_amplifier
+        if ip_amplifier is not None:  # if OA is needed
+            self.ip_amplifier = ip_amplifier
+            self.addr_amplifier = addr_amplifier
+            self.mode_amplifier = mode_amplifier
+            self.power_amplifier = power_amplifier
+        else:
+            self.ip_amplifier = None
+            self.addr_amplifier = None
+            self.mode_amplifier = None
+            self.power_amplifier = None
 
         # WSS parameters
         if wss_operations is not None:  # if WSS is needed
             self.wss_operations = dict(wss_operations)
-        else:  # WSS is not needed
+        else:
             self.wss_operations = None
 
         # DAC/OSC parameters
@@ -72,9 +78,61 @@ class AgentCore:
         self.ip_rest_server = ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def blueSetup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
+    def laser_setup(self, NCF):
         """
-        Configuration of an Optical Channel by setting nominal central frequency, constellation and equalization.
+        Laser setup.
+
+            - Calculate lambda0 from NCF.
+            - Set wavelength of the Laser.
+            - Set the power of the Laser.
+
+        :param NCF: nominal central frequency
+        :param NCF: float
+        :return: status, wavelength and power
+        :rtype: list
+        """
+        try:
+            lambda0 = (speed_of_light / (NCF * 1e6)) * 1e9
+            result = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
+            return result
+
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    def dac_setup(self, bn, En, eq):
+        """
+        DAC setup.
+
+            - Add bits per symbol, power per symbol and equalization parameters to logical associations.
+            - Generate waveform and load to DAC channel.
+
+        :param bn: bits per symbol
+        :type bn: float array of 512 positions
+        :param En: power per symbol
+        :type En: float array of 512 positions
+        :param eq: equalization
+        :type eq: str
+        """
+        try:
+            for i in range(len(self.logical_associations)):
+                self.logical_associations[i]['bn'] = bn
+                self.logical_associations[i]['En'] = En
+                self.logical_associations[i]['eq'] = eq
+
+            result = self.api.dacOscConfiguration(self.logical_associations)
+            return result
+
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    def setup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
+        """
+        Configuration of a DRoF by setting nominal central frequency, constellation and equalization.
+
+            - Laser setup.
+            - DAC setup.
 
         :param NCF: nominal central frequency
         :param NCF: float
@@ -87,28 +145,13 @@ class AgentCore:
         """
         try:
             # Laser setup
-            lambda0 = (speed_of_light / (NCF * 1e6)) * 1e9  # calculate lambda0 with NCF
-            params = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
+            result = self.laser_setup(NCF)
             logger.debug(
-                "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1], params[2]))
+                "Laser parameters - status: {}, wavelength: {}, power: {}".format(result[0], result[1], result[2]))
 
-            if params is not None:
-                try:
-                    # DAC/OSC setup
-                    # TODO store bn, En, eq ?
-                    self.logical_associations[0]['bn'] = bn
-                    self.logical_associations[0]['En'] = En
-                    self.logical_associations[0]['eq'] = eq
-                    SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
-                    logger.debug("SNR = %s" % SNR)
-
-                except Exception as e:
-                    logger.error(e)
-                    raise e
-            else:
-                error_msg = "Parameters returned from Laser are not correct"
-                logger.error(error_msg)
-                raise ValueError(error_msg)
+            # DAC/OSC setup
+            result = self.dac_setup(En, bn, eq)
+            logger.debug(result)
 
         except Exception as e:
             logger.error(e)
@@ -116,7 +159,7 @@ class AgentCore:
 
     def getSNR(self, bn, En, eq):  # CALLED FROM netconf_server.py
         """
-        Return the estimated SNR per subcarrier by setting nominal central frequency, constellation and equalization.
+        Retrieve the SNR per subcarrier from associated signal.
 
         :param bn: bits per symbol
         :type bn: float array of 512 positions
@@ -124,52 +167,60 @@ class AgentCore:
         :type En: float array of 512 positions
         :param eq: equalization
         :type eq: str
-        :return: estimated SNR per subcarrier
+        :return: SNR per subcarrier
         :rtype: list of floats
         """
         try:
             # DAC/OSC setup
-            # TODO store bn, En, eq ?
-            self.logical_associations[1]['bn'] = bn
-            self.logical_associations[1]['En'] = En
-            self.logical_associations[1]['eq'] = eq
-            SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
-            logger.debug("SNR = %s" % SNR)
-            return SNR
+            result = self.dac_setup(En, bn, eq)
+            return result
 
         except Exception as e:
             logger.error(e)
             raise e
 
-    def blueDisconnect(self):  # CALLED FROM netconf_server.py
+    def setConstellation(self, bn, En, eq):  # CALLED FROM netconf_server.py
+        """
+        Change
+        :param bn: bits per symbol
+        :type bn: float array of 512 positions
+        :param En: power per symbol
+        :type En: float array of 512 positions
+        :param eq: equalization
+        :type eq: str
+        """
+        try:
+            # DAC/OSC setup
+            result = self.dac_setup(En, bn, eq)
+            logger.debug(result)
+
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    def disconnect(self):  # CALLED FROM netconf_server.py
         """
         Disable Laser and remove the logical associations between DAC and OSC.
         """
         try:
-            # disable Laser
             yenista = Laser(self.ip_laser, self.addr_laser)
             yenista.enable(self.channel_laser, False)
             logger.debug("Laser {} on channel {} disabled".format(self.ip_laser, self.channel_laser))
 
-            try:
-                # remove the logical associations
-                for i in range(len(self.logical_associations)):  # for each operation
-                    assoc_id = self.logical_associations[i]['id']
-                    dac_out = self.logical_associations[i]['dac_out']
-                    osc_in = self.logical_associations[i]['osc_in']
-                    self.api.deleteDACOSCOperationsById(assoc_id)
-                    logger.debug(
-                        "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
-
-            except Exception as e:
-                logger.error("Logical associations between DAC and OSC not removed, Error: %s" % e)
-                raise e
+            # remove the logical associations
+            for i in range(len(self.logical_associations)):
+                assoc_id = self.logical_associations[i]['id']
+                dac_out = self.logical_associations[i]['dac_out']
+                osc_in = self.logical_associations[i]['osc_in']
+                self.api.deleteDACOSCOperationsById(assoc_id)
+                logger.debug(
+                    "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
 
         except Exception as e:
-            logger.error("Laser {} on channel {} not disabled, Error: {}".format(self.ip_laser, self.channel_laser, e))
+            logger.error(e)
             raise e
 
-    def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py
+    def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py   # TODO
         """
         Configuration of an Optical Channel by setting frequency, power and mode.
 
@@ -194,55 +245,22 @@ class AgentCore:
             # WSS setup
             result = self.api.wSSConfiguration(self.wss_operations)
             logging.debug(result)
-            try:
-                # OA setup
-                params = Amplifier.configuration(self.ip_amplifier, self.addr_amplifier, self.mode_amplifier,
-                                                 self.power_amplifier)
-                logger.debug(
-                    "Amplifier parameters - status: {}, mode: {}, power: {}".format(params[0], params[1], params[2]))
 
-                if params is not None:
-                    try:
-                        # Laser setup
-                        lambda0 = (speed_of_light / (freq * 1e6)) * 1e9  # calculate lambda0 with freq
-                        self.power_laser = power + 9  # considering the losses of the modulation MZM
-                        params = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0,
-                                                     self.power_laser)
-                        logger.debug(
-                            "Laser parameters - status: {}, wavelength: {}, power: {}".format(params[0], params[1],
-                                                                                              params[2]))
-                        if params is not None:
-                            try:
-                                # DAC/OSC setup
-                                SNR, BER = self.api.dacOscConfiguration(self.logical_associations)
-                                logger.debug("BER = %s" % BER)
+            # OA setup
+            result = Amplifier.configuration(self.ip_amplifier, self.addr_amplifier, self.mode_amplifier,
+                                             self.power_amplifier)
+            logger.debug(
+                "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
 
-                            except Exception as e:
-                                logger.error(e)
-                                raise e
-                        else:
-                            error_msg = "Parameters returned from Laser are not correct"
-                            logger.error(error_msg)
-                            raise ValueError(error_msg)
-
-                    except Exception as e:
-                        logger.error(e)
-                        raise e
-                else:
-                    error_msg = "Parameters returned from Amplifier are not correct"
-                    logger.error(error_msg)
-                    raise ValueError(error_msg)
-
-            except Exception as e:
-                logger.error(e)
-                raise e
+            # Laser and DAC/OSC setup
+            # TODO
 
         except Exception as e:
             logger.error(e)
             raise e
 
     @staticmethod
-    def channelAssignment(client, och):
+    def channelAssignment(client, och):  # CALLED FROM openconfig_server.py
         """
         Client assignation to an Optical Channel.
 
@@ -255,47 +273,25 @@ class AgentCore:
         """
         return "Client {} assigned to the Optical Channel {}".format(client, och)
 
-    def metroDisconnect(self):  # CALLED FROM openconfig_server.py
+    def metroDisconnect(self):  # CALLED FROM openconfig_server.py  # TODO
         """
         Disable Laser and Amplifier.
-        Remove the logical associations between DAC and OSC, and operations configured to WSS
+        Remove the logical associations between DAC and OSC and remove the operations configured to WSS.
         """
         try:
-            yenista = Laser(self.ip_laser, self.addr_laser)
-            yenista.enable(self.channel_laser, False)
-            logger.debug("Laser {} on channel {} disabled".format(self.ip_laser, self.channel_laser))
-            try:
-                manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
-                manlight.enable(False)
-                logger.debug("Amplifier %s disabled" % self.ip_amplifier)
-                try:
-                    # remove the logical associations
-                    for i in range(len(self.logical_associations)):  # for each operation
-                        assoc_id = self.logical_associations[i]['id']
-                        dac_out = self.logical_associations[i]['dac_out']
-                        osc_in = self.logical_associations[i]['osc_in']
-                        self.api.deleteDACOSCOperationsById(assoc_id)
-                        logger.debug(
-                            "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
+            # disable laser and remove the logical associations
+            self.disconnect()
 
-                        try:
-                            # remove the operations
-                            wss_id = self.wss_operations['wss_id']
-                            self.api.deleteWSSOperationsById(wss_id)
-                            logger.debug("Operations on WaveShaper %s removed" % wss_id)
+            # disable amplifier
+            manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
+            manlight.enable(False)
+            logger.debug("Amplifier %s disabled" % self.ip_amplifier)
 
-                        except Exception as e:
-                            logger.error("Operations on WaveShaper not removed, Error: %s" % e)
-                            raise e
-
-                except Exception as e:
-                    logger.error("Logical associations between DAC and OSC not removed, Error: %s" % e)
-                    raise e
-
-            except Exception as e:
-                logger.error("Amplifier {} not disabled, error: {}".format(self.ip_amplifier, e))
-                raise e
+            # remove the operations
+            wss_id = self.wss_operations['wss_id']
+            self.api.deleteWSSOperationsById(wss_id)
+            logger.debug("Operations on WaveShaper %s removed" % wss_id)
 
         except Exception as e:
-            logger.error("Laser {} on channel {} not disabled, error: {}".format(self.ip_laser, self.channel_laser, e))
+            logger.error(e)
             raise e

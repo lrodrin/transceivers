@@ -19,12 +19,12 @@ def make_slice(sliceid, opticalchannelid, coreid, modeid, ncf, slot_width):
     model.transceiver.slice[sliceid].optical_channel[opticalchannelid].frequency_slot.slot_width = slot_width
     # for i in new_slice['sliceid'].iteritems():
         #print(i)
-    # for intf, conf in yml['interface'].iteritems():
+    # for intf, config in yml['interface'].iteritems():
     #     print("Instantiating model for {}".format(intf))
     #     intf_model = model.interfaces.interface.add(intf)
-    #     intf_model.description = conf['description']
-    #     ip_model = intf_model.ipv4.address.add(conf['address']['prefix'])
-    #     ip_model.netmask = conf['address']['netmask']
+    #     intf_model.description = config['description']
+    #     ip_model = intf_model.ipv4.address.add(config['address']['prefix'])
+    #     ip_model.netmask = config['address']['netmask']
     print(model.transceiver.slice)
     return pybindJSON.dumps(model)
 
