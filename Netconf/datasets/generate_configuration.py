@@ -44,8 +44,8 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
         status.text = stat
         ncf = etree.SubElement(root, 'nominal-central-frequency')
         ncf.text = str(NCF)
-        constellation = etree.SubElement(root, 'constellation')
         for i in range(1, DAC.Ncarriers + 1):
+            constellation = etree.SubElement(root, 'constellation')
             subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
             subcarrier_id.text = str(i)
             bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
@@ -60,8 +60,8 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
         write_file(config, n, op)
 
     elif op == "replace":
-        constellation = etree.SubElement(root, 'constellation')
         for i in range(1, DAC.Ncarriers + 1):
+            constellation = etree.SubElement(root, 'constellation')
             subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
             subcarrier_id.text = str(i)
             bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
