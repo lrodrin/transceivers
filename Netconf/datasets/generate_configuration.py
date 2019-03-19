@@ -2,7 +2,6 @@
 """
 from xml.dom.minidom import parseString
 
-import numpy as np
 from lxml import etree
 from os import sys, path
 
@@ -11,12 +10,14 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC
 
 
-def make_DRoF_configuration(n, model, namespace, stat, NCF, FEC, eq, sub_id, bn, En):
+def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En):
     """
     Creates the XML DRoF configuration for a YANG model specified by model.
 
-    :param n: number to identify the DRoF configuration file
+    :param n: number that identify the Agent Core
     :type n: str
+    :param op: identify the NETCONF edit-config operation. create or replace.
+    :type op: str
     :param model: name of the yang model
     :type model: str
     :param namespace: namespace of the yang model
@@ -29,8 +30,6 @@ def make_DRoF_configuration(n, model, namespace, stat, NCF, FEC, eq, sub_id, bn,
     :type FEC: str
     :param eq: equalization
     :type eq: str
-    :param sub_id: subcarrier id
-    :type sub_id: int
     :param bn: bits per symbol
     :type bn: list of floats
     :param En: power per symbol
@@ -40,37 +39,60 @@ def make_DRoF_configuration(n, model, namespace, stat, NCF, FEC, eq, sub_id, bn,
     """
     config = etree.Element('config', xmlns="urn:ietf:params:xml:ns:netconf:base:1.0")
     root = etree.SubElement(config, model, xmlns=namespace)
-    status = etree.SubElement(root, 'status')
-    status.text = stat
-    ncf = etree.SubElement(root, 'nominal-central-frequency')
-    ncf.text = str(NCF)
-    constellation = etree.SubElement(root, 'constellation')
-    subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
-    subcarrier_id.text = str(sub_id)
-    bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
-    bitsxsymbol.text = str(bn)
-    powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
-    powerxsymbol.text = str(En)
-    fec = etree.SubElement(root, 'FEC')
-    fec.text = FEC
-    equalization = etree.SubElement(root, 'equalization')
-    equalization.text = eq
+    if op == "create":
+        status = etree.SubElement(root, 'status')
+        status.text = stat
+        ncf = etree.SubElement(root, 'nominal-central-frequency')
+        ncf.text = str(NCF)
+        constellation = etree.SubElement(root, 'constellation')
+        for i in range(1, DAC.Ncarriers + 1):
+            subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
+            subcarrier_id.text = str(i)
+            bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
+            bitsxsymbol.text = str(bn)
+            powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
+            powerxsymbol.text = str(En)
+        fec = etree.SubElement(root, 'FEC')
+        fec.text = FEC
+        equalization = etree.SubElement(root, 'equalization')
+        equalization.text = eq
 
-    # write to a file
-    f = open("blueSPACE_DRoF_configuration_%s.xml" % n, "w")
+        write_file(config, n, op)
+
+    elif op == "replace":
+        constellation = etree.SubElement(root, 'constellation')
+        for i in range(1, DAC.Ncarriers + 1):
+            subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
+            subcarrier_id.text = str(i)
+            bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
+            bitsxsymbol.text = str(bn)
+            powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
+            powerxsymbol.text = str(En)
+
+        write_file(config, n, op)
+
+
+def write_file(config, n, op):
+    """
+    Write XML configuration to file.
+
+    :param config: configuration file
+    :type config: lxml.Element
+    :type n: str
+    :param op: identify the NETCONF edit-config operation. create or replace.
+    :type op: str
+    """
+    f = open("blueSPACE_DRoF_configuration_{}_{}.xml".format(op, n), "w")
     f.write(parseString(etree.tostring(config)).toprettyxml())
-
-    return
 
 
 if __name__ == '__main__':
-    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
-    bn2 = np.array(np.ones(DAC.Ncarriers), dtype=int).tolist()
-    En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
-    En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
-    eq1 = eq2 = "MMSE"
+    make_DRoF_configuration(1, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
+                            "HD-FEC", "MMSE", 2, 1)
+    make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
+                            "HD-FEC", "MMSE", 1, 0.707)
 
-    make_DRoF_configuration(1, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
-                            "HD-FEC", "MMSE", 1, bn1, En1)
-    make_DRoF_configuration(2, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
-                            "HD-FEC", "MMSE", 2, bn1, En1)
+    make_DRoF_configuration(1, "replace", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
+                            None, None, 1, 0.0707)
+    make_DRoF_configuration(2, "replace", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
+                            None, None, 2, 1)
