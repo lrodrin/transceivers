@@ -5,8 +5,8 @@ module: blueSPACE-DRoF-TP-capability
      |  +--ro min-capacity?   uint32
      +--ro supportable-modulation?                        string
      +--ro supportable-subcarriers*                       uint32
-     +--ro supportable-constellation
-     |  +--ro constellation-id?   string
+     +--ro supportable-constellation* [constellation-id]
+     |  +--ro constellation-id    string
      |  +--ro mod-type?           identityref
      +--ro supportable-nominal-central-frequency-range
      |  +--ro adjustment-granularity?   string
@@ -14,9 +14,9 @@ module: blueSPACE-DRoF-TP-capability
      |  +--ro lower-frequency?          string
      |  +--ro upper-frequency?          string
      +--ro supportable-bandwidth?                         string
-     +--ro supportable-FEC
-     |  +--ro fec-id?     string
+     +--ro supportable-FEC* [fec-id]
+     |  +--ro fec-id      string
      |  +--ro fec-type?   identityref
-     +--ro supportable-equalization
-        +--ro equalization-id?     string
+     +--ro supportable-equalization* [equalization-id]
+        +--ro equalization-id      string
         +--ro equalization-type?   identityref

@@ -76,7 +76,8 @@ module blueSPACE-DRoF-configuration {
         leaf nominal-central-frequency {
             type string;
         }
-        container constellation {
+        list constellation {
+            key "subcarrier-id";
             uses constellation;
         }
         leaf FEC {
@@ -87,8 +88,9 @@ module blueSPACE-DRoF-configuration {
         leaf equalization {
             type string;
         }
-        container monitor {
+        list monitor {
             config false;
+            key "subcarrier-id";
             uses monitor;
         }
         leaf BER {

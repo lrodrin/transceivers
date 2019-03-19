@@ -2,13 +2,13 @@ module: blueSPACE-DRoF-configuration
   +--rw DRoF-configuration
      +--rw status?                      identityref
      +--rw nominal-central-frequency?   string
-     +--rw constellation
-     |  +--rw subcarrier-id?   string
+     +--rw constellation* [subcarrier-id]
+     |  +--rw subcarrier-id    string
      |  +--rw bitsxsymbol?     string
      |  +--rw powerxsymbol?    string
      +--rw FEC?                         identityref
      +--rw equalization?                string
-     +--ro monitor
-     |  +--ro subcarrier-id?   string
+     +--ro monitor* [subcarrier-id]
+     |  +--ro subcarrier-id    string
      |  +--ro SNR?             string
      +--ro BER?                         string

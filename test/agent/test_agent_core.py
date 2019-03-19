@@ -1,12 +1,14 @@
 import ast
 import logging
 import os
-from os import sys, path
+import numpy as np
 
 from six.moves import configparser
+from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 
+from lib.dac.dac import DAC
 from agent_core import AgentCore
 
 logging.basicConfig(level=logging.DEBUG)
@@ -43,7 +45,7 @@ def create_Agent(folder, filename):
 
 if __name__ == '__main__':
     abs_path = os.path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-    folder = os.path.join(abs_path, "config/")
+    folder = os.path.join(abs_path, "bluespace/config/")
     files = ["blue_bvt1.cfg", "blue_bvt2.cfg"]
     # files = ["blue_bvt1.cfg", "blue_bvt2.cfg", "metro_bvt1.cfg", "metro_bvt2.cfg"]
 
@@ -51,10 +53,18 @@ if __name__ == '__main__':
     for file in files:
         print("Creating AGENT CORE for %s" % file)
         ac = create_Agent(folder, file)
-
+        NCF = 193.4e6
+        bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
+        En = np.array(np.ones(DAC.Ncarriers)).tolist()
+        eq = "MMSE"
         if file.startswith("blue"):
             print("channel laser = %s" % ac.channel_laser)
             print(ac.logical_associations)
+
+            print(ac.setup(NCF, bn, En, eq))
+            print(ac.getSNR(bn, En, eq))
+            print(ac.setConstellation(bn, En, eq))
+            print(ac.disconnect())
 
         else:
             pass

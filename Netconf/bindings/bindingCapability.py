@@ -166,8 +166,8 @@ class yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capabil
     self._path_helper = False
 
     self._extmethods = False
-    self.__mod_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
-    self.__constellation_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__mod_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+    self.__constellation_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
 
     load = kwargs.pop("load", None)
     if args:
@@ -210,15 +210,20 @@ class yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capabil
     method. Backends looking to populate this variable should
     do so via calling thisObj._set_constellation_id() directly.
     """
+    parent = getattr(self, "_parent", None)
+    if parent is not None and load is False:
+      raise AttributeError("Cannot set keys directly when" +
+                             " within an instantiated list")
+
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """constellation_id must be of a type compatible with string""",
           'defined-type': "string",
-          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)""",
+          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)""",
         })
 
     self.__constellation_id = t
@@ -226,7 +231,7 @@ class yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capabil
       self._set()
 
   def _unset_constellation_id(self):
-    self.__constellation_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__constellation_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="constellation-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
 
 
   def _get_mod_type(self):
@@ -246,12 +251,12 @@ class yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capabil
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """mod_type must be of a type compatible with identityref""",
           'defined-type': "blueSPACE-DRoF-TP-capability:identityref",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)""",
+          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)""",
         })
 
     self.__mod_type = t
@@ -259,7 +264,7 @@ class yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capabil
       self._set()
 
   def _unset_mod_type(self):
-    self.__mod_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+    self.__mod_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'bpsk': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam64': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam32': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam16': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam128': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'qam4': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam256': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:qam8': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="mod-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
 
   constellation_id = __builtin__.property(_get_constellation_id)
   mod_type = __builtin__.property(_get_mod_type)
@@ -287,9 +292,9 @@ class yc_supportable_nominal_central_frequency_range_blueSPACE_DRoF_TP_capabilit
 
     self._extmethods = False
     self.__upper_frequency = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="upper-frequency", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
-    self.__grid_type = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="grid-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
-    self.__adjustment_granularity = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="adjustment-granularity", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
     self.__lower_frequency = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="lower-frequency", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__adjustment_granularity = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="adjustment-granularity", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__grid_type = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="grid-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
 
     load = kwargs.pop("load", None)
     if args:
@@ -492,8 +497,8 @@ class yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_suppor
     self._path_helper = False
 
     self._extmethods = False
-    self.__fec_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
-    self.__fec_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__fec_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__fec_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
 
     load = kwargs.pop("load", None)
     if args:
@@ -536,15 +541,20 @@ class yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_suppor
     method. Backends looking to populate this variable should
     do so via calling thisObj._set_fec_id() directly.
     """
+    parent = getattr(self, "_parent", None)
+    if parent is not None and load is False:
+      raise AttributeError("Cannot set keys directly when" +
+                             " within an instantiated list")
+
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """fec_id must be of a type compatible with string""",
           'defined-type': "string",
-          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)""",
+          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)""",
         })
 
     self.__fec_id = t
@@ -552,7 +562,7 @@ class yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_suppor
       self._set()
 
   def _unset_fec_id(self):
-    self.__fec_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__fec_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="fec-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
 
 
   def _get_fec_type(self):
@@ -572,12 +582,12 @@ class yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_suppor
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """fec_type must be of a type compatible with identityref""",
           'defined-type': "blueSPACE-DRoF-TP-capability:identityref",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)""",
+          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)""",
         })
 
     self.__fec_type = t
@@ -585,7 +595,7 @@ class yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_suppor
       self._set()
 
   def _unset_fec_type(self):
-    self.__fec_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+    self.__fec_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:HD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'SD-FEC': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="fec-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
 
   fec_id = __builtin__.property(_get_fec_id)
   fec_type = __builtin__.property(_get_fec_type)
@@ -612,8 +622,8 @@ class yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capabili
     self._path_helper = False
 
     self._extmethods = False
-    self.__equalization_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
-    self.__equalization_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+    self.__equalization_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+    self.__equalization_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
 
     load = kwargs.pop("load", None)
     if args:
@@ -656,15 +666,20 @@ class yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capabili
     method. Backends looking to populate this variable should
     do so via calling thisObj._set_equalization_id() directly.
     """
+    parent = getattr(self, "_parent", None)
+    if parent is not None and load is False:
+      raise AttributeError("Cannot set keys directly when" +
+                             " within an instantiated list")
+
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+      t = YANGDynClass(v,base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """equalization_id must be of a type compatible with string""",
           'defined-type': "string",
-          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)""",
+          'generated-type': """YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)""",
         })
 
     self.__equalization_id = t
@@ -672,7 +687,7 @@ class yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capabili
       self._set()
 
   def _unset_equalization_id(self):
-    self.__equalization_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__equalization_id = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="equalization-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
 
 
   def _get_equalization_type(self):
@@ -692,12 +707,12 @@ class yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capabili
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+      t = YANGDynClass(v,base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """equalization_type must be of a type compatible with identityref""",
           'defined-type': "blueSPACE-DRoF-TP-capability:identityref",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)""",
+          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)""",
         })
 
     self.__equalization_type = t
@@ -705,7 +720,7 @@ class yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capabili
       self._set()
 
   def _unset_equalization_type(self):
-    self.__equalization_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
+    self.__equalization_type = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_type="dict_key", restriction_arg={'blueSPACE-DRoF-TP-capability:ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'ZF': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}, 'blueSPACE-DRoF-TP-capability:MMSE': {'@namespace': 'urn:blueSPACE-DRoF-TP-capability', '@module': 'blueSPACE-DRoF-TP-capability'}},), is_leaf=True, yang_name="equalization-type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='identityref', is_config=False)
 
   equalization_id = __builtin__.property(_get_equalization_id)
   equalization_type = __builtin__.property(_get_equalization_type)
@@ -732,14 +747,14 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
     self._path_helper = False
 
     self._extmethods = False
-    self.__supportable_equalization = YANGDynClass(base=yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, is_container='container', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
-    self.__supportable_bandwidth = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="supportable-bandwidth", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
-    self.__supportable_FEC = YANGDynClass(base=yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, is_container='container', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
-    self.__supportable_nominal_central_frequency_range = YANGDynClass(base=yc_supportable_nominal_central_frequency_range_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_nominal_central_frequency_range, is_container='container', yang_name="supportable-nominal-central-frequency-range", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
-    self.__supportable_constellation = YANGDynClass(base=yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, is_container='container', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
     self.__supportable_modulation = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="supportable-modulation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
-    self.__supportable_capacity = YANGDynClass(base=yc_supportable_capacity_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_capacity, is_container='container', yang_name="supportable-capacity", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
     self.__supportable_subcarriers = YANGDynClass(unique=True, base=TypedListType(allowed_type=RestrictedClassType(base_type=long, restriction_dict={'range': ['0..4294967295']}, int_size=32)), is_leaf=False, yang_name="supportable-subcarriers", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='uint32', is_config=False)
+    self.__supportable_FEC = YANGDynClass(base=YANGListType("fec_id",yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, yang_name="supportable-FEC", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='fec-id', extensions=None), is_container='list', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
+    self.__supportable_constellation = YANGDynClass(base=YANGListType("constellation_id",yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, yang_name="supportable-constellation", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='constellation-id', extensions=None), is_container='list', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
+    self.__supportable_capacity = YANGDynClass(base=yc_supportable_capacity_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_capacity, is_container='container', yang_name="supportable-capacity", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+    self.__supportable_bandwidth = YANGDynClass(base=six.text_type, is_leaf=True, yang_name="supportable-bandwidth", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='string', is_config=False)
+    self.__supportable_nominal_central_frequency_range = YANGDynClass(base=yc_supportable_nominal_central_frequency_range_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_nominal_central_frequency_range, is_container='container', yang_name="supportable-nominal-central-frequency-range", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+    self.__supportable_equalization = YANGDynClass(base=YANGListType("equalization_id",yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, yang_name="supportable-equalization", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='equalization-id', extensions=None), is_container='list', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
 
     load = kwargs.pop("load", None)
     if args:
@@ -873,13 +888,13 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
 
   def _get_supportable_constellation(self):
     """
-    Getter method for supportable_constellation, mapped from YANG variable /DRoF_TP_capability/supportable_constellation (container)
+    Getter method for supportable_constellation, mapped from YANG variable /DRoF_TP_capability/supportable_constellation (list)
     """
     return self.__supportable_constellation
       
   def _set_supportable_constellation(self, v, load=False):
     """
-    Setter method for supportable_constellation, mapped from YANG variable /DRoF_TP_capability/supportable_constellation (container)
+    Setter method for supportable_constellation, mapped from YANG variable /DRoF_TP_capability/supportable_constellation (list)
     If this variable is read-only (config: false) in the
     source YANG file, then _set_supportable_constellation is considered as a private
     method. Backends looking to populate this variable should
@@ -888,12 +903,12 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, is_container='container', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+      t = YANGDynClass(v,base=YANGListType("constellation_id",yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, yang_name="supportable-constellation", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='constellation-id', extensions=None), is_container='list', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
-          'error-string': """supportable_constellation must be of a type compatible with container""",
-          'defined-type': "container",
-          'generated-type': """YANGDynClass(base=yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, is_container='container', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)""",
+          'error-string': """supportable_constellation must be of a type compatible with list""",
+          'defined-type': "list",
+          'generated-type': """YANGDynClass(base=YANGListType("constellation_id",yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, yang_name="supportable-constellation", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='constellation-id', extensions=None), is_container='list', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)""",
         })
 
     self.__supportable_constellation = t
@@ -901,7 +916,7 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
       self._set()
 
   def _unset_supportable_constellation(self):
-    self.__supportable_constellation = YANGDynClass(base=yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, is_container='container', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+    self.__supportable_constellation = YANGDynClass(base=YANGListType("constellation_id",yc_supportable_constellation_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_constellation, yang_name="supportable-constellation", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='constellation-id', extensions=None), is_container='list', yang_name="supportable-constellation", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
 
 
   def _get_supportable_nominal_central_frequency_range(self):
@@ -976,13 +991,13 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
 
   def _get_supportable_FEC(self):
     """
-    Getter method for supportable_FEC, mapped from YANG variable /DRoF_TP_capability/supportable_FEC (container)
+    Getter method for supportable_FEC, mapped from YANG variable /DRoF_TP_capability/supportable_FEC (list)
     """
     return self.__supportable_FEC
       
   def _set_supportable_FEC(self, v, load=False):
     """
-    Setter method for supportable_FEC, mapped from YANG variable /DRoF_TP_capability/supportable_FEC (container)
+    Setter method for supportable_FEC, mapped from YANG variable /DRoF_TP_capability/supportable_FEC (list)
     If this variable is read-only (config: false) in the
     source YANG file, then _set_supportable_FEC is considered as a private
     method. Backends looking to populate this variable should
@@ -991,12 +1006,12 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, is_container='container', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+      t = YANGDynClass(v,base=YANGListType("fec_id",yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, yang_name="supportable-FEC", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='fec-id', extensions=None), is_container='list', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
-          'error-string': """supportable_FEC must be of a type compatible with container""",
-          'defined-type': "container",
-          'generated-type': """YANGDynClass(base=yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, is_container='container', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)""",
+          'error-string': """supportable_FEC must be of a type compatible with list""",
+          'defined-type': "list",
+          'generated-type': """YANGDynClass(base=YANGListType("fec_id",yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, yang_name="supportable-FEC", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='fec-id', extensions=None), is_container='list', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)""",
         })
 
     self.__supportable_FEC = t
@@ -1004,18 +1019,18 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
       self._set()
 
   def _unset_supportable_FEC(self):
-    self.__supportable_FEC = YANGDynClass(base=yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, is_container='container', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+    self.__supportable_FEC = YANGDynClass(base=YANGListType("fec_id",yc_supportable_FEC_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_FEC, yang_name="supportable-FEC", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='fec-id', extensions=None), is_container='list', yang_name="supportable-FEC", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
 
 
   def _get_supportable_equalization(self):
     """
-    Getter method for supportable_equalization, mapped from YANG variable /DRoF_TP_capability/supportable_equalization (container)
+    Getter method for supportable_equalization, mapped from YANG variable /DRoF_TP_capability/supportable_equalization (list)
     """
     return self.__supportable_equalization
       
   def _set_supportable_equalization(self, v, load=False):
     """
-    Setter method for supportable_equalization, mapped from YANG variable /DRoF_TP_capability/supportable_equalization (container)
+    Setter method for supportable_equalization, mapped from YANG variable /DRoF_TP_capability/supportable_equalization (list)
     If this variable is read-only (config: false) in the
     source YANG file, then _set_supportable_equalization is considered as a private
     method. Backends looking to populate this variable should
@@ -1024,12 +1039,12 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, is_container='container', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+      t = YANGDynClass(v,base=YANGListType("equalization_id",yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, yang_name="supportable-equalization", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='equalization-id', extensions=None), is_container='list', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
     except (TypeError, ValueError):
       raise ValueError({
-          'error-string': """supportable_equalization must be of a type compatible with container""",
-          'defined-type': "container",
-          'generated-type': """YANGDynClass(base=yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, is_container='container', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)""",
+          'error-string': """supportable_equalization must be of a type compatible with list""",
+          'defined-type': "list",
+          'generated-type': """YANGDynClass(base=YANGListType("equalization_id",yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, yang_name="supportable-equalization", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='equalization-id', extensions=None), is_container='list', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)""",
         })
 
     self.__supportable_equalization = t
@@ -1037,7 +1052,7 @@ class yc_DRoF_TP_capability_blueSPACE_DRoF_TP_capability__DRoF_TP_capability(Pyb
       self._set()
 
   def _unset_supportable_equalization(self):
-    self.__supportable_equalization = YANGDynClass(base=yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, is_container='container', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='container', is_config=False)
+    self.__supportable_equalization = YANGDynClass(base=YANGListType("equalization_id",yc_supportable_equalization_blueSPACE_DRoF_TP_capability__DRoF_TP_capability_supportable_equalization, yang_name="supportable-equalization", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='equalization-id', extensions=None), is_container='list', yang_name="supportable-equalization", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='urn:blueSPACE-DRoF-TP-capability', defining_module='blueSPACE-DRoF-TP-capability', yang_type='list', is_config=False)
 
   supportable_capacity = __builtin__.property(_get_supportable_capacity)
   supportable_modulation = __builtin__.property(_get_supportable_modulation)
