@@ -1,3 +1,4 @@
+import argparse
 import logging
 from logging.handlers import RotatingFileHandler
 from os import sys, path
@@ -8,7 +9,9 @@ from flask.json import jsonify
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-app = Flask(__name__)
+from agent_core import AgentCore as ac
+
+app = Flask(__name__, instance_relative_config=False)
 Swagger(app)
 
 logging.basicConfig(level=logging.DEBUG)
@@ -121,4 +124,5 @@ def define_logger():
 
 if __name__ == '__main__':
     define_logger()
+    app.config.from_pyfile('metro_bvt1.cfg')
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

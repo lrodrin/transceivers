@@ -4,12 +4,19 @@ from xml.dom.minidom import parseString
 
 import numpy as np
 from lxml import etree
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
+
+from lib.dac.dac import DAC
 
 
-def make_DRoF_configuration(model, namespace, stat, NCF, FEC, eq, sub_id, bn, En):
+def make_DRoF_configuration(n, model, namespace, stat, NCF, FEC, eq, sub_id, bn, En):
     """
     Creates the XML DRoF configuration for a YANG model specified by model.
 
+    :param n: number to identify the DRoF configuration file
+    :type n: str
     :param model: name of the yang model
     :type model: str
     :param namespace: namespace of the yang model
@@ -49,16 +56,21 @@ def make_DRoF_configuration(model, namespace, stat, NCF, FEC, eq, sub_id, bn, En
     equalization = etree.SubElement(root, 'equalization')
     equalization.text = eq
 
-    return parseString(etree.tostring(config)).toprettyxml()
+    # write to a file
+    f = open("blueSPACE_DRoF_configuration_%s.xml" % n, "w")
+    f.write(parseString(etree.tostring(config)).toprettyxml())
+
+    return
 
 
 if __name__ == '__main__':
-    bn = list(np.array(np.ones(512) * 2))
-    En = list(np.array(np.ones(512)))
-    xml = make_DRoF_configuration("DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
-                                  "HD-FEC", "MMSE", 1, bn, En)
-    print(xml)
+    bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
+    bn2 = np.array(np.ones(DAC.Ncarriers)).tolist()
+    En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
+    En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
+    eq1 = eq2 = "MMSE"
 
-    filename = "blueSPACE_DRoF_configuration.xml"
-    f = open(filename, "w")
-    f.write(xml)
+    make_DRoF_configuration(1, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 1550.12,
+                            "HD-FEC", "MMSE", 1, bn1, En1)
+    make_DRoF_configuration(2, "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 1550.12,
+                            "HD-FEC", "MMSE", 2, bn1, En1)
