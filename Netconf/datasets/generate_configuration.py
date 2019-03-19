@@ -15,7 +15,7 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
     Creates the XML DRoF configuration for a YANG model specified by model.
 
     :param n: number that identify the Agent Core
-    :type n: str
+    :type n: int
     :param op: identify the NETCONF edit-config operation. create or replace.
     :type op: str
     :param model: name of the yang model
@@ -30,10 +30,10 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
     :type FEC: str
     :param eq: equalization
     :type eq: str
-    :param bn: bits per symbol
-    :type bn: list of floats
+     :param bn: bits per symbol
+    :type bn: int
     :param En: power per symbol
-    :type En: list floats
+    :type En: int
     :return: XML DRoF configuration
     :rtype: lxml.Element
     """
@@ -44,14 +44,7 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
         status.text = stat
         ncf = etree.SubElement(root, 'nominal-central-frequency')
         ncf.text = str(NCF)
-        for i in range(1, DAC.Ncarriers + 1):
-            constellation = etree.SubElement(root, 'constellation')
-            subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
-            subcarrier_id.text = str(i)
-            bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
-            bitsxsymbol.text = str(bn)
-            powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
-            powerxsymbol.text = str(En)
+        set_constellation(bn, En, root)
         fec = etree.SubElement(root, 'FEC')
         fec.text = FEC
         equalization = etree.SubElement(root, 'equalization')
@@ -60,16 +53,30 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
         write_file(config, n, op)
 
     elif op == "replace":
-        for i in range(1, DAC.Ncarriers + 1):
-            constellation = etree.SubElement(root, 'constellation')
-            subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
-            subcarrier_id.text = str(i)
-            bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
-            bitsxsymbol.text = str(bn)
-            powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
-            powerxsymbol.text = str(En)
+        set_constellation(bn, En, root)
 
         write_file(config, n, op)
+
+
+def set_constellation(En, bn, root):
+    """
+    Creates the constellation list inside the XML configuration.
+
+    :param bn: bits per symbol
+    :type bn: int
+    :param En: power per symbol
+    :type En: int
+    :param root: parent lxml element of XML configuration
+    :type: lxml.Element
+    """
+    for i in range(1, DAC.Ncarriers + 1):
+        constellation = etree.SubElement(root, 'constellation')
+        subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
+        subcarrier_id.text = str(i)
+        bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
+        bitsxsymbol.text = str(bn)
+        powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
+        powerxsymbol.text = str(En)
 
 
 def write_file(config, n, op):
@@ -78,7 +85,7 @@ def write_file(config, n, op):
 
     :param config: configuration file
     :type config: lxml.Element
-    :type n: str
+    :type n: int
     :param op: identify the NETCONF edit-config operation. create or replace.
     :type op: str
     """
