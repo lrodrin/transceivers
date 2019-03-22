@@ -1,6 +1,7 @@
 """This is the NETCONF Server module.
 """
 import argparse
+import ast
 import logging
 import time
 from os import sys, path
@@ -13,7 +14,7 @@ from six.moves import configparser
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from agent_core import AgentCore
-from Netconf.bindings.bindingConfiguration import blueSPACE_DRoF_configuration
+from bindings import bindingConfiguration
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -40,18 +41,16 @@ class NETCONFServer(object):
         :type agent: AgentCore
         """
         self.ac = agent
-        print(self.ac.ip_laser)
-
         self.capability = None
-        self.configuration = blueSPACE_DRoF_configuration()
+        self.configuration = None
         self.capabilities = ["blueSPACE-DRoF-configuration", "blueSPACE-DRoF-TP-capability"]
         try:
             auth = server.SSHUserPassController(username=username, password=password)
             self.server = server.NetconfSSHServer(server_ctl=auth, server_methods=self, port=port, debug=False)
-            logging.debug("Connection to NETCONF Server on port {} created".format(port))
+            logging.debug("CONNECTION to NETCONF Server on port {} created".format(port))
 
         except Exception as e:
-            logging.error("Connection to NETCONF Server refused, {}".format(e))
+            logging.error("CONNECTION to NETCONF Server refused, error: {}".format(e))
             raise e
 
     def close(self):
@@ -63,7 +62,7 @@ class NETCONFServer(object):
             self.server.close()
 
         except Exception as e:
-            logging.error("Connection to NETCONF Server not closed, {}".format(e))
+            logging.error("Connection to NETCONF Server not closed, error: {}".format(e))
             raise e
 
     def load_file(self, filename, binding, module):
@@ -77,35 +76,37 @@ class NETCONFServer(object):
         :param module: YANG module
         :type module: str
         """
+        logging.debug("STARTUP CONFIG")
         try:
-            logging.debug("---STARTUP CONFIG---")
             xml_root = open(filename, 'r').read()
-            conf = pybindIETFXMLDecoder.decode(xml_root, binding, module)
-            xml = pybindIETFXMLEncoder.serialise(conf)
+            cap = pybindIETFXMLDecoder.decode(xml_root, binding, module)
+            xml = pybindIETFXMLEncoder.serialise(cap)
             tree = etree.XML(xml)
             # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
             data = util.elm("nc:data")
             data.append(tree)
             logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
-            self.configuration = data  # save configuration
-            logging.debug("Capability file {} loaded".format(filename))
+            self.capability = data  # save capability
+            logging.debug("STARTUP CONFIG {} loaded".format(filename))
 
         except Exception as e:
-            logging.error("Capability file {} not loaded, {}".format(filename, e))
+            logging.error("STARTUP CONFIG {} not loaded, error: {}".format(filename, e))
             raise e
 
-    def nc_append_capabilities(self):  # pylint: disable=W0613
+    def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
         """
         Add capabilities to the NETCONF Server.
         """
-        logging.debug("Adding capabilities")
+        logging.debug("CAPABILITIES")
         try:
-            util.subelm(self.capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
+            util.subelm(capabilities, "capability").text = "urn:ietf:params:netconf:capability:xpath:1.0"
             for c in self.capabilities:
-                util.subelm(self.capabilities, "capability").text = NSMAP[c]
+                util.subelm(capabilities, "capability").text = NSMAP[c]
+
+            logging.debug("CAPABILITIES {} added".format(self.capabilities))
 
         except Exception as e:
-            logging.error("Capabilities not added".format(e))
+            logging.error("CAPABILITIES not added, error: {}".format(e))
             raise e
 
     def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
@@ -129,7 +130,9 @@ class NETCONFServer(object):
         # print_current_config(self.configuration)
         logging.debug("GET CONFIG")
         try:
-            return util.filter_results(rpc, self.configuration, filter_or_none)
+            result = self.ac.dac_setup(bn, En, eq)
+            logging.debug("SNR = {}".format(result[0]))
+            return util.filter_results(rpc, result[0], filter_or_none)
 
         except Exception as e:
             logging.error("GET CONFIG, error: {}".format(e))
@@ -156,41 +159,43 @@ class NETCONFServer(object):
         # print(etree.tostring(rpc))
         # print(etree.tostring(method))
         # print(etree.tostring(new_config))
-        path = namespace = ""
         logging.debug("EDIT CONFIG")
         try:
-            if 'configuration' in new_config[0].tag:
-                path = ".//xmlns:blueSPACE-DRoF-configuration"
-                namespace = "urn:blueSPACE-DRoF-configuration"
+            if 'capability' in new_config[0].tag:
+                conf_path = ".//xmlns:blueSPACE-DRoF-TP-capability"
+                conf_namespace = "urn:blueSPACE-DRoF-TP-capability"
 
-            elif 'capability' in new_config.tag:
-                path = ".//xmlns:DRoF-TP-capability"
-                namespace = "urn:blueSPACE-DRoF-TP-capability"
+            elif 'configuration' in new_config[0].tag:
+                module_name = "blueSPACE-DRoF-configuration"
+                xml_parsed = pybindIETFXMLDecoder.decode(etree.tostring(new_config), bindingConfiguration,
+                                                                 module_name)
+                if "create" in method.text:
+                    status = xml_parsed.DRoF_configuration.status
+                    logging.debug("CONFIGURATION: " + status)
 
-            # data_list = new_config.findall(path, namespaces={'xmlns': namespace})
-            # for data in data_list:
-            # found = False
-            # print(etree.tostring(data))
-            # for node_id in data.iter("{" + namespace + "}node-id"):
-            #     topo_list = config.findall(path, namespaces={'xmlns': namespace})
-            #     for topo in topo_list:
-            #         # print(etree.tostring(topo))
-            #         for node_id2 in topo.iter("{" + namespace + "}node-id"):
-            #             logging.debug("COMPARING %s - %s" % (node_id.text, node_id2.text))
-            #             if node_id.text == node_id2.text:
-            #                 found = True
-            #                 logging.debug("MATCH")
-            #                 logging.debug("MERGING " + node_id.text)
-            #                 merge(topo, data)
-            #             else:
-            #                 logging.debug("NOT MATCH")
-            #
-            #     if not found:
-            #         logging.debug("APPENDING " + node_id.text)
-            #         config[0].append(data)
+                    NCF = float(xml_parsed.DRoF_configuration.nominal_central_frequency)
+                    eq = str(xml_parsed.DRoF_configuration.equalization)
+                    fec = str(xml_parsed.DRoF_configuration.FEC)
+                    bn = list()
+                    En = list()
+                    for k, v in xml_parsed.DRoF_configuration.constellation.iteritems():
+                        bn.append(int(v.bitsxsymbol))
+                        En.append(float(v.powerxsymbol))
+                    print(NCF, eq, fec, bn, En)
+                    self.ac.setup(NCF, bn, En, eq)
+                    self.configuration = new_config
 
-            # print(etree.tostring(configuration, encoding='utf8', xml_declaration=True))
-            return util.filter_results(rpc, None, None)
+                elif "replace" in method.text:
+                    status = self.configuration.status
+                    logging.debug("CONFIGURATION: " + status)
+                    self.ac.dac_setup(bn, En, eq)
+
+                elif "delete" in method.text:
+                    status = self.configuration.status
+                    logging.debug("CONFIGURATION: " + status)
+                    self.ac.disconnect()
+
+            return util.filter_results(rpc, self.configuration, None)
 
         except Exception as e:
             logging.error("Edit Config, error: {}".format(e))
@@ -240,28 +245,17 @@ def merge(one, other):
 
 def main(*margs):
     parser = argparse.ArgumentParser("NETCONF Server")
-    parser.add_argument("-u", default="root", help='Username')
-    parser.add_argument("-pwd", default="netlabN.", help='Password')
-    parser.add_argument('-p', type=int, default=830, metavar="PORT", help='Port')
-    parser.add_argument('-c', metavar="FILENAME", help='DRoF Capability file')
-    parser.add_argument('-a', metavar="FILENAME", help='BVT Agent Configuration file')
+    parser.add_argument("-u", default="root", metavar="USERNAME", help='NETCONF Server username')
+    parser.add_argument("-pwd", default="netlabN.", metavar="PASSWORD", help='NETCONF Server password')
+    parser.add_argument('-p', type=int, default=830, metavar="PORT", help='NETCONF Server connection port')
+    parser.add_argument('-c', metavar="CAPABILITY", help='DRoF Capability file')
+    parser.add_argument('-a', metavar="AGENT", help='BVT Agent Configuration file')
     parser.add_argument('-y', type=str, default="blueSPACE_DRoF_TP_capability", metavar="YANG MODEL",
                         help='YANG Capability model')
 
     args = parser.parse_args(*margs)
-    config = configparser.RawConfigParser()
-    config.read(args.file)
-    agent = AgentCore(
-        config.get('laser', 'ip'),
-        config.get('laser', 'addr'),
-        config.get('laser', 'channel'),
-        config.get('laser', 'power'),
-        config.get('dac_osc', 'id'),
-        config.get('dac_osc', 'dac_out'),
-        config.get('dac_osc', 'osc_in'),
-        config.get('api', 'ip')
-    )
-    s = NETCONFServer(args.user, args.passwd, args.p, agent)
+    a = init_agent(args.a)
+    s = NETCONFServer(args.u, args.pwd, args.p, a)
     # s.load_file(args.c, bindingCapability, args.y)
 
     if sys.stdout.isatty():
@@ -273,6 +267,39 @@ def main(*margs):
         print("quitting NETCONF Server")
 
     s.close()
+
+
+def init_agent(filename):
+    """
+    Create an Agent Core with specific configuration file specified by filename.
+
+    :param filename: configuration file to configure the Agent Core
+    :type filename: str
+    :return: Agent Core configured
+    :rtype: AgentCore
+    """
+    try:
+        config = configparser.RawConfigParser()
+        config.read(filename)
+        agent = AgentCore(
+            config.get('laser', 'ip'),
+            config.get('laser', 'addr'),
+            config.get('laser', 'channel'),
+            config.get('laser', 'power'),
+            None,
+            None,
+            None,
+            None,
+            None,
+            ast.literal_eval(config.get('dac_osc', 'logical_associations')),
+            config.get('rest_api', 'ip')
+        )
+        logging.debug("AGENT CORE created with configuration file {}".format(filename))
+        return agent
+
+    except Exception as e:
+        logging.error("AGENT CORE not created, error: {}".format(e))
+        raise e
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def create_Agent(folder, filename):
     """
-    Creates an Agent Core with the parameters specified by file.
+    Creates an Agent Core with the configuration file parameters specified by file.
 
     :param folder: directory that contains Agent Core configuration files
     :type folder: str
@@ -45,7 +45,8 @@ def create_Agent(folder, filename):
 
 if __name__ == '__main__':
     abs_path = os.path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-    folder = os.path.join(abs_path, "bluespace/config/")
+    folder = os.path.join(abs_path, "config/")
+    print(folder)
     files = ["blue_bvt1.cfg", "blue_bvt2.cfg"]
     # files = ["blue_bvt1.cfg", "blue_bvt2.cfg", "metro_bvt1.cfg", "metro_bvt2.cfg"]
 
@@ -53,18 +54,17 @@ if __name__ == '__main__':
     for file in files:
         print("Creating AGENT CORE for %s" % file)
         ac = create_Agent(folder, file)
-        NCF = 193.4e6
-        bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
-        En = np.array(np.ones(DAC.Ncarriers)).tolist()
-        eq = "MMSE"
         if file.startswith("blue"):
             print("channel laser = %s" % ac.channel_laser)
             print(ac.logical_associations)
 
-            print(ac.setup(NCF, bn, En, eq))
-            print(ac.getSNR(bn, En, eq))
-            print(ac.setConstellation(bn, En, eq))
-            print(ac.disconnect())
+            freq = 193.4e6
+            bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
+            En = np.array(np.ones(DAC.Ncarriers)).tolist()
+            eq = "MMSE"
+            # print(ac.setup(freq, bn, En, eq))
+            # print(ac.dac_setup(bn, En, eq))
+            # print(ac.disconnect())
 
         else:
             pass

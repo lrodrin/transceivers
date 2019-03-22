@@ -10,7 +10,7 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC
 
 
-def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En):
+def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En, SNR, BER):
     """
     Creates the XML DRoF configuration for a YANG model specified by model.
 
@@ -26,14 +26,18 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
     :type stat: str
     :param NCF: nominal central frequency
     :type NCF: float
-    :param FEC: # TODO
+    :param FEC:
     :type FEC: str
     :param eq: equalization
     :type eq: str
-     :param bn: bits per symbol
+    :param bn: bits per symbol
     :type bn: int
     :param En: power per symbol
     :type En: int
+    :param SNR:
+    :type SNR: int
+    :param BER:
+    :type BER: float
     :return: XML DRoF configuration
     :rtype: lxml.Element
     """
@@ -49,13 +53,18 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En)
         fec.text = FEC
         equalization = etree.SubElement(root, 'equalization')
         equalization.text = eq
-
+        set_monitoring(SNR, root)
+        ber = etree.SubElement(root, 'BER')
+        ber.text = str(BER)
         write_file(config, n, op)
 
     elif op == "replace":
         set_constellation(bn, En, root)
 
         write_file(config, n, op)
+
+    elif op == "delete":
+        pass
 
 
 def set_constellation(bn, En, root):
@@ -79,6 +88,15 @@ def set_constellation(bn, En, root):
         powerxsymbol.text = str(En)
 
 
+def set_monitoring(SNR, root):
+    for i in range(1, DAC.Ncarriers + 1):
+        monitor = etree.SubElement(root, 'monitor')
+        subcarrier_id = etree.SubElement(monitor, 'subcarrier-id')
+        subcarrier_id.text = str(i)
+        snr = etree.SubElement(monitor, 'SNR')
+        snr.text = str(SNR)
+
+
 def write_file(config, n, op):
     """
     Write XML configuration to file.
@@ -94,12 +112,17 @@ def write_file(config, n, op):
 
 
 if __name__ == '__main__':
-    make_DRoF_configuration(1, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
-                            "HD-FEC", "MMSE", 2, 1)
-    make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", 193.4e6,
-                            "HD-FEC", "MMSE", 1, 0.707)
+    NCF = 193.4e6
+    FEC = "HD-FEC"
+    equalization = "MMSE"
+    SNR = 1
+    BER = 0.0
+    make_DRoF_configuration(1, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
+                            FEC, equalization, 2, 1, SNR, BER)
+    make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
+                            FEC, equalization, 1, 0.707, SNR, BER)
 
     make_DRoF_configuration(1, "replace", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
-                            None, None, 1, 0.0707)
+                            None, None, 1, 0.0707, None, None)
     make_DRoF_configuration(2, "replace", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
-                            None, None, 2, 1)
+                            None, None, 2, 1, None, None)

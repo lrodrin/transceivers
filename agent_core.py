@@ -72,21 +72,21 @@ class AgentCore:
         self.ip_rest_server = ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def laser_setup(self, NCF):
+    def laser_setup(self, freq):
         """
         Laser setup.
 
-            - Calculate lambda0 from NCF.
+            - Calculate lambda0 from NCF specified by freq.
             - Set wavelength of the Laser.
             - Set the power of the Laser.
 
-        :param NCF: nominal central frequency
-        :param NCF: float
+        :param freq: nominal central frequency
+        :param freq: float
         :return: status, wavelength and power
         :rtype: list
         """
         try:
-            lambda0 = (speed_of_light / (NCF * 1e6)) * 1e9
+            lambda0 = (speed_of_light / (freq * 1e6)) * 1e9
             result = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
             return result
 
@@ -121,15 +121,15 @@ class AgentCore:
             logger.error(e)
             raise e
 
-    def setup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
+    def setup(self, freq, bn, En, eq):  # CALLED FROM netconf_server.py
         """
         Configuration of a DRoF by setting nominal central frequency, constellation and equalization.
 
             - Laser setup.
             - DAC setup.
 
-        :param NCF: nominal central frequency
-        :param NCF: float
+        :param freq: nominal central frequency
+        :param freq: float
         :param bn: bits per symbol
         :type bn: float array of 512 positions
         :param En: power per symbol
@@ -139,51 +139,10 @@ class AgentCore:
         """
         try:
             # Laser setup
-            result = self.laser_setup(NCF)
+            result = self.laser_setup(freq)
             logger.debug(
                 "Laser parameters - status: {}, wavelength: {}, power: {}".format(result[0], result[1], result[2]))
 
-            # DAC/OSC setup
-            result = self.dac_setup(En, bn, eq)
-            logger.debug(result)
-
-        except Exception as e:
-            logger.error(e)
-            raise e
-
-    def getSNR(self, bn, En, eq):  # CALLED FROM netconf_server.py
-        """
-        Retrieve the SNR per subcarrier from associated signal.
-
-        :param bn: bits per symbol
-        :type bn: float array of 512 positions
-        :param En: power per symbol
-        :type En: float array of 512 positions
-        :param eq: equalization
-        :type eq: str
-        :return: SNR per subcarrier
-        :rtype: list of floats
-        """
-        try:
-            # DAC/OSC setup
-            result = self.dac_setup(En, bn, eq)
-            return result
-
-        except Exception as e:
-            logger.error(e)
-            raise e
-
-    def setConstellation(self, bn, En, eq):  # CALLED FROM netconf_server.py
-        """
-        Change
-        :param bn: bits per symbol
-        :type bn: float array of 512 positions
-        :param En: power per symbol
-        :type En: float array of 512 positions
-        :param eq: equalization
-        :type eq: str
-        """
-        try:
             # DAC/OSC setup
             result = self.dac_setup(En, bn, eq)
             logger.debug(result)
@@ -214,7 +173,7 @@ class AgentCore:
             logger.error(e)
             raise e
 
-    # def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py   # TODO
+    # def metroSetup(self, och, freq, power, mode):  # CALLED FROM openconfig_server.py
     #     """
     #     Configuration of an Optical Channel by setting frequency, power and mode.
     #
@@ -247,7 +206,7 @@ class AgentCore:
     #             "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
     #
     #         # Laser and DAC/OSC setup
-    #         # TODO
+    #
     #
     #     except Exception as e:
     #         logger.error(e)
@@ -267,7 +226,7 @@ class AgentCore:
     #     """
     #     return "Client {} assigned to the Optical Channel {}".format(client, och)
     #
-    # def metroDisconnect(self):  # CALLED FROM openconfig_server.py  # TODO
+    # def metroDisconnect(self):  # CALLED FROM openconfig_server.py
     #     """
     #     Disable Laser and Amplifier.
     #     Remove the logical associations between DAC and OSC and remove the operations configured to WSS.
