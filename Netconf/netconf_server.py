@@ -14,7 +14,7 @@ from six.moves import configparser
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from agent_core import AgentCore
-from bindings import bindingConfiguration
+from Netconf.bindings import bindingConfiguration
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -65,37 +65,40 @@ class NETCONFServer(object):
             logging.error("Connection to NETCONF Server not closed, error: {}".format(e))
             raise e
 
-    def load_file(self, filename, binding, module):
-        """
-        Load and save the capability file into the NETCONF Server datastore.
-
-        :param filename: XML capability file
-        :type filename: str
-        :param binding: data instance from a YANG data model specified by module_name
-        :type binding: PybindBase
-        :param module: YANG module
-        :type module: str
-        """
-        logging.debug("STARTUP CONFIG")
-        try:
-            xml_root = open(filename, 'r').read()
-            cap = pybindIETFXMLDecoder.decode(xml_root, binding, module)
-            xml = pybindIETFXMLEncoder.serialise(cap)
-            tree = etree.XML(xml)
-            # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
-            data = util.elm("nc:data")
-            data.append(tree)
-            logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
-            self.capability = data  # save capability
-            logging.debug("STARTUP CONFIG {} loaded".format(filename))
-
-        except Exception as e:
-            logging.error("STARTUP CONFIG {} not loaded, error: {}".format(filename, e))
-            raise e
+    # def load_file(self, filename, binding, module):
+    #     """
+    #     Load and save the capability file into the NETCONF Server datastore.
+    #
+    #     :param filename: XML capability file
+    #     :type filename: str
+    #     :param binding: data instance from a YANG data model specified by module_name
+    #     :type binding: PybindBase
+    #     :param module: YANG module
+    #     :type module: str
+    #     """
+    #     logging.debug("STARTUP CONFIG")
+    #     try:
+    #         xml_root = open(filename, 'r').read()
+    #         cap = pybindIETFXMLDecoder.decode(xml_root, binding, module)
+    #         xml = pybindIETFXMLEncoder.serialise(cap)
+    #         tree = etree.XML(xml)
+    #         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
+    #         data = util.elm("nc:data")
+    #         data.append(tree)
+    #         logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
+    #         self.capability = data  # save capability
+    #         logging.debug("STARTUP CONFIG {} loaded".format(filename))
+    #
+    #     except Exception as e:
+    #         logging.error("STARTUP CONFIG {} not loaded, error: {}".format(filename, e))
+    #         raise e
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
         """
         Add capabilities to the NETCONF Server.
+
+        :param capabilities:
+        :type capabilities:
         """
         logging.debug("CAPABILITIES")
         try:
@@ -127,12 +130,29 @@ class NETCONFServer(object):
         """
         # print(etree.tostring(rpc))
         # print(etree.tostring(source_elm))
-        # print_current_config(self.configuration)
+        # print(etree.tostring(self.configuration))
         logging.debug("GET CONFIG")
+        module_name = "blueSPACE-DRoF-configuration"
         try:
+            # encode XML configuration stored to pyangbind format
+            xml_parsed = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
+                                                     module_name)
+
+            # extract bn, En, eq from XML configuration stored in pyangbind format
+            En, bn, eq = self.extract_variables_from_XML(xml_parsed)
+
+            # DAC/OSC setup
             result = self.ac.dac_setup(bn, En, eq)
-            logging.debug("SNR = {}".format(result[0]))
-            return util.filter_results(rpc, result[0], filter_or_none)
+            SNR = result[0]  # TODO refactor
+            # SNR = bn  # for testing
+            logging.debug("SNR = {}".format(SNR))
+
+            # save SNR to XML configuration datastore using pyangbind format
+            for k, v in xml_parsed.DRoF_configuration.monitor.iteritems():
+                v._set_SNR(SNR[int(k) - 1])
+
+            return util.filter_results(rpc, etree.XML(pybindIETFXMLEncoder.serialise(self.configuration)),
+                                       filter_or_none)
 
         except Exception as e:
             logging.error("GET CONFIG, error: {}".format(e))
@@ -168,38 +188,64 @@ class NETCONFServer(object):
             elif 'configuration' in new_config[0].tag:
                 module_name = "blueSPACE-DRoF-configuration"
                 xml_parsed = pybindIETFXMLDecoder.decode(etree.tostring(new_config), bindingConfiguration,
-                                                                 module_name)
+                                                         module_name)
                 if "create" in method.text:
-                    status = xml_parsed.DRoF_configuration.status
-                    logging.debug("CONFIGURATION: " + status)
+                    # extract bn, En, eq and NCF from new XML configuration in pyangbind format
+                    En, bn, eq, NCF = self.extract_variables_from_XML(xml_parsed)
 
-                    NCF = float(xml_parsed.DRoF_configuration.nominal_central_frequency)
-                    eq = str(xml_parsed.DRoF_configuration.equalization)
-                    fec = str(xml_parsed.DRoF_configuration.FEC)
-                    bn = list()
-                    En = list()
-                    for k, v in xml_parsed.DRoF_configuration.constellation.iteritems():
-                        bn.append(int(v.bitsxsymbol))
-                        En.append(float(v.powerxsymbol))
-                    print(NCF, eq, fec, bn, En)
+                    # Laser and DAC/OSC setup
                     self.ac.setup(NCF, bn, En, eq)
+
+                    # store new XML configuration
                     self.configuration = new_config
 
                 elif "replace" in method.text:
-                    status = self.configuration.status
-                    logging.debug("CONFIGURATION: " + status)
+                    # extract bn, En, eq from new XML configuration in pyangbind format
+                    En, bn, eq = self.extract_variables_from_XML(module_name)
+
+                    # DAC/OSC setup
                     self.ac.dac_setup(bn, En, eq)
 
-                elif "delete" in method.text:
-                    status = self.configuration.status
-                    logging.debug("CONFIGURATION: " + status)
-                    self.ac.disconnect()
+                    # TODO fix merge
+                    # store new XML configuration constellation changes
+                    for data in new_config.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
+                        for data_2 in self.configuration.iter(
+                                "{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
+                            merge(data_2, data)
 
+                elif "delete" in method.text:
+                    if self.configuration is not None:
+                        # Disable Laser and delete logical associations between DAC and OSC
+                        self.ac.disconnect()
+                        # Delete XML configuration stored
+                        self.configuration = None  # TODO delete massa cutre
+
+            # print(etree.tostring(self.configuration, encoding='utf8', xml_declaration=True))
             return util.filter_results(rpc, self.configuration, None)
 
         except Exception as e:
             logging.error("Edit Config, error: {}".format(e))
             raise e
+
+    @staticmethod
+    def extract_variables_from_XML(xml_parsed):
+        """
+        Extract variables bn, En, eq and NCF from an XML specified by xml_parsed.
+
+        :param xml_parsed: XML configuration in pyangbind format
+        :type xml_parsed: PybindBase
+        :return: bn, En, eq, NCF
+        :rtype: list, list, str, str
+        """
+        NCF = float(xml_parsed.DRoF_configuration.nominal_central_frequency)
+        eq = str(xml_parsed.DRoF_configuration.equalization)
+        bn = list()
+        En = list()
+        for k, v in xml_parsed.DRoF_configuration.constellation.iteritems():
+            bn.append(int(v.bitsxsymbol))
+            En.append(float(v.powerxsymbol))
+
+        return En, bn, eq, NCF
 
 
 def merge(one, other):
@@ -294,7 +340,7 @@ def init_agent(filename):
             ast.literal_eval(config.get('dac_osc', 'logical_associations')),
             config.get('rest_api', 'ip')
         )
-        logging.debug("AGENT CORE created with configuration file {}".format(filename))
+        logging.debug("AGENT CORE linked with configuration file {}".format(filename))
         return agent
 
     except Exception as e:

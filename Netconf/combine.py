@@ -48,5 +48,6 @@ class XMLCombiner(object):
 
 
 if __name__ == '__main__':
-    r = XMLCombiner(('node1.xml', 'node2.xml')).combine()
+    # r = XMLCombiner(('node1.xml', 'node2.xml')).combine()
+    r = XMLCombiner(('constellations_1.xml', 'constellations_2.xml')).combine()
     print(r)

@@ -1,0 +1,9 @@
+<DRoF-configuration xmlns="urn:blueSPACE-DRoF-configuration">
+    <status>active</status>
+    <nominal-central-frequency>193400000.0</nominal-central-frequency>
+    <constellation>
+        <subcarrier-id>1</subcarrier-id>
+        <bitsxsymbol>2</bitsxsymbol>
+        <powerxsymbol>1</powerxsymbol>
+    </constellation>
+</DRoF-configuration>

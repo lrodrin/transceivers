@@ -14,7 +14,7 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     """
     Creates the XML DRoF configuration for a YANG model specified by model.
 
-    :param n: number that identify the Agent Core
+    :param n: number that identify the Agent Core configuration
     :type n: int
     :param op: identify the NETCONF edit-config operation. create or replace.
     :type op: str
@@ -33,9 +33,9 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     :param bn: bits per symbol
     :type bn: int
     :param En: power per symbol
-    :type En: int
-    :param SNR:
-    :type SNR: int
+    :type En: float
+    :param SNR: estimated SNR per subcarrier
+    :type SNR: float
     :param BER:
     :type BER: float
     :return: XML DRoF configuration
@@ -60,7 +60,6 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
 
     elif op == "replace":
         set_constellation(bn, En, root)
-
         write_file(config, n, op)
 
     elif op == "delete":
@@ -69,14 +68,14 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
 
 def set_constellation(bn, En, root):
     """
-    Creates the constellation list inside the XML configuration.
+    Creates the constellation list inside the XML DRoF configuration.
 
     :param bn: bits per symbol
     :type bn: int
     :param En: power per symbol
     :type En: int
-    :param root: parent lxml element of XML configuration
-    :type: lxml.Element
+    :param root: parent lxml element of XML DRoF configuration
+    :type root: lxml.Element
     """
     for i in range(1, DAC.Ncarriers + 1):
         constellation = etree.SubElement(root, 'constellation')
@@ -89,6 +88,14 @@ def set_constellation(bn, En, root):
 
 
 def set_monitoring(SNR, root):
+    """
+    Creates the monitor list inside the XML DRoF configuration.
+
+    :param SNR: estimated SNR per subcarrier
+    :type SNR: float
+    :param root: parent lxml element of XML DRoF configuration
+    :type root: lxml.Element
+    """
     for i in range(1, DAC.Ncarriers + 1):
         monitor = etree.SubElement(root, 'monitor')
         subcarrier_id = etree.SubElement(monitor, 'subcarrier-id')
@@ -99,10 +106,11 @@ def set_monitoring(SNR, root):
 
 def write_file(config, n, op):
     """
-    Write XML configuration to file.
+    Write XML configuration to a file.
 
-    :param config: configuration file
+    :param config: XML configuration
     :type config: lxml.Element
+    :param n: number that identify the Agent Core configuration
     :type n: int
     :param op: identify the NETCONF edit-config operation. create or replace.
     :type op: str

@@ -6,13 +6,10 @@ from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
-from lib.amp.amp import Amplifier
 from rest_api import RestApi
 
 logger = logging.getLogger("AGENT_CORE")
 logger.addHandler(logging.NullHandler())
-
-speed_of_light = 299792.458
 
 
 class AgentCore:
@@ -86,12 +83,12 @@ class AgentCore:
         :rtype: list
         """
         try:
-            lambda0 = (speed_of_light / (freq * 1e6)) * 1e9
+            lambda0 = (299792.458 / (freq * 1e6)) * 1e9
             result = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
             return result
 
         except Exception as e:
-            logger.error(e)
+            logger.error("Laser setup not finished, error: %s" % e)
             raise e
 
     def dac_setup(self, bn, En, eq):
@@ -107,6 +104,8 @@ class AgentCore:
         :type En: float array of 512 positions
         :param eq: equalization
         :type eq: str
+        :return: estimated SNR per subcarrier
+        :rtype: list
         """
         try:
             for i in range(len(self.logical_associations)):
@@ -115,10 +114,10 @@ class AgentCore:
                 self.logical_associations[i]['eq'] = eq
 
             result = self.api.dacOscConfiguration(self.logical_associations)
-            return result
+            return result[0]
 
         except Exception as e:
-            logger.error(e)
+            logger.error("DAC setup not finished, error: %s" % e)
             raise e
 
     def setup(self, freq, bn, En, eq):  # CALLED FROM netconf_server.py
@@ -141,14 +140,16 @@ class AgentCore:
             # Laser setup
             result = self.laser_setup(freq)
             logger.debug(
-                "Laser parameters - status: {}, wavelength: {}, power: {}".format(result[0], result[1], result[2]))
+                "Laser setup finished with parameters - status: {}, wavelength: {}, power: {}".format(result[0],
+                                                                                                      result[1],
+                                                                                                      result[2]))
 
             # DAC/OSC setup
             result = self.dac_setup(En, bn, eq)
-            logger.debug(result)
+            logger.debug("DAC setup finished with SNR = {} and BER = {}".format(result[0], result[1]))
 
         except Exception as e:
-            logger.error(e)
+            logger.error("Configuration of a DRoF failed, error: %s" % e)
             raise e
 
     def disconnect(self):  # CALLED FROM netconf_server.py
