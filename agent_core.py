@@ -69,7 +69,7 @@ class AgentCore:
         self.ip_rest_server = ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def laser_setup(self, freq):
+    def laser_setup(self, NCF):
         """
         Laser setup.
 
@@ -77,13 +77,13 @@ class AgentCore:
             - Set wavelength of the Laser.
             - Set the power of the Laser.
 
-        :param freq: nominal central frequency
-        :param freq: float
+        :param NCF: nominal central frequency
+        :param NCF: float
         :return: status, wavelength and power
         :rtype: list
         """
         try:
-            lambda0 = (299792.458 / (freq * 1e6)) * 1e9
+            lambda0 = (299792.458 / (NCF * 1e6)) * 1e9
             result = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
             return result
 
@@ -120,15 +120,15 @@ class AgentCore:
             logger.error("DAC setup not finished, error: %s" % e)
             raise e
 
-    def setup(self, freq, bn, En, eq):  # CALLED FROM netconf_server.py
+    def setup(self, NCF, bn, En, eq):  # CALLED FROM netconf_server.py
         """
         Configuration of a DRoF by setting nominal central frequency, constellation and equalization.
 
             - Laser setup.
             - DAC setup.
 
-        :param freq: nominal central frequency
-        :param freq: float
+        :param NCF: nominal central frequency
+        :param NCF: float
         :param bn: bits per symbol
         :type bn: float array of 512 positions
         :param En: power per symbol
@@ -138,7 +138,7 @@ class AgentCore:
         """
         try:
             # Laser setup
-            result = self.laser_setup(freq)
+            result = self.laser_setup(NCF)
             logger.debug(
                 "Laser setup finished with parameters - status: {}, wavelength: {}, power: {}".format(result[0],
                                                                                                       result[1],
