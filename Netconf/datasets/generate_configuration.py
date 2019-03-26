@@ -26,7 +26,7 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     :type stat: str
     :param NCF: nominal central frequency
     :type NCF: float
-    :param FEC:
+    :param FEC: fordware error correction
     :type FEC: str
     :param eq: equalization
     :type eq: str
@@ -36,7 +36,7 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     :type En: float
     :param SNR: estimated SNR per subcarrier
     :type SNR: float
-    :param BER:
+    :param BER: bit error rate
     :type BER: float
     :return: XML DRoF configuration
     :rtype: lxml.Element
@@ -44,26 +44,48 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     config = etree.Element('config', xmlns="urn:ietf:params:xml:ns:netconf:base:1.0")
     root = etree.SubElement(config, model, xmlns=namespace)
     if op == "create":
-        status = etree.SubElement(root, 'status')
-        status.text = stat
-        ncf = etree.SubElement(root, 'nominal-central-frequency')
-        ncf.text = str(NCF)
+        set_config(En, FEC, NCF, bn, eq, root, stat)
+
+    elif op == "merge":
         set_constellation(bn, En, root)
-        fec = etree.SubElement(root, 'FEC')
-        fec.text = FEC
-        equalization = etree.SubElement(root, 'equalization')
-        equalization.text = eq
+
+    elif op == "startup":
+        set_config(En, FEC, NCF, bn, eq, root, stat)
         set_monitoring(SNR, root)
         ber = etree.SubElement(root, 'BER')
         ber.text = str(BER)
-        write_file(config, n, op)
 
-    elif op == "replace":
-        set_constellation(bn, En, root)
-        write_file(config, n, op)
+    write_file(config, n, op)
 
-    elif op == "delete":
-        pass
+
+def set_config(En, FEC, NCF, bn, eq, root, stat):
+    """
+    Creates the configurable variables inside the XML DRoF configuration.
+
+    :param En: power per symbol
+    :type En: float
+    :param FEC: fordware error correction
+    :type FEC: str
+    :param NCF: nominal central frequency
+    :type NCF: float
+    :param bn: bits per symbol
+    :type bn: int
+    :param eq: equalization
+    :type eq: str
+    :param root: parent lxml element of XML DRoF configuration
+    :type root: lxml.Element
+    :param stat: status of DRoF configuration. active, off or standby
+    :type stat: str
+    """
+    status = etree.SubElement(root, 'status')
+    status.text = stat
+    ncf = etree.SubElement(root, 'nominal-central-frequency')
+    ncf.text = str(NCF)
+    set_constellation(bn, En, root)
+    fec = etree.SubElement(root, 'FEC')
+    fec.text = FEC
+    equalization = etree.SubElement(root, 'equalization')
+    equalization.text = eq
 
 
 def set_constellation(bn, En, root):
@@ -125,12 +147,14 @@ if __name__ == '__main__':
     equalization = "MMSE"
     SNR = 1
     BER = 0.0
-    make_DRoF_configuration(1, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
-                            FEC, equalization, 2, 1, SNR, BER)
-    make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
+    make_DRoF_configuration(0, "startup", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
                             FEC, equalization, 1, 0.707, SNR, BER)
+    make_DRoF_configuration(1, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
+                            FEC, equalization, 2, 1, None, None)
+    make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
+                            FEC, equalization, 1, 0.707, None, None)
 
-    make_DRoF_configuration(1, "replace", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
+    make_DRoF_configuration(1, "merge", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
                             None, None, 1, 0.0707, None, None)
-    make_DRoF_configuration(2, "replace", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
+    make_DRoF_configuration(2, "merge", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
                             None, None, 2, 1, None, None)

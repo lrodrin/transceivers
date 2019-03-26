@@ -9,6 +9,8 @@ logger.addHandler(logging.NullHandler())
 
 headers = {"Content-Type": "application/json"}
 
+# TODO check data returned from dacOscConfiguration and wSSConfiguration
+
 
 class RestApi:
     """

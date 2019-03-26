@@ -49,5 +49,5 @@ class XMLCombiner(object):
 
 if __name__ == '__main__':
     # r = XMLCombiner(('node1.xml', 'node2.xml')).combine()
-    r = XMLCombiner(('constellations_1.xml', 'constellations_2.xml')).combine()
+    r = XMLCombiner(('blueSPACE_DRoF_configuration_startup_0.xml', 'blueSPACE_DRoF_configuration_create_1.xml')).combine()
     print(r)

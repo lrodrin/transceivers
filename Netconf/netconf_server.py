@@ -4,6 +4,7 @@ import argparse
 import ast
 import logging
 import time
+import xml.dom.minidom
 from os import sys, path
 
 from lxml import etree
@@ -15,6 +16,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from agent_core import AgentCore
 from Netconf.bindings import bindingConfiguration
+from Netconf.combine import XMLCombiner
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -65,33 +67,28 @@ class NETCONFServer(object):
             logging.error("Connection to NETCONF Server not closed, error: {}".format(e))
             raise e
 
-    # def load_file(self, filename, binding, module):
-    #     """
-    #     Load and save the capability file into the NETCONF Server datastore.
-    #
-    #     :param filename: XML capability file
-    #     :type filename: str
-    #     :param binding: data instance from a YANG data model specified by module_name
-    #     :type binding: PybindBase
-    #     :param module: YANG module
-    #     :type module: str
-    #     """
-    #     logging.debug("STARTUP CONFIG")
-    #     try:
-    #         xml_root = open(filename, 'r').read()
-    #         cap = pybindIETFXMLDecoder.decode(xml_root, binding, module)
-    #         xml = pybindIETFXMLEncoder.serialise(cap)
-    #         tree = etree.XML(xml)
-    #         # print(etree.tostring(tree, encoding='utf8', xml_declaration=True))
-    #         data = util.elm("nc:data")
-    #         data.append(tree)
-    #         logging.info(etree.tostring(data, encoding='utf8', xml_declaration=True))
-    #         self.capability = data  # save capability
-    #         logging.debug("STARTUP CONFIG {} loaded".format(filename))
-    #
-    #     except Exception as e:
-    #         logging.error("STARTUP CONFIG {} not loaded, error: {}".format(filename, e))
-    #         raise e
+    def load_file(self, filename):
+        """
+        Load the startup configuration file into the NETCONF Server datastore.
+
+        :param filename: name of XML configuration file
+        :type filename: str
+        """
+        logging.debug("STARTUP CONFIG")
+        try:
+            xml_root = open(filename, 'r').read()
+            tree = etree.XML(xml_root)
+            data = util.elm("nc:data")
+            data.append(tree)
+            self.configuration = data  # save configuration
+            parsed_xml = xml.dom.minidom.parseString(
+                etree.tostring(self.configuration, encoding="utf-8", xml_declaration=True))
+            logging.info(parsed_xml.toprettyxml(indent="", newl=""))
+            logging.debug("STARTUP CONFIG {} loaded".format(filename))
+
+        except Exception as e:
+            logging.error("STARTUP CONFIG {} not loaded, error: {}".format(filename, e))
+            raise e
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
         """
@@ -112,92 +109,99 @@ class NETCONFServer(object):
             logging.error("CAPABILITIES not added, error: {}".format(e))
             raise e
 
-    def rpc_get_config(self, session, rpc, source_elm, filter_or_none):  # pylint: disable=W0613
+    def rpc_get(self, session, rpc, filter_or_none):  # pylint: disable=W0613
         """
-        NETCONF Get-config operation.
+        NETCONF Get operation.
         Retrieve all or part of specified configuration.
 
-        :param session: the server session with the client
-        :type session: NetconfServerSession
-        :param rpc: the topmost element in the received message
-        :type rpc: lxml.Element
-        :param source_elm: the source element indicating where the config should be drawn from
-        :type source_elm: lxml.Element
-        :param filter_or_none: the filter element if present
-        :type filter_or_none: lxml.Element or None
-        :return: "nc:data" type containing the requested configuration
-        :rtype: lxml.Element
+        :param session: The server session with the client.
+        :type session: `NetconfServerSession`
+        :param rpc: The topmost element in the received message.
+        :type rpc: `lxml.Element`
+        :param filter_or_none: The filter element if present.
+        :type filter_or_none: `lxml.Element` or None
+        :return: `lxml.Element` of "nc:data" type containing the requested state.
+        :raises: `error.RPCServerError` which will be used to construct an XML error response.
         """
-        # print(etree.tostring(rpc))
-        # print(etree.tostring(source_elm))
+        print(etree.tostring(rpc))
+        print(etree.tostring(filter_or_none))
         # print(etree.tostring(self.configuration))
-        logging.debug("GET CONFIG")
+        logging.debug("GET")
         module_name = "blueSPACE-DRoF-configuration"
         try:
             # encode XML configuration stored to pyangbind format
-            xml_parsed = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
-                                                     module_name)
+            xml = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
+                                              module_name)
 
             # extract bn, En, eq from XML configuration stored in pyangbind format
-            En, bn, eq = self.extract_variables_from_XML(xml_parsed)
+            En, bn, eq = self.extract_variables_from_XML(xml)
 
             # DAC/OSC setup
             result = self.ac.dac_setup(bn, En, eq)
-            SNR = result[0]  # TODO refactor
-            # SNR = bn  # for testing
-            logging.debug("SNR = {}".format(SNR))
+            # TODO parse result
+            logging.debug(result)
 
-            # save SNR to XML configuration datastore using pyangbind format
-            for k, v in xml_parsed.DRoF_configuration.monitor.iteritems():
-                v._set_SNR(SNR[int(k) - 1])
+            # for testing without setup call
+            SNR = bn
+            BER = 1.0
+            # save new SNR and BER to XML configuration datastore using pyangbind format
+            xml.DRoF_configuration._set_BER = BER
+            for key, value in xml.DRoF_configuration.monitor.iteritems():
+                value._set_SNR(SNR[int(key) - 1])
 
-            return util.filter_results(rpc, etree.XML(pybindIETFXMLEncoder.serialise(self.configuration)),
-                                       filter_or_none)
+            # decode XML configuration stored from pyangbind format
+            self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(xml))
+            # parsed_xml = xml.dom.minidom.parseString(
+            #     etree.tostring(self.configuration, encoding="utf-8", xml_declaration=True))
+            # logging.info(parsed_xml.toprettyxml(indent="", newl=""))
+            return util.filter_results(rpc, self.configuration, filter_or_none)
 
         except Exception as e:
-            logging.error("GET CONFIG, error: {}".format(e))
+            logging.error("GET, error: {}".format(e))
             raise e
 
-    def rpc_edit_config(self, session, rpc, target, method, new_config):  # pylint disable=W0613
+    def rpc_edit_config(self, unused_session, rpc, target, method, newconf):  # pylint disable=W0613
         """
         NETCONF edit-config operation.
         Loads all or part of the specified new_config to the NETCONF Server datastore.
 
-        :param session: the server session with the client
-        :type session: NetconfServerSession
-        :param rpc: the topmost element in the received message
-        :type rpc: lxml.Element
-        :param target: is the name of the configuration datastore being edited
+        :param unused_session: The server session with the client.
+        :type unused_session: `NetconfServerSession`
+        :param rpc: The topmost element in the received message.
+        :type rpc: lxml.Element`
+        param target: the target of the config, defaults to "running".
         :type target: str
-        :param method: type of edit-config operation
+        :param method: "merge" (netconf default), "create" or "delete".
         :type method: str
-        :param new_config: new configuration which must be rooted in the configuration element
-        :type new_config: lxml.Element
-        :return: "nc:data" type containing the requested configuration
+        :param newconf: The new configuration.
+        :return: "nc:data" type containing the requested configuration.
         :rtype: lxml.Element
+        :raises: `error.RPCServerError` which will be used to construct an XML error response.
         """
         # print(etree.tostring(rpc))
         # print(etree.tostring(method))
-        # print(etree.tostring(new_config))
+        # print(etree.tostring(newconf))
         logging.debug("EDIT CONFIG")
         try:
-            if 'capability' in new_config[0].tag:
-                conf_path = ".//xmlns:blueSPACE-DRoF-TP-capability"
-                conf_namespace = "urn:blueSPACE-DRoF-TP-capability"
+            if 'capability' in newconf[0].tag:
+                pass
 
-            elif 'configuration' in new_config[0].tag:
+            elif 'configuration' in newconf[0].tag:
                 module_name = "blueSPACE-DRoF-configuration"
-                xml_parsed = pybindIETFXMLDecoder.decode(etree.tostring(new_config), bindingConfiguration,
-                                                         module_name)
+                new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
+                                                      module_name)
                 if "create" in method.text:
                     # extract bn, En, eq and NCF from new XML configuration in pyangbind format
-                    En, bn, eq, NCF = self.extract_variables_from_XML(xml_parsed)
+                    En, bn, eq, NCF = self.extract_variables_from_XML(new_xml)
 
                     # Laser and DAC/OSC setup
-                    self.ac.setup(NCF, bn, En, eq)
+                    # result = self.ac.setup(NCF, bn, En, eq)
+                    # logging.debug(result)
 
-                    # store new XML configuration
-                    self.configuration = new_config
+                    # save new XML configuration
+                    result = XMLCombiner(self.configuration, newconf).combine()
+                    print(result)
+
 
                 elif "replace" in method.text:
                     # extract bn, En, eq from new XML configuration in pyangbind format
@@ -208,10 +212,10 @@ class NETCONFServer(object):
 
                     # TODO fix merge
                     # store new XML configuration constellation changes
-                    for data in new_config.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
-                        for data_2 in self.configuration.iter(
-                                "{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
-                            merge(data_2, data)
+                    # for data in newconf.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
+                    #     for data_2 in self.configuration.iter(
+                    #             "{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
+                    #         merge(data_2, data)
 
                 elif "delete" in method.text:
                     if self.configuration is not None:
@@ -220,7 +224,6 @@ class NETCONFServer(object):
                         # Delete XML configuration stored
                         self.configuration = None  # TODO delete massa cutre
 
-            # print(etree.tostring(self.configuration, encoding='utf8', xml_declaration=True))
             return util.filter_results(rpc, self.configuration, None)
 
         except Exception as e:
@@ -248,61 +251,19 @@ class NETCONFServer(object):
         return En, bn, eq, NCF
 
 
-def merge(one, other):
-    """
-    This function recursively updates either the text or the children of an lxml.Element if another lxml.Element is
-    found in one, or adds it from other if not found.
-
-    :param one: one configuration
-    :type one: lxml.Element
-    :param other: other configuration
-    :type other: lxml.Element
-    :return: one configuration merged with other configuration
-    :rtype: str
-    """
-    # Create a mapping from tag name to element, as that's what we are filtering with
-    mapping = {el.tag: el for el in one}
-    for el in other:
-        if len(el) == 0:
-            # Not nested
-            try:
-                # Update the text
-                mapping[el.tag].text = el.text
-
-            except KeyError:
-                # An element with this name is not in the mapping
-                mapping[el.tag] = el
-                # Add it
-                one.append(el)
-        else:
-
-            try:
-                # Recursively process the element, and update it in the same way
-                merge(mapping[el.tag], el)
-
-            except KeyError:
-                # Not in the mapping
-                mapping[el.tag] = el
-                # Just add it
-                one.append(el)
-
-    return etree.tostring(one)
-
-
 def main(*margs):
     parser = argparse.ArgumentParser("NETCONF Server")
     parser.add_argument("-u", default="root", metavar="USERNAME", help='NETCONF Server username')
     parser.add_argument("-pwd", default="netlabN.", metavar="PASSWORD", help='NETCONF Server password')
     parser.add_argument('-p', type=int, default=830, metavar="PORT", help='NETCONF Server connection port')
-    parser.add_argument('-c', metavar="CAPABILITY", help='DRoF Capability file')
+    parser.add_argument('-c', default="datasets/blueSPACE_DRoF_configuration_startup_0.xml", metavar="CONFIGURATION",
+                        help='DRoF Configuration file')
     parser.add_argument('-a', metavar="AGENT", help='BVT Agent Configuration file')
-    parser.add_argument('-y', type=str, default="blueSPACE_DRoF_TP_capability", metavar="YANG MODEL",
-                        help='YANG Capability model')
 
     args = parser.parse_args(*margs)
     a = init_agent(args.a)
     s = NETCONFServer(args.u, args.pwd, args.p, a)
-    # s.load_file(args.c, bindingCapability, args.y)
+    s.load_file(args.c)
 
     if sys.stdout.isatty():
         print("^C to quit NETCONF Server")

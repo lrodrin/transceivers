@@ -104,7 +104,7 @@ class AgentCore:
         :type En: float array of 512 positions
         :param eq: equalization
         :type eq: str
-        :return: estimated SNR per subcarrier
+        :return: estimated SNR per subcarrier and BER
         :rtype: list
         """
         try:
@@ -114,7 +114,7 @@ class AgentCore:
                 self.logical_associations[i]['eq'] = eq
 
             result = self.api.dacOscConfiguration(self.logical_associations)
-            return result[0]
+            return result
 
         except Exception as e:
             logger.error("DAC setup not finished, error: %s" % e)
@@ -135,6 +135,8 @@ class AgentCore:
         :type En: float array of 512 positions
         :param eq: equalization
         :type eq: str
+        :return: estimated SNR per subcarrier and BER
+        :rtype: list
         """
         try:
             # Laser setup
@@ -147,6 +149,7 @@ class AgentCore:
             # DAC/OSC setup
             result = self.dac_setup(En, bn, eq)
             logger.debug("DAC setup finished with SNR = {} and BER = {}".format(result[0], result[1]))
+            return result
 
         except Exception as e:
             logger.error("Configuration of a DRoF failed, error: %s" % e)
