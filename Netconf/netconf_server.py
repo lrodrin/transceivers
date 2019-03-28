@@ -10,6 +10,7 @@ from os import sys, path
 from lxml import etree
 from netconf import server, util, nsmap_add, NSMAP
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
+from pyangbind.lib import pybindJSON
 from six.moves import configparser
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -173,21 +174,21 @@ class NETCONFServer(object):
     def rpc_edit_config(self, unused_session, rpc, target, method, newconf):  # pylint disable=W0613
         """
         NETCONF edit-config operation.
-        Loads all or part of the specified new_config to the NETCONF Server datastore.
+        Loads all or part of the specified newconf to the NETCONF running configuration.
 
-        :param unused_session: The server session with the client.
-        :type unused_session: `NetconfServerSession`
-        :param rpc: The topmost element in the received message.
-        :type rpc: lxml.Element`
-        param target: the target of the config, defaults to "running".
+        :param unused_session: the server session with the client
+        :type unused_session: NetconfServerSession
+        :param rpc: the topmost element in the received message
+        :type rpc: lxml.Element
+        param target: the target of the config, defaults to "running"
         :type target: str
         :param method: "merge" (netconf default), "create" or "delete".
         :type method: str
-        :param newconf: The new configuration.
+        :param newconf: the new configuration
         :type newconf: lxml.Element
-        :return: "nc:data" type containing the requested configuration.
+        :return: "nc:data" type containing the requested configuration
         :rtype: lxml.Element
-        :raises: `error.RPCServerError` which will be used to construct an XML error response.
+        :raises: `error.RPCServerError` which will be used to construct an XML error response
         """
         # print(etree.tostring(rpc))
         # print(etree.tostring(method))
@@ -200,7 +201,7 @@ class NETCONFServer(object):
             elif 'configuration' in newconf[0].tag:
                 if "create" in method.text:
                     if self.configuration is None:
-                        # extract NCF, bn, En and eq from new XML configuration in pyangbind format
+                        # extract NCF, bn, En and eq from newconf in pyangbind format
                         new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
                                                               "blueSPACE-DRoF-configuration")
                         NCF = float(new_xml.DRoF_configuration.nominal_central_frequency)
@@ -215,18 +216,29 @@ class NETCONFServer(object):
                         # result = self.ac.setup(NCF, bn, En, eq)
                         # logging.debug(result)
 
-                        # save new configuration as running configuration
+                        # save newconf as running configuration
                         self.configuration = newconf
 
+                        # add SNR and BER to running configuration
+                        SNR = [1]*512
+                        BER = 0.0
+                        data = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
+                                                           "blueSPACE-DRoF-configuration")
+                        for i in range(1, len(SNR) + 1):
+                            m = data.DRoF_configuration.monitor.add(i)
+                            m._set_SNR(SNR[i - 1])
+                        data.DRoF_configuration._set_BER(BER)
+
+                        # serialise running configuration
+                        self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
                         parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
                         logging.info(parsed_xml.toprettyxml(indent="", newl=""))
                         logging.debug("CONFIGURATION created")
+                        return util.filter_results(rpc, self.configuration, None)
 
-                        # TODO add SNR and BER to self.configuration
-
-                elif "replace" in method.text:
+                elif "merge" in method.text:
                     if self.configuration is not None:
-                        # extract bn, En from new XML configuration in pyangbind format
+                        # extract bn and En from newconf in pyangbind format
                         new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
                                                               "blueSPACE-DRoF-configuration")
                         bn = list()
@@ -244,7 +256,25 @@ class NETCONFServer(object):
                         # result = self.ac.dac_setup(bn, En, eq)
                         # logging.debug(result)
 
-                        # TODO merge running configuration with new XML configuration
+                        # add SNR and BER to running configuration
+                        SNR = [2] * 512
+                        BER = 1.0
+                        data.DRoF_configuration._set_BER(BER)
+                        for key, value in data.DRoF_configuration.monitor.iteritems():
+                            value._set_SNR(SNR[int(key) - 1])
+
+                        # serialise running configuration
+                        self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
+
+                        # merge newconf with running configuration
+                        for conste_1 in self.configuration.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
+                            for conste_2 in newconf.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
+                                self.merge(conste_2, conste_1)
+
+                        parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
+                        logging.info(parsed_xml.toprettyxml(indent="", newl=""))
+                        logging.debug("CONFIGURATION merged")
+                        return util.filter_results(rpc, self.configuration, None)
 
                 elif "delete" in method.text:
                     if self.configuration is not None:
@@ -255,11 +285,48 @@ class NETCONFServer(object):
                         # TODO remove self.configuration
                         logging.debug("CONFIGURATION deleted")
 
-            return util.filter_results(rpc, self.configuration, None)
-
         except Exception as e:
             logging.error("EDIT CONFIG method {}, error: {}".format(method, e))
             raise e
+
+    def merge(self, one, other):
+        """
+        This function recursively updates either the constellation or the children
+        of an constellation if another constellation is found in `one`, or adds it
+        from `other` if not found.
+
+        :param one: list of constellations of one XML configuration
+        :type lxml.Element
+        :param other: list of constellations of another XML configuration
+        :type other: lxml.Element
+        """
+        # Create a mapping from tag name to element, as that's what we are filtering with
+        mapping = {el.tag: el for el in one}
+        for el in other:
+            if len(el) == 0:
+                # Not nested
+                try:
+                    # Update the text
+                    mapping[el.tag].text = el.text
+
+                except KeyError:
+                    # An element with this name is not in the mapping
+                    mapping[el.tag] = el
+                    # Add it
+                    one.append(el)
+            else:
+
+                try:
+                    # Recursively process the element, and update it in the same way
+                    self.merge(mapping[el.tag], el)
+
+                except KeyError:
+                    # Not in the mapping
+                    mapping[el.tag] = el
+                    # Just add it
+                    one.append(el)
+
+        return etree.tostring(one)
 
 
 def main(*margs):
@@ -274,7 +341,7 @@ def main(*margs):
     args = parser.parse_args(*margs)
     a = init_agent(args.a)
     s = NETCONFServer(args.u, args.pwd, args.p, a)
-    s.load_file(args.c)
+    # s.load_file(args.c)
 
     if sys.stdout.isatty():
         print("^C to quit NETCONF Server")
