@@ -126,45 +126,43 @@ class NETCONFServer(object):
         logging.debug("GET")
         try:
             if self.configuration is not None:
-                # extract bn, En from running configuration using pyangbind format
-
-                logging.debug(etree.tostring(self.configuration))
-                # xml_parsed = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
-                #                                    "blueSPACE-DRoF-configuration")
-                # logging.debug("extracted bn, En from running configuration using pyangbind format")
-                # bn = list()
-                # En = list()
-                # for k, v in xml_parsed.DRoF_configuration.constellation.iteritems():
-                #     bn.append(int(v.bitsxsymbol))
-                #     En.append(float(v.powerxsymbol))
-                # logging.debug("extracted bn, En from running configuration using pyangbind format")
+                # extract bn, En and eq from running configuration using pyangbind format
+                data = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
+                                                   "blueSPACE-DRoF-configuration")
+                eq = str(data.DRoF_configuration.equalization)
+                bn = list()
+                En = list()
+                for k, v in data.DRoF_configuration.constellation.iteritems():
+                    bn.append(int(v.bitsxsymbol))
+                    En.append(float(v.powerxsymbol))
 
                 # DAC/OSC setup
                 # result = self.ac.dac_setup(bn, En, eq)
                 # logging.debug(result)
 
-                # for testing without dac_setup call
-                # SNR = bn
-                # BER = 1.0
-                # # save SNR and BER to running configuration using pyangbind format
-                # xml_parsed.DRoF_configuration._set_BER = BER
-                # for key, value in xml_parsed.DRoF_configuration.monitor.iteritems():
-                #     value._set_SNR(SNR[int(key) - 1])
-                # logging.debug("saved SNR and BER to running configuration using pyangbind format")
-                #
-                # parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
-                # logging.info(parsed_xml.toprettyxml(indent="", newl=""))
+                # modify SNR and BER to running configuration
+                SNR = [2] * 512
+                BER = 2.0
+                for i, value in enumerate(data.DRoF_configuration.monitor.iteritems(), start=1):
+                    value[1]._set_SNR(SNR[i - 1])
+                data.DRoF_configuration._set_BER(BER)
+
+                # save new running configuration
+                self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
+                parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
+                logging.info(parsed_xml.toprettyxml(indent="", newl=""))
 
                 # create NETCONF message with SNR and BER needed to reply
                 data_reply = util.elm("nc:data")
-                for elem in self.configuration.iter(
-                        "{" + "urn:blueSPACE-DRoF-configuration" + "}monitor"):  # adding SNR
-                    data_reply.append(elem)
+                monitor = self.configuration.findall(".//xmlns:monitor",
+                                         namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
+                for elem in monitor:
+                    data_reply.append(elem) # adding SNR
 
                 ber = self.configuration.find(".//xmlns:BER",
-                                              namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
+                                  namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
                 data_reply.append(ber)
-                logging.debug("created DATA needed to reply")
+                logging.debug("Created NETCONF message with SNR and BER needed to reply")
                 return util.filter_results(rpc, data_reply, filter_or_none)
 
         except Exception as e:
@@ -201,7 +199,7 @@ class NETCONFServer(object):
             elif 'configuration' in newconf[0].tag:
                 if "create" in method.text:
                     if self.configuration is None:
-                        # extract NCF, bn, En and eq from newconf in pyangbind format
+                        # extract NCF, bn, En and eq from newconf using pyangbind format
                         new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
                                                               "blueSPACE-DRoF-configuration")
                         NCF = float(new_xml.DRoF_configuration.nominal_central_frequency)
@@ -220,7 +218,7 @@ class NETCONFServer(object):
                         self.configuration = newconf
 
                         # add SNR and BER to running configuration
-                        SNR = [1]*512
+                        SNR = [1] * 512
                         BER = 0.0
                         data = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
                                                            "blueSPACE-DRoF-configuration")
@@ -238,7 +236,7 @@ class NETCONFServer(object):
 
                 elif "merge" in method.text:
                     if self.configuration is not None:
-                        # extract bn and En from newconf in pyangbind format
+                        # extract bn and En from newconf using pyangbind format
                         new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
                                                               "blueSPACE-DRoF-configuration")
                         bn = list()
@@ -256,21 +254,22 @@ class NETCONFServer(object):
                         # result = self.ac.dac_setup(bn, En, eq)
                         # logging.debug(result)
 
-                        # add SNR and BER to running configuration
-                        SNR = [2] * 512
-                        BER = 1.0
+                        # modify SNR and BER to running configuration
+                        SNR = [3] * 512
+                        BER = 3.0
+                        for i, value in enumerate(data.DRoF_configuration.monitor.iteritems(), start=1):
+                            value[1]._set_SNR(SNR[i - 1])
                         data.DRoF_configuration._set_BER(BER)
-                        for key, value in data.DRoF_configuration.monitor.iteritems():
-                            value._set_SNR(SNR[int(key) - 1])
+
+                        # merge newconf with running configuration # TODO optimize
+                        for i, x in enumerate(new_xml.DRoF_configuration.constellation.iteritems(), start=1):
+                            for j, y in enumerate(data.DRoF_configuration.constellation.iteritems(), start=1):
+                                if i == j:
+                                    y[1].bitsxsymbol = x[1].bitsxsymbol
+                                    y[1].powerxsymbol = x[1].powerxsymbol
 
                         # serialise running configuration
                         self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
-
-                        # merge newconf with running configuration
-                        for conste_1 in self.configuration.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
-                            for conste_2 in newconf.iter("{" + "urn:blueSPACE-DRoF-configuration" + "}constellation"):
-                                self.merge(conste_2, conste_1)
-
                         parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
                         logging.info(parsed_xml.toprettyxml(indent="", newl=""))
                         logging.debug("CONFIGURATION merged")
