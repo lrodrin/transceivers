@@ -44,7 +44,7 @@ class NETCONFServer(object):
         """
         self.ac = agent
         self.capability = None
-        self.configuration = None
+        self.configuration = bindingConfiguration.blueSPACE_DRoF_configuration()
         self.capabilities = ["blueSPACE-DRoF-configuration", "blueSPACE-DRoF-TP-capability"]
         try:
             auth = server.SSHUserPassController(username=username, password=password)
@@ -67,7 +67,7 @@ class NETCONFServer(object):
             logging.error("Connection to NETCONF Server not closed, error: {}".format(e))
             raise e
 
-    def load_file(self, filename):
+    def load_file(self, filename):  # TODO change XML to pyangbind object
         """
         Load the startup configuration into the NETCONF Server datastore.
 
@@ -125,45 +125,39 @@ class NETCONFServer(object):
         """
         logging.debug("GET")
         try:
-            if self.configuration is not None:
-                # extract bn, En and eq from running configuration using pyangbind format
-                data = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
-                                                   "blueSPACE-DRoF-configuration")
-                eq = str(data.DRoF_configuration.equalization)
-                bn = list()
-                En = list()
-                for k, v in data.DRoF_configuration.constellation.iteritems():
-                    bn.append(int(v.bitsxsymbol))
-                    En.append(float(v.powerxsymbol))
+            # extract bn, En and eq from running configuration using pyangbind format
+            eq = str(self.configuration.DRoF_configuration.equalization)
+            bn = list()
+            En = list()
+            for k, v in self.configuration.DRoF_configuration.constellation.iteritems():
+                bn.append(int(v.bitsxsymbol))
+                En.append(float(v.powerxsymbol))
 
-                # DAC/OSC setup
-                # result = self.ac.dac_setup(bn, En, eq)
-                # logging.debug(result)
+            # DAC/OSC setup
+            # result = self.ac.dac_setup(bn, En, eq)
+            # logging.debug(result)
 
-                # modify SNR and BER to running configuration
-                SNR = [2] * 512
-                BER = 2.0
-                for i, value in enumerate(data.DRoF_configuration.monitor.iteritems(), start=1):
-                    value[1]._set_SNR(SNR[i - 1])
-                data.DRoF_configuration._set_BER(BER)
+            # modify SNR and BER to running configuration
+            SNR = [2] * 512
+            BER = 2.0
+            for i, value in enumerate(self.configuration.DRoF_configuration.monitor.iteritems(), start=1):
+                value[1]._set_SNR(SNR[i - 1])
+            self.configuration.DRoF_configuration._set_BER(BER)
+            logging.info(pybindJSON.dumps(self.configuration))
 
-                # save new running configuration
-                self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
-                parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
-                logging.info(parsed_xml.toprettyxml(indent="", newl=""))
+            # create NETCONF message with SNR and BER needed to reply
+            data = etree.XML(pybindIETFXMLEncoder.serialise(self.configuration))
+            data_reply = util.elm("nc:data")
+            monitor = data.findall(".//xmlns:monitor",
+                                                 namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
+            for elem in monitor:
+                data_reply.append(elem)  # adding SNR
 
-                # create NETCONF message with SNR and BER needed to reply
-                data_reply = util.elm("nc:data")
-                monitor = self.configuration.findall(".//xmlns:monitor",
-                                         namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
-                for elem in monitor:
-                    data_reply.append(elem) # adding SNR
-
-                ber = self.configuration.find(".//xmlns:BER",
-                                  namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
-                data_reply.append(ber)
-                logging.debug("Created NETCONF message with SNR and BER needed to reply")
-                return util.filter_results(rpc, data_reply, filter_or_none)
+            ber = data.find(".//xmlns:BER",
+                                          namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
+            data_reply.append(ber)
+            logging.debug("Created NETCONF message with SNR and BER needed to reply")
+            return util.filter_results(rpc, data_reply, filter_or_none)
 
         except Exception as e:
             logging.error("GET, error: {}".format(e))
@@ -198,91 +192,78 @@ class NETCONFServer(object):
 
             elif 'configuration' in newconf[0].tag:
                 if "create" in method.text:
-                    if self.configuration is None:
-                        # extract NCF, bn, En and eq from newconf using pyangbind format
-                        new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
-                                                              "blueSPACE-DRoF-configuration")
-                        NCF = float(new_xml.DRoF_configuration.nominal_central_frequency)
-                        eq = str(new_xml.DRoF_configuration.equalization)
-                        bn = list()
-                        En = list()
-                        for k, v in new_xml.DRoF_configuration.constellation.iteritems():
-                            bn.append(int(v.bitsxsymbol))
-                            En.append(float(v.powerxsymbol))
+                    # extract NCF, bn, En and eq from newconf using pyangbind format
+                    new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
+                                                          "blueSPACE-DRoF-configuration")
+                    NCF = float(new_xml.DRoF_configuration.nominal_central_frequency)
+                    eq = str(new_xml.DRoF_configuration.equalization)
+                    bn = list()
+                    En = list()
+                    for k, v in new_xml.DRoF_configuration.constellation.iteritems():
+                        bn.append(int(v.bitsxsymbol))
+                        En.append(float(v.powerxsymbol))
 
-                        # Laser and DAC/OSC setup
-                        # result = self.ac.setup(NCF, bn, En, eq)
-                        # logging.debug(result)
+                    # Laser and DAC/OSC setup
+                    # result = self.ac.setup(NCF, bn, En, eq)
+                    # logging.debug(result)
 
-                        # save newconf as running configuration
-                        self.configuration = newconf
+                    # save newconf as running configuration
+                    self.configuration = new_xml
 
-                        # add SNR and BER to running configuration
-                        SNR = [1] * 512
-                        BER = 0.0
-                        data = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
-                                                           "blueSPACE-DRoF-configuration")
-                        for i in range(1, len(SNR) + 1):
-                            m = data.DRoF_configuration.monitor.add(i)
-                            m._set_SNR(SNR[i - 1])
-                        data.DRoF_configuration._set_BER(BER)
-
-                        # serialise running configuration
-                        self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
-                        parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
-                        logging.info(parsed_xml.toprettyxml(indent="", newl=""))
-                        logging.debug("CONFIGURATION created")
-                        return util.filter_results(rpc, self.configuration, None)
+                    # add SNR and BER to running configuration
+                    SNR = [1] * 512
+                    BER = 0.0
+                    for i in range(1, len(SNR) + 1):
+                        m = self.configuration.DRoF_configuration.monitor.add(i)
+                        m._set_SNR(SNR[i - 1])
+                    self.configuration.DRoF_configuration._set_BER(BER)
+                    logging.info(pybindJSON.dumps(self.configuration))
+                    logging.debug("CONFIGURATION created")
+                    return util.filter_results(rpc, etree.XML(pybindIETFXMLEncoder.serialise(self.configuration)), None)
 
                 elif "merge" in method.text:
-                    if self.configuration is not None:
-                        # extract bn and En from newconf using pyangbind format
-                        new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
-                                                              "blueSPACE-DRoF-configuration")
-                        bn = list()
-                        En = list()
-                        for k, v in new_xml.DRoF_configuration.constellation.iteritems():
-                            bn.append(int(v.bitsxsymbol))
-                            En.append(float(v.powerxsymbol))
+                    # extract bn and En from newconf using pyangbind format
+                    new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
+                                                          "blueSPACE-DRoF-configuration")
+                    bn = list()
+                    En = list()
+                    for k, v in new_xml.DRoF_configuration.constellation.iteritems():
+                        bn.append(int(v.bitsxsymbol))
+                        En.append(float(v.powerxsymbol))
 
-                        # extract eq from running configuration
-                        data = pybindIETFXMLDecoder.decode(etree.tostring(self.configuration), bindingConfiguration,
-                                                           "blueSPACE-DRoF-configuration")
-                        eq = str(data.DRoF_configuration.equalization)
+                    # extract eq from running configuration
+                    eq = str(self.configuration.DRoF_configuration.equalization)
 
-                        # DAC/OSC setup
-                        # result = self.ac.dac_setup(bn, En, eq)
-                        # logging.debug(result)
+                    # DAC/OSC setup
+                    # result = self.ac.dac_setup(bn, En, eq)
+                    # logging.debug(result)
 
-                        # modify SNR and BER to running configuration
-                        SNR = [3] * 512
-                        BER = 3.0
-                        for i, value in enumerate(data.DRoF_configuration.monitor.iteritems(), start=1):
-                            value[1]._set_SNR(SNR[i - 1])
-                        data.DRoF_configuration._set_BER(BER)
+                    # modify SNR and BER to running configuration
+                    SNR = [3] * 512
+                    BER = 3.0
+                    for i, value in enumerate(self.configuration.DRoF_configuration.monitor.iteritems(), start=1):
+                        value[1]._set_SNR(SNR[i - 1])
+                    self.configuration.DRoF_configuration._set_BER(BER)
 
-                        # merge newconf with running configuration # TODO optimize
-                        for i, x in enumerate(new_xml.DRoF_configuration.constellation.iteritems(), start=1):
-                            for j, y in enumerate(data.DRoF_configuration.constellation.iteritems(), start=1):
-                                if i == j:
-                                    y[1].bitsxsymbol = x[1].bitsxsymbol
-                                    y[1].powerxsymbol = x[1].powerxsymbol
+                    # merge newconf with running configuration # TODO optimize
+                    for i, x in enumerate(new_xml.DRoF_configuration.constellation.iteritems(), start=1):
+                        for j, y in enumerate(self.configuration.DRoF_configuration.constellation.iteritems(), start=1):
+                            if i == j:
+                                y[1].bitsxsymbol = x[1].bitsxsymbol
+                                y[1].powerxsymbol = x[1].powerxsymbol
 
-                        # serialise running configuration
-                        self.configuration = etree.XML(pybindIETFXMLEncoder.serialise(data))
-                        parsed_xml = xml.dom.minidom.parseString(etree.tostring(self.configuration, encoding="utf-8"))
-                        logging.info(parsed_xml.toprettyxml(indent="", newl=""))
-                        logging.debug("CONFIGURATION merged")
-                        return util.filter_results(rpc, self.configuration, None)
+                    logging.info(pybindJSON.dumps(self.configuration))
+                    logging.debug("CONFIGURATION merged")
+                    return util.filter_results(rpc, etree.XML(pybindIETFXMLEncoder.serialise(self.configuration)), None)
 
                 elif "delete" in method.text:
-                    if self.configuration is not None:
-                        # disable Laser and remove logical associations between DAC and OSC
-                        # self.ac.disconnect()
+                    # disable Laser and remove logical associations between DAC and OSC
+                    # self.ac.disconnect()
 
-                        # remove running configuration
-                        # TODO remove self.configuration
-                        logging.debug("CONFIGURATION deleted")
+                    self.configuration = bindingConfiguration.blueSPACE_DRoF_configuration()
+                    logging.info(pybindJSON.dumps(self.configuration))
+                    logging.debug("CONFIGURATION deleted")
+                    return util.filter_results(rpc, etree.XML(pybindIETFXMLEncoder.serialise(self.configuration)), None)
 
         except Exception as e:
             logging.error("EDIT CONFIG method {}, error: {}".format(method, e))

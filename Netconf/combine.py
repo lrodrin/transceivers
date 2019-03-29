@@ -5,45 +5,10 @@ from netconf import util
 from pyangbind.lib.serialise import pybindIETFXMLDecoder, pybindIETFXMLEncoder, YangDataSerialiser, pybindJSONEncoder
 
 from pyangbind.lib import pybindJSON
-from bindings import bindingConfiguration
+from Netconf.bindings import bindingConfiguration
 
 __author__ = "Laura Rodriguez Navas <laura.rodriguez@cttc.cat>"
 __copyright__ = "Copyright 2018, CTTC"
-
-
-def merge(one, other):
-    """
-    This function recursively updates either the text or the children
-    of an node if another node is found in `one`, or adds it
-    from `other` if not found.
-    """
-    # Create a mapping from tag name to element, as that's what we are filtering with
-    mapping = {el.tag: el for el in one}
-    for el in other:
-        if len(el) == 0:
-            # Not nested
-            try:
-                # Update the text
-                mapping[el.tag].text = el.text
-
-            except KeyError:
-                # An element with this name is not in the mapping
-                mapping[el.tag] = el
-                # Add it
-                one.append(el)
-        else:
-
-            try:
-                # Recursively process the element, and update it in the same way
-                merge(mapping[el.tag], el)
-
-            except KeyError:
-                # Not in the mapping
-                mapping[el.tag] = el
-                # Just add it
-                one.append(el)
-
-    return etree.tostring(one)
 
 
 xml_1 = etree.parse("blueSPACE_DRoF_configuration_create_1.xml")
@@ -75,17 +40,17 @@ new_xml_1.DRoF_configuration._set_BER(BER)
 result = etree.XML(pybindIETFXMLEncoder.serialise(new_xml_1))
 # print(etree.tostring(result))
 
-# data_reply = util.elm("nc:data")
-# monitor = result.findall(".//xmlns:monitor",
-#                               namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
-# for elem in monitor:
-#     print(elem)
-#     data_reply.append(elem)
-#
-# ber = result.find(".//xmlns:BER",
-#                               namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
-# data_reply.append(ber)
-# print(etree.tostring(data_reply))
+data_reply = util.elm("nc:data")
+monitor = result.findall(".//xmlns:monitor",
+                              namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
+for elem in monitor:
+    print(elem)
+    data_reply.append(elem)
+
+ber = result.find(".//xmlns:BER",
+                              namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
+data_reply.append(ber)
+print(etree.tostring(data_reply))
 
 # MERGE
 SNR = [3] * 512

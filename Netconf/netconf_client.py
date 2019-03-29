@@ -11,7 +11,7 @@ password = "netlabN."
 session = NetconfSSHSession(host, port, username, password)
 
 operations = ["get", "create", "merge", "delete"]
-op = operations[2]
+op = operations[1]
 
 if op == "create":
     print("---CREATE---")
@@ -28,8 +28,9 @@ elif op == "merge":
 elif op == "delete":
     # edit config delete
     print("---DELETE---")
-    config = session.edit_config(method='delete', newconf=None)
-    print(config)
+    xml = etree.parse('blueSPACE_DRoF_configuration_delete.xml')
+    config = session.edit_config(method='delete', newconf=etree.tostring(xml))
+    print(etree.tostring(config))
 
 elif op == "get":
     print("---GET---")
