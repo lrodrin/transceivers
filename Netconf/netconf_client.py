@@ -10,31 +10,31 @@ password = "netlabN."
 
 session = NetconfSSHSession(host, port, username, password)
 
-operations = ["get", "create", "merge", "delete"]
+operations = ["create", "get", "merge", "delete"]
 op = operations[1]
+folder = "datasets/"
 
 if op == "create":
     print("---CREATE---")
-    xml = etree.parse('blueSPACE_DRoF_configuration_create_1.xml')
+    xml = etree.parse(folder + "blueSPACE_DRoF_configuration_create_1.xml")
     config = session.edit_config(method='create', newconf=etree.tostring(xml))
-    print(etree.tostring(config))
-
-elif op == "merge":
-    print("---MERGE---")
-    xml = etree.parse('blueSPACE_DRoF_configuration_merge_1.xml')
-    config = session.edit_config(method='merge', newconf=etree.tostring(xml))
-    print(etree.tostring(config))
-
-elif op == "delete":
-    # edit config delete
-    print("---DELETE---")
-    xml = etree.parse('blueSPACE_DRoF_configuration_delete.xml')
-    config = session.edit_config(method='delete', newconf=etree.tostring(xml))
     print(etree.tostring(config))
 
 elif op == "get":
     print("---GET---")
     config = session.get()
+    print(etree.tostring(config))
+
+elif op == "merge":
+    print("---MERGE---")
+    xml = etree.parse(folder + "blueSPACE_DRoF_configuration_merge_1.xml")
+    config = session.edit_config(method='merge', newconf=etree.tostring(xml))
+    print(etree.tostring(config))
+
+elif op == "delete":
+    print("---DELETE---")
+    xml = etree.parse(folder + "blueSPACE_DRoF_configuration_delete.xml")
+    config = session.edit_config(method='delete', newconf=etree.tostring(xml))
     print(etree.tostring(config))
 
 session.close()
