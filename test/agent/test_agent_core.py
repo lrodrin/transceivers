@@ -58,13 +58,13 @@ if __name__ == '__main__':
             print("channel laser = %s" % ac.channel_laser)
             print(ac.logical_associations)
 
-            freq = 193.4e6
+            NCF = 193.4e6
             bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
             En = np.array(np.ones(DAC.Ncarriers)).tolist()
             eq = "MMSE"
-            # print(ac.setup(freq, bn, En, eq))
-            # print(ac.dac_setup(bn, En, eq))
-            # print(ac.disconnect())
+            print(ac.setup(NCF, bn, En, eq))
+            print(ac.dac_setup(bn, En, eq))
+            print(ac.disconnect())
 
         else:
             pass

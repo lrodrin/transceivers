@@ -1,10 +1,12 @@
-import collections
-import json
-import logging
 import os
-import sys
-
 from os import sys, path
+
+from lxml import etree
+from netconf import util
+from pyangbind.lib import pybindJSON
+from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
+
+from Netconf.bindings import bindingConfiguration
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
@@ -13,77 +15,19 @@ __copyright__ = "Copyright 2018, CTTC"
 
 print(sys.executable)
 print(os.getcwd())
-print(sys.path)
 
-logger = logging.getLogger('logs/blue_agent.logs')
-print(logger.name)
-# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%a, %d %b %Y '
-#                                                                                                    '%H:%M:%S',
-#                     filename='logs/blue_agent.logs', filemode='w')
+XML = etree.parse("blueSPACE_DRoF_configuration_startup_0.xml")
+monitor = XML.findall(".//xmlns:monitor",
+                       namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
+ber = XML.find(".//xmlns:BER",
+                namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
 
+data = util.elm("data")
+top = util.subelm(data, "{urn:blueSPACE-DRoF-configuration}blueSPACE-DRoF-configuration")
+for value in monitor:
+    m = util.subelm(top, 'monitor')
+    m.append(util.leaf_elm('subcarrier-id', str(value[0].text)))
+    m.append(util.leaf_elm('SNR', str(value[1].text)))
 
-logger.debug("HEHE")
-
-operations = collections.OrderedDict()  # operations configured on the WaveShaper
-operations['1'] = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
-id = str(1)
-if id not in operations.keys():
-    operations[id] = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
-else:
-    operations[id] += [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
-
-print(operations)
-
-del operations[id]
-print(operations)
-
-params_wss_2 = {'wss_id': 2, 'operation': [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.99, 'att': 0.0,
-                                            'phase': 0.0, 'bw': 25},
-                                           {'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0,
-                                            'bw': 25},
-                                           {'port_in': 3, 'port_out': 1, 'lambda0': 1549.3, 'att': 0.0, 'phase': 0.0,
-                                            'bw': 25}, {'port_in': 4,
-                                                        'port_out': 1, 'lambda0': 1548.5, 'att': 0.0, 'phase': 0.0,
-                                                        'bw': 25}]}
-
-print(params_wss_2['operation'])
-
-from collections import Counter
-
-c = Counter()
-for item in params_wss_2['operation']:
-    c[item["port_in"]] += 1
-
-print(len(c))
-
-logical_associations = collections.OrderedDict()
-wanted_keys = ('dac_out', 'osc_in', 'eq')
-params_dac_osc = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'eq': 0}, {'id': 2, 'dac_out': 1, 'osc_in': 1, 'eq': 0}]
-
-data = json.dumps(params_dac_osc)
-
-for item in params_dac_osc:
-    id = item['id']
-    filtered_assoc = dict(zip(wanted_keys, [item[k] for k in wanted_keys]))  # assoc - ['id']
-    print(filtered_assoc)
-    logical_associations[id] = filtered_assoc
-
-print(logical_associations)
-
-l = [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.92, 'att': 0.0, 'phase': 0.0, 'bw': 25},
-    {'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 25}]
-
-for i in range(2):
-    for j in range(1):
-        print(i, j, l[i], l[i]['lambda0'])
-
-a = str()
-b = ""
-print(a, b)
-print("HELLO")
-
-a = {"cars": 1, "houses": 2, "schools": 3, "stores": 4}
-b = {"Pens": 1, "Pencils": 2, "Paper": 3}
-
-a.update(b)
-print(a)
+top.append(util.leaf_elm('BER', str(ber.text)))
+print(etree.tostring(data))

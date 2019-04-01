@@ -1,0 +1,21 @@
+Sending message (%d): %s 206 <hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"><capabilities><capability>urn:ietf:params:netconf:base:1.0</capability><capability>urn:ietf:params:netconf:base:1.1</capability></capabilities></hello>
+---DELETE---
+%s: Sending RPC message-id: %s NetconfClientSession(sid:4) 0
+Sending message (%d): %s 358 <rpc message-id="0"
+                xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<edit-config>
+  <target>
+    <running/>
+  </target>
+  <default-operation>delete</default-operation>
+<config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+	<DRoF-configuration xmlns="urn:blueSPACE-DRoF-configuration">
+	</DRoF-configuration>
+</config></edit-config>
+</rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="0">
+  <blueSPACE-DRoF-configuration xmlns="urn:blueSPACE-DRoF-configuration"/>
+</rpc-reply>
+%s: Sending RPC message-id: %s NetconfClientSession(sid:4) 1
+Sending message (%d): %s 106 <rpc message-id="1"
+                xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"><close-session/></rpc>

@@ -29,14 +29,14 @@ if __name__ == '__main__':
     api = RestApi('10.1.1.10')
 
     # WSS
-    logging.debug("WSS")
-    print(api.wSSConfiguration(wss1))
-    print(api.wSSConfiguration(wss2))
-    print(api.getWSSOperations())
-    print(api.getWSSOperationsById(1))
-    print(api.getWSSOperationsById(2))
-    print(api.deleteWSSOperationsById(2))
-    print(api.getWSSOperations())
+    # logging.debug("WSS")
+    # print(api.wSSConfiguration(wss1))
+    # print(api.wSSConfiguration(wss2))
+    # print(api.getWSSOperations())
+    # print(api.getWSSOperationsById(1))
+    # print(api.getWSSOperationsById(2))
+    # print(api.deleteWSSOperationsById(2))
+    # print(api.getWSSOperations())
 
     # DAC/OSC
     logging.debug("DAC and OSC")

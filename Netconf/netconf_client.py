@@ -11,7 +11,7 @@ password = "netlabN."
 session = NetconfSSHSession(host, port, username, password)
 
 operations = ["create", "get", "merge", "delete"]
-op = operations[1]
+op = operations[0]
 folder = "datasets/"
 
 if op == "create":

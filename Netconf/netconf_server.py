@@ -70,7 +70,7 @@ class NETCONFServer(object):
         """
         Load the startup configuration into the NETCONF Server datastore.
 
-        :param filename: name of the XML configuration file
+        :param filename: name of the XML configuration file to be loaded
         :type filename: str
         """
         logging.debug("STARTUP CONFIG")
@@ -79,7 +79,7 @@ class NETCONFServer(object):
             tree = etree.XML(XML)
             data = pybindIETFXMLDecoder.decode(etree.tostring(tree), bindingConfiguration,
                                                "blueSPACE-DRoF-configuration")
-            self.configuration = data  # save startup configuration
+            self.configuration = data  # save to startup configuration
             logging.info(pybindJSON.dumps(self.configuration))
             logging.debug("STARTUP CONFIG {} loaded".format(filename))
 
@@ -118,7 +118,7 @@ class NETCONFServer(object):
         :param filter_or_none: the filter element if present
         :type filter_or_none: lxml.Element or None
         :return: "nc:data" type containing the requested state
-        :raises: error.RPCServerError which will be used to construct an XML error response
+        :rtype: lxml.Element
         """
         logging.debug("GET")
         try:
@@ -136,17 +136,22 @@ class NETCONFServer(object):
             self.modify_SNR_and_BER(BER, SNR)
             logging.info(pybindJSON.dumps(self.configuration))
 
-            # create NETCONF message with SNR and BER needed to reply
-            data = etree.XML(pybindIETFXMLEncoder.serialise(self.configuration))  # TODO create method
-            data_reply = util.elm("nc:data")
+            # get new SNR and BER from running configuration
+            data = etree.XML(pybindIETFXMLEncoder.serialise(self.configuration))
             monitor = data.findall(".//xmlns:monitor",
                                    namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
-            for elem in monitor:
-                data_reply.append(elem)  # adding SNR
-
             ber = data.find(".//xmlns:BER",
-                            namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})  # adding BER
-            data_reply.append(ber)
+                            namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
+
+            # create NETCONF message with new SNR and BER needed to reply
+            data_reply = util.elm("data")
+            top = util.subelm(data_reply, "{urn:blueSPACE-DRoF-configuration}blueSPACE-DRoF-configuration")
+            for value in monitor:
+                m = util.subelm(top, 'monitor')
+                m.append(util.leaf_elm('subcarrier-id', str(value[0].text)))
+                m.append(util.leaf_elm('SNR', str(value[1].text)))
+
+            top.append(util.leaf_elm('BER', str(ber.text)))
             logging.debug("Created NETCONF message with SNR and BER needed to reply")
             return util.filter_results(rpc, data_reply, filter_or_none)
 
@@ -156,12 +161,12 @@ class NETCONFServer(object):
 
     def modify_SNR_and_BER(self, BER, SNR):
         """
-        Modify SNR and BER to running configuration.
+        Modify SNR and BER from running configuration.
 
-        :param BER:
-        :type BER: float
-        :param SNR:
-        :type SNR: list
+        :param ber: bit error rate
+        :type ber: float
+        :param snr: SNR per subcarrier
+        :type snr: list
         """
         for i, value in enumerate(self.configuration.DRoF_configuration.monitor.iteritems(), start=1):
             value[1]._set_SNR(SNR[i - 1])
@@ -185,7 +190,6 @@ class NETCONFServer(object):
         :type newconf: lxml.Element
         :return: "nc:data" type containing the requested configuration
         :rtype: lxml.Element
-        :raises: `error.RPCServerError` which will be used to construct an XML error response
         """
         # print(etree.tostring(rpc))
         # print(etree.tostring(method))
@@ -211,12 +215,12 @@ class NETCONFServer(object):
                     # save newconf as running configuration
                     self.configuration = new_xml
 
-                    # add SNR and BER to running configuration  # TODO extract method
+                    # add SNR and BER to running configuration
                     SNR = [1] * 512
                     BER = 0.0
                     for i in range(1, len(SNR) + 1):
-                        self.configuration.DRoF_configuration.monitor.add(i)
-                        self.configuration.DRoF_configuration.monitor._set_SNR(SNR[i - 1])
+                        m = self.configuration.DRoF_configuration.monitor.add(i)
+                        m._set_SNR(SNR[i - 1])
 
                     self.configuration.DRoF_configuration._set_BER(BER)
                     logging.info(pybindJSON.dumps(self.configuration))
@@ -238,7 +242,7 @@ class NETCONFServer(object):
                     BER = 3.0
                     self.modify_SNR_and_BER(BER, SNR)
 
-                    # merge newconf with running configuration # TODO optimize and extract method
+                    # merge newconf with running configuration # TODO optimize
                     for i, x in enumerate(new_xml.DRoF_configuration.constellation.iteritems(), start=1):
                         for j, y in enumerate(self.configuration.DRoF_configuration.constellation.iteritems(), start=1):
                             if i == j:
@@ -265,16 +269,16 @@ class NETCONFServer(object):
     @staticmethod
     def extract_bn_and_En(configuration):
         """
-        Extract bn and En from configuration.
+        Extract bn and En from all or a part of an XML configuration.
 
-        :param configuration:
-        :type configuration:
+        :param configuration: XML configuration
+        :type configuration: bindingConfiguration.blueSPACE_DRoF_configuration()
         """
         bn = list()
         En = list()
-        for k, v in configuration.DRoF_configuration.constellation.iteritems():
-            bn.append(int(v.bitsxsymbol))
-            En.append(float(v.powerxsymbol))
+        for key, value in configuration.DRoF_configuration.constellation.iteritems():
+            bn.append(int(value.bitsxsymbol))
+            En.append(float(value.powerxsymbol))
 
 
 def main(*margs):
@@ -289,7 +293,7 @@ def main(*margs):
     args = parser.parse_args(*margs)
     a = init_agent(args.a)
     s = NETCONFServer(args.u, args.pwd, args.p, a)
-    s.load_startup_configuration(args.c)
+    # s.load_startup_configuration(args.c)
 
     if sys.stdout.isatty():
         print("^C to quit NETCONF Server")
