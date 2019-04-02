@@ -42,7 +42,7 @@ class RestApi:
         :param params: a transmission
         :type params: list
         :return: estimated SNR per subcarrier and BER
-        :rtype: dict
+        :rtype: list
         """
         logging.debug('RestApi.dacOscConfiguration')
         url = "http://" + self.ip + ':' + str(self.port_dac_osc) + "/api/dac_osc"

@@ -16,6 +16,6 @@ if __name__ == '__main__':
     power_tls1 = 14.5
     power_tls2 = 14.5
     tls1_conf = Laser.configuration(ip, addr, channel_tls1, lambda0, power_tls1)
-    tls2_conf = Laser.configuration(ip, addr, channel_tls2, lambda0, power_tls2)
+    # tls2_conf = Laser.configuration(ip, addr, channel_tls2, lambda0, power_tls2)
     print(tls1_conf)
-    print(tls2_conf)
+    # print(tls2_conf)

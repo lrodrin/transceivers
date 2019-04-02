@@ -45,10 +45,10 @@ class AgentCore:
         :type ip_rest_server: str
         """
         # Laser parameters
-        self.ip_laser = ip_laser
-        self.addr_laser = addr_laser
-        self.channel_laser = channel_laser
-        self.power_laser = power_laser
+        self.ip_laser = str(ip_laser)
+        self.addr_laser = str(addr_laser)
+        self.channel_laser = int(channel_laser)
+        self.power_laser = float(power_laser)
 
         # OA parameters
         self.ip_amplifier = ip_amplifier

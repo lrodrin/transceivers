@@ -45,9 +45,9 @@ def create_Agent(folder, filename):
 
 if __name__ == '__main__':
     abs_path = os.path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-    folder = os.path.join(abs_path, "config/")
+    folder = os.path.join(abs_path, "bluespace/config/")
     print(folder)
-    files = ["blue_bvt1.cfg", "blue_bvt2.cfg"]
+    files = ["blue_bvt1.cfg"]
     # files = ["blue_bvt1.cfg", "blue_bvt2.cfg", "metro_bvt1.cfg", "metro_bvt2.cfg"]
 
     print("Testing AGENT CORE")
@@ -55,16 +55,22 @@ if __name__ == '__main__':
         print("Creating AGENT CORE for %s" % file)
         ac = create_Agent(folder, file)
         if file.startswith("blue"):
-            print("channel laser = %s" % ac.channel_laser)
+            print(ac.ip_laser)
+            print(ac.addr_laser)
+            print(ac.channel_laser)
+            print(ac.power_laser)
             print(ac.logical_associations)
+            print(ac.ip_rest_server)
 
             NCF = 193.4e6
             bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
             En = np.array(np.ones(DAC.Ncarriers)).tolist()
             eq = "MMSE"
-            print(ac.setup(NCF, bn, En, eq))
+
+            # print(ac.laser_setup(NCF))
+            # print(ac.setup(NCF, bn, En, eq))
             print(ac.dac_setup(bn, En, eq))
-            print(ac.disconnect())
+            # print(ac.disconnect())
 
         else:
             pass

@@ -22,8 +22,7 @@ if __name__ == '__main__':
     En1 = np.array(np.ones(DAC.Ncarriers)).tolist()
     En2 = np.round(np.array(np.ones(DAC.Ncarriers) / np.sqrt(2)), 3).tolist()
     eq1 = eq2 = "MMSE"
-    params = [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
-              {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
+    params = [{'id': 1, 'dac_out': 1, 'osc_in': 1, 'bn': bn1, 'En': En1, 'eq': eq1}]
 
     logging.debug("Testing REST API")
     api = RestApi('10.1.1.10')
@@ -41,8 +40,8 @@ if __name__ == '__main__':
     # DAC/OSC
     logging.debug("DAC and OSC")
     print(api.dacOscConfiguration(params))
-    print(api.getDACOSCOperations())
-    print(api.getDACOSCOperationsById(1))
-    print(api.getDACOSCOperationsById(2))
-    print(api.deleteDACOSCOperationsById(1))
-    print(api.getDACOSCOperations())
+    # print(api.getDACOSCOperations())
+    # print(api.getDACOSCOperationsById(1))
+    # print(api.getDACOSCOperationsById(2))
+    # print(api.deleteDACOSCOperationsById(1))
+    # print(api.getDACOSCOperations())
