@@ -145,7 +145,7 @@ class NETCONFServer(object):
 
             # create NETCONF message with new SNR and BER needed to reply
             data_reply = util.elm("data")
-            top = util.subelm(data_reply, "{urn:blueSPACE-DRoF-configuration}blueSPACE-DRoF-configuration")
+            top = util.subelm(data_reply, "{urn:blueSPACE-DRoF-configuration}DRoF-configuration")
             for value in monitor:
                 m = util.subelm(top, 'monitor')
                 m.append(util.leaf_elm('subcarrier-id', str(value[0].text)))
