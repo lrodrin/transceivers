@@ -263,6 +263,7 @@ class OSC:
         :rtype: list
         """
         try:
+            self.bps = np.sum(bn) / float(len(bn))  # Recalculate bps
             logger.debug("Generating data")  # Generate data with different seed for the different output ports
             if dac_out == 1:
                 np.random.seed(42)

@@ -1,5 +1,6 @@
 """This module generates the datasets in XML.
 """
+from itertools import zip_longest
 from xml.dom.minidom import parseString
 
 from lxml import etree
@@ -10,7 +11,7 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC
 
 
-def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En, SNR, BER):
+def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, fi, fo, SNR, BER):
     """
     Creates the XML DRoF configuration for a YANG model specified by model.
 
@@ -30,10 +31,10 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     :type FEC: str
     :param eq: equalization
     :type eq: str
-    :param bn: bits per symbol
-    :type bn: int
-    :param En: power per symbol
-    :type En: float
+    :param fi: filename with the bits per symbol
+    :type fi: str
+    :param fo: filename with the power per symbol
+    :type fo: str
     :param SNR: estimated SNR per subcarrier
     :type SNR: float
     :param BER: bit error rate
@@ -44,32 +45,44 @@ def make_DRoF_configuration(n, op, model, namespace, stat, NCF, FEC, eq, bn, En,
     config = etree.Element('config', xmlns="urn:ietf:params:xml:ns:netconf:base:1.0")
     root = etree.SubElement(config, model, xmlns=namespace)
     if op == "create":
-        set_config(En, FEC, NCF, bn, eq, root, stat)
+        fbn = open(fi, "r", newline=None)
+        fen = open(fo, "r", newline=None)
+        set_config(fen, FEC, NCF, fbn, eq, root, stat)
+        fbn.close()
+        fen.close()
 
     elif op == "merge":
-        set_constellation(bn, En, root)
+        fbn = open(fi, "r", newline=None)
+        fen = open(fo, "r", newline=None)
+        set_constellation(fbn, fen, root)
+        fbn.close()
+        fen.close()
 
     elif op == "startup":
-        set_config(En, FEC, NCF, bn, eq, root, stat)
+        fbn = open(fi, "r", newline=None)
+        fen = open(fo, "r", newline=None)
+        set_config(fen, FEC, NCF, fbn, eq, root, stat)
         set_monitoring(SNR, root)
         ber = etree.SubElement(root, 'BER')
         ber.text = str(BER)
+        fbn.close()
+        fen.close()
 
     write_file(config, n, op)
 
 
-def set_config(En, FEC, NCF, bn, eq, root, stat):
+def set_config(fen, FEC, NCF, fbn, eq, root, stat):
     """
     Creates the configurable variables inside the XML DRoF configuration.
 
-    :param En: power per symbol
-    :type En: float
+    :param fen: file with the power per symbol
+    :type fen: file
     :param FEC: fordware error correction
     :type FEC: str
     :param NCF: nominal central frequency
     :type NCF: float
-    :param bn: bits per symbol
-    :type bn: int
+    :param fbn: file with the bits per symbol
+    :type fbn: file
     :param eq: equalization
     :type eq: str
     :param root: parent lxml element of XML DRoF configuration
@@ -81,32 +94,34 @@ def set_config(En, FEC, NCF, bn, eq, root, stat):
     status.text = stat
     ncf = etree.SubElement(root, 'nominal-central-frequency')
     ncf.text = str(NCF)
-    set_constellation(bn, En, root)
+    set_constellation(fbn, fen, root)
     fec = etree.SubElement(root, 'FEC')
     fec.text = FEC
     equalization = etree.SubElement(root, 'equalization')
     equalization.text = eq
 
 
-def set_constellation(bn, En, root):
+def set_constellation(fbn, fen, root):
     """
     Creates the constellation list inside the XML DRoF configuration.
 
-    :param bn: bits per symbol
-    :type bn: int
-    :param En: power per symbol
-    :type En: int
+    :param fbn: file with the bits per symbol
+    :type fbn: file
+    :param fen: file with the power per symbol
+    :type fen: file
     :param root: parent lxml element of XML DRoF configuration
     :type root: lxml.Element
     """
-    for i in range(1, DAC.Ncarriers + 1):
+    i = 1
+    for bn, En in zip_longest(fbn, fen):
         constellation = etree.SubElement(root, 'constellation')
         subcarrier_id = etree.SubElement(constellation, 'subcarrier-id')
         subcarrier_id.text = str(i)
         bitsxsymbol = etree.SubElement(constellation, 'bitsxsymbol')
-        bitsxsymbol.text = str(bn)
+        bitsxsymbol.text = str(bn.strip())
         powerxsymbol = etree.SubElement(constellation, 'powerxsymbol')
-        powerxsymbol.text = str(En)
+        powerxsymbol.text = str(En.strip())
+        i += 1
 
 
 def set_monitoring(SNR, root):
@@ -139,6 +154,7 @@ def write_file(config, n, op):
     """
     f = open("blueSPACE_DRoF_configuration_{}_{}.xml".format(op, n), "w")
     f.write(parseString(etree.tostring(config)).toprettyxml())
+    f.close()
 
 
 if __name__ == '__main__':
@@ -147,14 +163,18 @@ if __name__ == '__main__':
     equalization = "MMSE"
     SNR = 1
     BER = 0.0
+    bn_ideal = "20190402_bn_ideal.txt"
+    En_ideal = "20190402_En_ideal.txt"
+    bn_dispersio = "20190402_bn_dispersion.txt"
+    En_dispersio = "20190402_En_dispersion.txt"
     make_DRoF_configuration(0, "startup", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
-                            FEC, equalization, 1, 0.707, SNR, BER)
+                            FEC, equalization, bn_ideal, En_ideal, SNR, BER)
     make_DRoF_configuration(1, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
-                            FEC, equalization, 2, 1, None, None)
+                            FEC, equalization, bn_ideal, En_ideal, None, None)
     make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
-                            FEC, equalization, 1, 0.707, None, None)
+                            FEC, equalization, bn_dispersio, En_dispersio, None, None)
 
     make_DRoF_configuration(1, "merge", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
-                            None, None, 1, 0.0707, None, None)
+                            None, None, bn_dispersio, En_dispersio, None, None)
     make_DRoF_configuration(2, "merge", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
-                            None, None, 2, 1, None, None)
+                            None, None, bn_ideal, En_ideal, None, None)

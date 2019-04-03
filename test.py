@@ -16,18 +16,13 @@ __copyright__ = "Copyright 2018, CTTC"
 print(sys.executable)
 print(os.getcwd())
 
-XML = etree.parse("blueSPACE_DRoF_configuration_startup_0.xml")
-monitor = XML.findall(".//xmlns:monitor",
-                       namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
-ber = XML.find(".//xmlns:BER",
-                namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
+fbn = open("20190402_bn_ideal.txt", "r", newline=None)
+fen = open("20190402_En_ideal.txt", "r", newline=None)
 
-data = util.elm("data")
-top = util.subelm(data, "{urn:blueSPACE-DRoF-configuration}blueSPACE-DRoF-configuration")
-for value in monitor:
-    m = util.subelm(top, 'monitor')
-    m.append(util.leaf_elm('subcarrier-id', str(value[0].text)))
-    m.append(util.leaf_elm('SNR', str(value[1].text)))
-
-top.append(util.leaf_elm('BER', str(ber.text)))
-print(etree.tostring(data))
+from itertools import zip_longest
+i = 1
+for x, y in zip_longest(fbn, fen):
+    x = x.strip()
+    y = y.strip()
+    print("{0} {1}\t{2}".format(i, x, y))
+    i += 1
