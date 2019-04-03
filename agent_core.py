@@ -96,7 +96,7 @@ class AgentCore:
             - Generate waveform and load to DAC channel.
 
         :param bn: bits per symbol
-        :type bn: float array of 512 positions
+        :type bn: int array of 512 positions
         :param En: power per symbol
         :type En: float array of 512 positions
         :param eq: equalization
@@ -127,7 +127,7 @@ class AgentCore:
         :param NCF: nominal central frequency
         :param NCF: float
         :param bn: bits per symbol
-        :type bn: float array of 512 positions
+        :type bn: int array of 512 positions
         :param En: power per symbol
         :type En: float array of 512 positions
         :param eq: equalization

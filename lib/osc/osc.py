@@ -197,6 +197,7 @@ class OSC:
                                                                             bitOriginal, bn[i])
                         cumbit = cumbit + bn[i]
 
+                    logger.debug("Demmaping")
                     datarx = datarx.reshape(np.round(Ncarriers_eq * (self.Nframes - self.NTS) * bps2, ))
                     diff = datarx - data
 

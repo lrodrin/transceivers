@@ -275,7 +275,7 @@ class NETCONFServer(object):
         bn = list()
         En = list()
         for key, value in configuration.DRoF_configuration.constellation.iteritems():
-            bn.append(int(value.bitsxsymbol))
+            bn.append(int(float(value.bitsxsymbol)))
             En.append(float(value.powerxsymbol))
 
         return bn, En

@@ -16,13 +16,17 @@ __copyright__ = "Copyright 2018, CTTC"
 print(sys.executable)
 print(os.getcwd())
 
-fbn = open("20190402_bn_ideal.txt", "r", newline=None)
-fen = open("20190402_En_ideal.txt", "r", newline=None)
+XML = etree.parse("blueSPACE_DRoF_configuration_create_1.xml")
+new_xml = pybindIETFXMLDecoder.decode(etree.tostring(XML), bindingConfiguration,
+                                                      "blueSPACE-DRoF-configuration")
 
-from itertools import zip_longest
-i = 1
-for x, y in zip_longest(fbn, fen):
-    x = x.strip()
-    y = y.strip()
-    print("{0} {1}\t{2}".format(i, x, y))
-    i += 1
+bn = list()
+En = list()
+for key, value in new_xml.DRoF_configuration.constellation.iteritems():
+    bn.append(int(float(value.bitsxsymbol)))
+    En.append(float(value.powerxsymbol))
+
+print(bn)
+print(En)
+print(len(bn))
+print(len(En))

@@ -85,8 +85,8 @@ def dac_osc_configuration():
                             assoc_id, e))
                     raise e
 
-            logger.debug("DAC and OSC was successfully configured")
-            return jsonify([SNR, BER])
+                logger.debug("DAC and OSC was successfully configured")
+                return jsonify([SNR, BER])
         
         else:
             return jsonify("The parameters sent are not correct", 400)
