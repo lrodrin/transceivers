@@ -79,13 +79,10 @@ class AgentCore:
 
         :param NCF: nominal central frequency
         :param NCF: float
-        :return: status, wavelength and power
-        :rtype: list
         """
         try:
             lambda0 = (299792.458 / (NCF * 1e6)) * 1e9
-            result = Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
-            return result
+            Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
 
         except Exception as e:
             logger.error("Laser setup not finished, error: %s" % e)
@@ -140,14 +137,10 @@ class AgentCore:
         """
         try:
             # Laser setup
-            result = self.laser_setup(NCF)
-            logger.debug(
-                "Laser setup finished with parameters - status: {}, wavelength: {}, power: {}".format(result[0],
-                                                                                                      result[1],
-                                                                                                      result[2]))
+            self.laser_setup(NCF)
 
             # DAC/OSC setup
-            result = self.dac_setup(En, bn, eq)
+            result = self.dac_setup(bn, En, eq)
             logger.debug("DAC setup finished with SNR = {} and BER = {}".format(result[0], result[1]))
             return result
 

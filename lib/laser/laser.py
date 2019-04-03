@@ -260,8 +260,6 @@ class Laser:
         :type lambda0: float
         :param power: power
         :type power: float
-        :return: status, wavelength and power
-        :rtype: list
         """
         logger.debug("Laser on channel %s configuration started" % channel)
         try:
@@ -276,7 +274,6 @@ class Laser:
 
             yenista.close()
             logger.debug("Laser on channel %s configuration finished" % channel)
-            return result
 
         except Exception as error:
             logger.error("Laser configuration failed, {}".format(error))

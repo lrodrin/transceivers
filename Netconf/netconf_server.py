@@ -124,15 +124,14 @@ class NETCONFServer(object):
         try:
             # extract bn, En and eq from running configuration using pyangbind format
             eq = str(self.configuration.DRoF_configuration.equalization)
-            self.extract_bn_and_En(self.configuration)
+            bn, En = self.extract_bn_and_En(self.configuration)
 
             # DAC/OSC setup
-            # result = self.ac.dac_setup(bn, En, eq)
-            # logging.debug(result)
+            result = self.ac.dac_setup(bn, En, eq)
 
             # modify SNR and BER to running configuration
-            SNR = [2] * 512
-            BER = 2.0
+            SNR = result[0]
+            BER = result[1]
             self.modify_SNR_and_BER(BER, SNR)
             logging.info(pybindJSON.dumps(self.configuration))
 
@@ -163,10 +162,10 @@ class NETCONFServer(object):
         """
         Modify SNR and BER from running configuration.
 
-        :param ber: bit error rate
-        :type ber: float
-        :param snr: SNR per subcarrier
-        :type snr: list
+        :param BER: bit error rate
+        :type BER: float
+        :param SNR: SNR per subcarrier
+        :type SNR: list
         """
         for i, value in enumerate(self.configuration.DRoF_configuration.monitor.iteritems(), start=1):
             value[1]._set_SNR(SNR[i - 1])
@@ -206,18 +205,17 @@ class NETCONFServer(object):
                     # extract NCF, bn, En and eq from newconf using pyangbind format
                     NCF = float(new_xml.DRoF_configuration.nominal_central_frequency)
                     eq = str(new_xml.DRoF_configuration.equalization)
-                    self.extract_bn_and_En(new_xml)
+                    bn, En = self.extract_bn_and_En(new_xml)
 
                     # Laser and DAC/OSC setup
-                    # result = self.ac.setup(NCF, bn, En, eq)
-                    # logging.debug(result)
+                    result = self.ac.setup(NCF, bn, En, eq)
 
                     # save newconf as running configuration
                     self.configuration = new_xml
 
                     # add SNR and BER to running configuration
-                    SNR = [1] * 512
-                    BER = 0.0
+                    SNR = result[0]
+                    BER = result[1]
                     for i in range(1, len(SNR) + 1):
                         m = self.configuration.DRoF_configuration.monitor.add(i)
                         m._set_SNR(SNR[i - 1])
@@ -228,18 +226,17 @@ class NETCONFServer(object):
 
                 elif "merge" in method.text:
                     # extract bn and En from newconf using pyangbind format
-                    self.extract_bn_and_En(new_xml)
+                    bn, En = self.extract_bn_and_En(new_xml)
 
                     # extract eq from running configuration
                     eq = str(self.configuration.DRoF_configuration.equalization)
 
                     # DAC/OSC setup
-                    # result = self.ac.dac_setup(bn, En, eq)
-                    # logging.debug(result)
+                    result = self.ac.dac_setup(bn, En, eq)
 
                     # modify SNR and BER to running configuration
-                    SNR = [3] * 512
-                    BER = 3.0
+                    SNR = result[0]
+                    BER = result[1]
                     self.modify_SNR_and_BER(BER, SNR)
 
                     # merge newconf with running configuration # TODO optimize
@@ -254,8 +251,9 @@ class NETCONFServer(object):
 
                 elif "delete" in method.text:
                     # disable Laser and remove logical associations between DAC and OSC
-                    # self.ac.disconnect()
+                    self.ac.disconnect()
 
+                    # remove logical associations between DAC and OSC
                     self.configuration = bindingConfiguration.blueSPACE_DRoF_configuration()
                     logging.info(pybindJSON.dumps(self.configuration))
                     logging.debug("CONFIGURATION deleted")
@@ -279,6 +277,8 @@ class NETCONFServer(object):
         for key, value in configuration.DRoF_configuration.constellation.iteritems():
             bn.append(int(value.bitsxsymbol))
             En.append(float(value.powerxsymbol))
+
+        return bn, En
 
 
 def main(*margs):
