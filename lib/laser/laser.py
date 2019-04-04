@@ -184,7 +184,7 @@ class Laser:
             self.sock.send(bytes("CH%d:ENABLE?\n" % ch, encoding='utf8'))
             self.sock.send(bytes(self.read_eoi, encoding='utf8'))
             s = self.sock.recv(self.buffer_size)
-            if s.split(bytes(":", encoding='utf8'))[1] == "ENABLED\n":
+            if s.split(bytes(":", encoding='utf8'))[1] == b"ENABLED\n":
                 stat = True
 
         except socket.error as error:

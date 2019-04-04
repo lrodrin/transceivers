@@ -1,6 +1,7 @@
 import os
 from os import sys, path
 
+import numpy as np
 from lxml import etree
 from netconf import util
 from pyangbind.lib import pybindJSON
@@ -30,3 +31,9 @@ print(bn)
 print(En)
 print(len(bn))
 print(len(En))
+
+x = np.array(np.where(np.isin(bn, 0)))
+print(x)
+
+bn = np.delete(bn, x)
+print(bn)

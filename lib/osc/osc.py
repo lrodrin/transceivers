@@ -113,7 +113,7 @@ class OSC:
             ttime2 = (1 / self.fs) * np.ones((self.nsamplesrx,))
             ttt2 = ttime2.cumsum()
 
-            Subzero = np.array(np.where(bn == 0))
+            Subzero = np.array(np.where(np.in1d(bn, 0)))
             SNRT = 0
             BERT = 0
             SNR = np.array(np.zeros(self.Ncarriers))
@@ -197,7 +197,6 @@ class OSC:
                                                                             bitOriginal, bn[i])
                         cumbit = cumbit + bn[i]
 
-                    logger.debug("Demmaping")
                     datarx = datarx.reshape(np.round(Ncarriers_eq * (self.Nframes - self.NTS) * bps2, ))
                     diff = datarx - data
 
