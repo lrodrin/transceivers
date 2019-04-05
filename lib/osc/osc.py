@@ -117,8 +117,8 @@ class OSC:
             SNRT = 0
             BERT = 0
             SNR = np.array(np.zeros(self.Ncarriers))
-            cdatar = np.delete(cdatar, Subzero, axis=1)
-            bn = np.delete(bn, Subzero)
+            # cdatar = np.delete(cdatar, Subzero, axis=1)
+            bn_aux = np.delete(bn, Subzero)
             Runs = 0
             data_acqT = np.array(np.zeros(R * self.nsamplesrx))
             logger.debug("Iterating")
@@ -163,9 +163,9 @@ class OSC:
                     logger.debug("Perform FFT")
                     FHTdatarx = ofdm.fft(cdatarxr, Ncarriers_eq)
 
-                    FHTdatarx = np.delete(FHTdatarx, Subzero, axis=1)
+                    # FHTdatarx = np.delete(FHTdatarx, Subzero, axis=1)
                     # Remove subcarriers set to 0 for equalization to avoid divide by 0
-                    Ncarriers_eq = Ncarriers_eq - Subzero.size
+                    # Ncarriers_eq = Ncarriers_eq - Subzero.size
 
                     logger.debug("Performing Equalization")
                     if eq == "MMSE":
@@ -182,20 +182,23 @@ class OSC:
                     if run == self.Niters:
                         SNR = SNRT / self.Niters
 
+                    # Remove subcarriers set to 0 for equalization to avoid divide by 0
+                    Ncarriers_eq = Ncarriers_eq - Subzero.size
+                    
                     FHTdatarx_eq[:, Ncarriers_eq / 2] = cdatar[self.NTS:, Ncarriers_eq / 2]
                     FHTdatarx_eq[:, 0] = cdatar[self.NTS:, 0]
 
                     # Serialize
-                    bps2 = np.sum(bn) / float(len(bn))
+                    bps2 = np.sum(bn_aux) / float(len(bn_aux))
                     datarx = np.array(np.zeros((self.Nframes - self.NTS, np.round(Ncarriers_eq * bps2))))
                     cumbit = 0
 
                     logger.debug("Demmaping")
                     for i in range(0, Ncarriers_eq):
-                        (FormatM, bitOriginal) = modulation.Format(self.Constellation, bn[i])
-                        datarx[:, cumbit:cumbit + bn[i]] = modulation.Demod(FHTdatarx_eq[:, i], FormatM.reshape(1, -1),
-                                                                            bitOriginal, bn[i])
-                        cumbit = cumbit + bn[i]
+                        (FormatM, bitOriginal) = modulation.Format(self.Constellation, bn_aux[i])
+                        datarx[:, cumbit:cumbit + bn_aux[i]] = modulation.Demod(FHTdatarx_eq[:, i], FormatM.reshape(1, -1),
+                                                                            bitOriginal, bn_aux[i])
+                        cumbit = cumbit + bn_aux[i]
 
                     datarx = datarx.reshape(np.round(Ncarriers_eq * (self.Nframes - self.NTS) * bps2, ))
                     diff = datarx - data

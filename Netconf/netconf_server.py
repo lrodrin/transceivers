@@ -6,6 +6,7 @@ import logging
 import time
 from os import sys, path
 
+import numpy as np
 from lxml import etree
 from netconf import server, util, nsmap_add, NSMAP
 from pyangbind.lib.serialise import pybindIETFXMLEncoder, pybindIETFXMLDecoder
@@ -168,7 +169,10 @@ class NETCONFServer(object):
         :type SNR: list
         """
         for i, value in enumerate(self.configuration.DRoF_configuration.monitor.iteritems(), start=1):
-            value[1]._set_SNR(SNR[i - 1])
+            if "nan" in value[1]._get_SNR():
+                value[1]._set_SNR(np.format_float_positional(1e-9))
+            else:
+                value[1]._set_SNR(SNR[i - 1])
 
         self.configuration.DRoF_configuration._set_BER(BER)
 
@@ -218,7 +222,10 @@ class NETCONFServer(object):
                     BER = result[1]
                     for i in range(1, len(SNR) + 1):
                         m = self.configuration.DRoF_configuration.monitor.add(i)
-                        m._set_SNR(SNR[i - 1])
+                        if "nan" in SNR[i - 1]:
+                            m._set_SNR(np.format_float_positional(1e-9))
+                        else:
+                            m._set_SNR(SNR[i - 1])
 
                     self.configuration.DRoF_configuration._set_BER(BER)
                     logging.info(pybindJSON.dumps(self.configuration))
