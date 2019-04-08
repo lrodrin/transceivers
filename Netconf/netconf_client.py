@@ -1,40 +1,71 @@
-"""This is the NETCONF client module.
+"""This is the NETCONF client module for BVT1 and BVT2 Agents.
 """
+import time
+
 from lxml import etree
 from netconf.client import NetconfSSHSession
 
-host = '10.1.7.64'
+host_1 = '10.1.7.65'
+host_2 = '10.1.7.67'
 port = 830
 username = "root"
 password = "netlabN."
-
-session = NetconfSSHSession(host, port, username, password)
-
-operations = ["create", "get", "merge", "delete"]
-op = operations[0]
 folder = "datasets/"
+create_1 = "blueSPACE_DRoF_configuration_create_1.xml"
+merge_1 = "blueSPACE_DRoF_configuration_merge_1.xml"
+create_2 = "blueSPACE_DRoF_configuration_create_2.xml"
+merge_2 = "blueSPACE_DRoF_configuration_merge_2.xml"
+delete = "blueSPACE_DRoF_configuration_delete.xml"
 
-if op == "create":
+
+def create_config(session, filename):
     print("---CREATE---")
-    xml = etree.parse(folder + "blueSPACE_DRoF_configuration_create_1.xml")
+    xml = etree.parse(folder + filename)
     config = session.edit_config(method='create', newconf=etree.tostring(xml).decode('utf-8'))
-    print(etree.tostring(config).decode('utf-8'))
+    return etree.tostring(config).decode('utf-8')
 
-elif op == "get":
+
+def get_config(session):
     print("---GET---")
     config = session.get()
-    print(etree.tostring(config).decode('utf-8'))
+    return etree.tostring(config).decode('utf-8')
 
-elif op == "merge":
+
+def merge_config(session, filename):
     print("---MERGE---")
-    xml = etree.parse(folder + "blueSPACE_DRoF_configuration_merge_1.xml")
+    xml = etree.parse(folder + filename)
     config = session.edit_config(method='merge', newconf=etree.tostring(xml).decode('utf-8'))
-    print(etree.tostring(config).decode('utf-8'))
+    return etree.tostring(config).decode('utf-8')
 
-elif op == "delete":
+
+def delete_config(session, filename):
     print("---DELETE---")
-    xml = etree.parse(folder + "blueSPACE_DRoF_configuration_delete.xml")
+    xml = etree.parse(folder + filename)
     config = session.edit_config(method='delete', newconf=etree.tostring(xml).decode('utf-8'))
-    print(etree.tostring(config).decode('utf-8'))
+    return etree.tostring(config).decode('utf-8')
 
-session.close()
+
+if __name__ == '__main__':
+    session_1 = NetconfSSHSession(host_1, port, username, password)
+    session_2 = NetconfSSHSession(host_2, port, username, password)
+    # create
+    print(create_config(session_1, create_1))
+    time.sleep(30)
+    print(create_config(session_2, create_2))
+    time.sleep(60)
+    # get
+    print(get_config(session_1))
+    time.sleep(30)
+    print(get_config(session_2))
+    time.sleep(60)
+    # replace
+    print(merge_config(session_1, merge_1))
+    time.sleep(30)
+    print(merge_config(session_2, merge_2))
+    time.sleep(60)
+    # delete
+    print(delete_config(session_1, delete))
+    time.sleep(30)
+    print(delete_config(session_2, delete))
+    session_1.close()
+    session_2.close()
