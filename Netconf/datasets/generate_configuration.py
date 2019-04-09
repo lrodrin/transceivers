@@ -174,7 +174,8 @@ if __name__ == '__main__':
     make_DRoF_configuration(2, "create", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", "active", NCF,
                             FEC, equalization, bn_dispersio, En_dispersio, None, None)
 
+
     make_DRoF_configuration(1, "merge", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
                             None, None, bn_dispersio, En_dispersio, None, None)
     make_DRoF_configuration(2, "merge", "DRoF-configuration", "urn:blueSPACE-DRoF-configuration", None, None,
-                            None, None, bn_ideal, En_ideal, None, None)
+                            None, None, bn_dispersio, En_dispersio, None, None)
