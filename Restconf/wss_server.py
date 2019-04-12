@@ -27,15 +27,15 @@ def wss_configuration():
     WaveShaper configuration
     ---
     post:
-    description: Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port
+    description: Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port of a WaveShaper.
     consumes:
     - application/json
     produces:
     - application/json
     parameters:
-    - name: params
+    - name: operations
       in: body
-      description: id to identify the WaveShaper and operations to be configured on the WaveShaper
+      description: operations to be configured on the WaveShaper
       example: {'wss_id': 1, 'operations': [
         {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
       required: true
@@ -43,7 +43,7 @@ def wss_configuration():
         200:
             description: Successful configuration
         400:
-            description: Invalid input params
+            description: Invalid input operations
     """
     if request.method == 'POST':
         params = request.json
@@ -53,7 +53,7 @@ def wss_configuration():
             logger.debug("WaveShaper %s configuration started" % wss_id)
             try:
                 n, m = n_max(ops, 'port_in')
-                wss = WSS(params['wss_id'], n, m)
+                wss = WSS(wss_id, n, m)
                 wss.configuration(ops)
                 
                 # Adding new operation
@@ -69,7 +69,6 @@ def wss_configuration():
             except Exception as e:
                 logger.error("WaveShaper {} wasn't successfully configured. Error: {}".format(wss_id, e))
                 raise e
-
         else:
             return jsonify("The parameters sent are not correct", 400)
 

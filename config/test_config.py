@@ -9,56 +9,46 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from lib.dac.dac import DAC
 
 
-def get_config(file):
+def get_config(id, filename):
+    """
+    Get all attributes from a configuration file specified by filename
+    :param id: identify configuration scenario
+    :type id: int
+    :param filename: configuration filename
+    :type filename: str
+    """
     config = configparser.RawConfigParser()
-    config.read(file)
+    config.read(filename)
 
-    # Laser section
+    print("laser section")
     print(config.get('laser', 'ip'))
+    print(config.get('laser', 'addr'))
     print(config.get('laser', 'channel'))
+    print(config.get('laser', 'power'))
 
-    # DAC/OSC section
-    l = ast.literal_eval(config.get('dac_osc', 'logical_associations'))
-    print(list(l))
-    for elem in l:
-        print(elem)
+    print("dac_osc section")
+    ldo = ast.literal_eval(config.get('dac_osc', 'logical_associations'))
+    print(list(ldo))
 
-    # REST API section
+    print("rest_api section")
     print(config.get('rest_api', 'ip'))
 
-    print(config.get('wss', 'operations'))
-
-    if config.get('wss', 'operations') is not None:
-        # OA section
+    if id == 2:
+        print("oa section")
         print(config.get('oa', 'ip'))
+        print(config.get('oa', 'addr'))
+        print(config.get('oa', 'mode'))
         print(config.get('oa', 'power'))
-    #
-    #     # WSS section
-    #     d = ast.literal_eval(config.get('wss', 'operations'))
-    #     print(dict(d))
+
+        print("wss section")
+        d = ast.literal_eval(config.get('wss', 'operations'))
+        print(dict(d))
 
 
 if __name__ == '__main__':
     files = ["blue_bvt1.cfg", "blue_bvt2.cfg", "metro_bvt1.cfg", "metro_bvt2.cfg"]
-
-    print("BLUE")
-    get_config(files[0])
-
-    print("METRO")
-    get_config(files[2])
+    get_config(2, files[2])
 
     bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps).tolist()
     En = np.array(np.ones(DAC.Ncarriers)).tolist()
     eq = "MMSE"
-
-    config = configparser.RawConfigParser()
-    config.read("blue_bvt1.cfg")
-    l = ast.literal_eval(config.get('dac_osc', 'logical_associations'))
-    print(list(l))
-    l[0]['bn'] = bn
-    l[0]['En'] = En
-    l[0]['eq'] = eq
-    print(l)
-
-    for i in range(len(l)):
-        print(l[i]['dac_out'])

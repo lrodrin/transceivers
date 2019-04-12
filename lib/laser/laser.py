@@ -86,7 +86,7 @@ class Laser:
 
     def test(self):
         """
-        Just as test, ask for instrument ID according to SCPI API.
+        Just as tests, ask for instrument ID according to SCPI API.
 
         :return: instrument ID (e.g NetTest, OSICS, 0, 3.01)
         :rtype: str
@@ -97,7 +97,7 @@ class Laser:
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
-            logger.error("Laser test, {}".format(error))
+            logger.error("Laser tests, {}".format(error))
 
     def wavelength(self, ch, lambda0):
         """

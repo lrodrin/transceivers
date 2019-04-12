@@ -88,7 +88,7 @@ class Amplifier:
 
     def test(self):
         """
-        Just as test, ask for instrument ID according to SCPI API.
+        Just as tests, ask for instrument ID according to SCPI API.
 
         :return: instrument ID (e.g EDFA C Band, V2.1)
         :rtype: str
@@ -99,7 +99,7 @@ class Amplifier:
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
-            logger.error("Amplifier test, {}".format(error))
+            logger.error("Amplifier tests, {}".format(error))
 
     def enable(self, stat=False):
         """
@@ -244,8 +244,6 @@ class Amplifier:
         :type mode: str
         :param power: power
         :type power: float
-        :return: status, mode and power
-        :rtype: list
         """
         logger.debug("Amplifier configuration started")
         try:
@@ -259,8 +257,7 @@ class Amplifier:
 
             manlight.close()
             logger.debug("Amplifier configuration finished")
-            return result
 
         except Exception as error:
-            logger.error("Amplifier configuration failed, error: {}".format(error))
+            logger.error("Amplifier configuration failed, {}".format(error))
             raise error

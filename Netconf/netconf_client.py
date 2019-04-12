@@ -5,7 +5,8 @@ import time
 from lxml import etree
 from netconf.client import NetconfSSHSession
 
-SECS = 30
+bo = 30  # between different netconf operations
+bso = 5  # between same netconf operations
 
 host_1 = '10.1.7.65'
 host_2 = '10.1.7.67'
@@ -50,20 +51,28 @@ def delete_config(session, filename):
 if __name__ == '__main__':
     session_1 = NetconfSSHSession(host_1, port, username, password)
     session_2 = NetconfSSHSession(host_2, port, username, password)
+
     # create
     print(create_config(session_1, create_1))
+    time.sleep(bso)
     print(create_config(session_2, create_1))
-    time.sleep(SECS)
+    time.sleep(bo)
+
     # get
     print(get_config(session_1))
+    time.sleep(bso)
     print(get_config(session_2))
-    time.sleep(SECS)
+    time.sleep(bo)
+
     # replace
     print(merge_config(session_1, merge_1))
+    time.sleep(bso)
     print(merge_config(session_2, merge_1))
-    time.sleep(SECS)
+    time.sleep(bo)
+
     # delete
     print(delete_config(session_1, delete))
+    time.sleep(bso)
     print(delete_config(session_2, delete))
     session_1.close()
     session_2.close()

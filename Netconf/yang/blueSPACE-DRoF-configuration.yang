@@ -8,12 +8,12 @@ module blueSPACE-DRoF-configuration {
     "CTTC";
 
     contact
-    "laura.rodriguez@cttc.es";
+    "laura.rodriguez@cttc.cat";
 
     description
     "Latest update to blueSPACE-DRoF-configuration YANG data model.";
 
-    revision "2018-12-21" {
+    revision "2018-03-21" {
     description "Update to blueSPACE-DRoF-configuration YANG data model initial revision.";
     reference "";
     }

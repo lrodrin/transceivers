@@ -26,11 +26,11 @@ if __name__ == '__main__':
     # print(request.json())
     # request = requests.get('http://10.1.1.10:5000/api/dac_osc/1', headers=headers)
     # print(request.json())
-    #request = requests.get('http://10.1.1.10:5000:5000/api/dac_osc/2', headers=headers)
-    #print(request.json())
+    # request = requests.get('http://10.1.1.10:5000:5000/api/dac_osc/2', headers=headers)
+    # print(request.json())
 
     # delete
-    #request = requests.delete('hhttp://10.1.1.10:5000:5000/api/dac_osc/1', headers=headers)
-    #print(request.json())
-    #request = requests.get('http://10.1.1.10:5000:5000/api/dac_osc', headers=headers)
-    #print(request.json())
+    # request = requests.delete('hhttp://10.1.1.10:5000:5000/api/dac_osc/1', headers=headers)
+    # print(request.json())
+    # request = requests.get('http://10.1.1.10:5000:5000/api/dac_osc', headers=headers)
+    # print(request.json())

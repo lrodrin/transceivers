@@ -17,6 +17,6 @@ if __name__ == '__main__':
     print(request.json())
 
     # optical channel configuration
-    request = requests.post('http://%s:5000/api/vi/openconfig/optical_channel' % ip, headers=headers,
-                            data=json.dumps(params_occ))
-    print(request.json())
+    # request = requests.post('http://%s:5000/api/vi/openconfig/optical_channel' % ip, headers=headers,
+    #                         data=json.dumps(params_occ))
+    # print(request.json())

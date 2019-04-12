@@ -44,7 +44,7 @@ class WSS:
             - phase (float): Phase.
             - bandwidth (float): Bandwidth.
 
-        :param id: id of the WaveShaper
+        :param id: identify the WaveShaper
         :type id: int
         :param n: max number of the input ports
         :type n: int
@@ -102,61 +102,47 @@ class WSS:
         except Exception as e:
             logger.error("WaveShaper {} not deleted, {}".format(name, e))
 
-    def execute(self, profiletext, k):
+    def execute(self):
         """
-        Create and update the desired profile according to the WaveShaper wavelength, port attenuation,
+        Load the desired profile according to the WaveShaper wavelength, port attenuation,
         phase and bandwidth for the filter configuration.
-
-        :param profiletext: text to save frequency, attenuation, phase for each input port specified by k
-        :rtype profiletext: str
-        :param k: input port
-        :rtype k: int
-        :return: profiletext
-        :rtype: str
         """
+        wss_id = str(self.id)
+        profiletext = ""
         freq = self.speed_of_light / self.wavelength
         startfreq = freq - self.bandwidth * 0.5 * 1e-3  # start frequency in THz
         stopfreq = freq + self.bandwidth * 0.5 * 1e-3  # stop frequency in THz
 
-        for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-            if self.wavelength[k-1] > 1 and startfreq[k-1] < frequency < stopfreq[k-1]:
-                profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (
-                    frequency, self.attenuation[k-1], self.phase[k-1], k)
-            else:
-                profiletext += "%.3f\t60.0\t0.0\t0\n" % frequency
+        try:
+            for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
+                i = 0
+                for k in range(self.n):
+                    if self.wavelength[k] > 1 and startfreq[k] < frequency < stopfreq[k]:
+                        profiletext += "%.3f %.1f %.1f %d\n" % (frequency, self.attenuation[k], self.phase[k], k + 1)
+                        i = 1
+                if i == 0:
+                    profiletext += "%.3f 60.0 0.0 0\n" % frequency
 
-        ################DELETE######################################
-        profiletext_out = profiletext.split("\n")
-        profile_wss = np.array(np.zeros(len(profiletext_out) * 4))
-        profile_wss = profile_wss.reshape((len(profiletext_out), 4))
-        for index in range(0, len(profiletext_out) - 1):
-            profile_wss[index] = profiletext_out[index].split("\t")
+            # TODO DELETE
+            profiletext_out = profiletext.split("\n")
+            profile_wss = np.array(np.zeros(len(profiletext_out) * 4))
+            profile_wss = profile_wss.reshape((len(profiletext_out), 4))
+            for index in range(0, len(profiletext_out) - 1):
+                profile_wss[index] = profiletext_out[index].split("\t")
 
-        profile_wss = profile_wss[0:len(profile_wss) - 1, :]
+            profile_wss = profile_wss[0:len(profile_wss) - 1, :]
 
-        plt.figure()
-        plt.plot(profile_wss[:, 0], profile_wss[:, 1])
-        plt.show()
-        #################DELETE######################################
+            plt.figure()
+            plt.plot(profile_wss[:, 0], profile_wss[:, 1])
+            plt.show()
+            # TODO DELETE
 
-        logger.debug("WaveShaper %s profile updated for input port %s" % (str(self.id), str(k)))
-        return profiletext
+            wsapi.ws_load_profile(self.id, profiletext)
+            logger.debug("WaveShaper %s profile loaded" % wss_id)
 
-    def execute_wss(self, profile):
-        """
-        Load the desired profile to the WaveShaper.
-
-        :param profile: contains the frequency response to be uploaded to the WaveShaper
-        :type profile: float array
-        :return: 0 if profile was loaded and -1 otherwise
-        :rtype: int
-        """
-        profiletext = ""
-        for frequency in np.arange(self.frequency_start, self.frequency_end, self.step, dtype=float):
-            profiletext += "%.3f\t%.1f\t%.1f\t%d\n" % (frequency, profile, 0, 1)
-
-        logger.debug("WaveShaper %s profile created" % str(self.id))
-        return wsapi.ws_load_profile(str(self.id), profiletext)
+        except Exception as error:
+            logger.error("WaveShaper {} profile not loaded, result description: {}, "
+                         "error: {}".format(wss_id, wsapi.ws_get_result_description(-1), error))
 
     def configuration(self, operations):
         """
@@ -168,7 +154,6 @@ class WSS:
         :param operations: operations to configure the filter of the WaveShaper
         :type operations: list
         """
-        profiletext = str()
         wss_id = str(self.id)
         try:
             for i in range(len(operations)):  # for each operation
@@ -179,20 +164,11 @@ class WSS:
                 self.phase[x][y] = operations[i]['phase']
                 self.bandwidth[x][y] = operations[i]['bw']
 
-                profiletext += self.execute(profiletext, x)  # update profile
+            self.execute()
+            time.sleep(self.time_sleep)
+            self.close()
+            logger.debug("WaveShaper %s configuration finished" % wss_id)
 
         except Exception as error:
             logger.error("WaveShaper {} filter configuration failed, error: {}".format(wss_id, error))
             raise error
-
-        finally:
-            rc = wsapi.ws_load_profile(wss_id, profiletext)
-            if rc < 0:
-                logger.error("WaveShaper {} profile not loaded, description: {}".format(wss_id,
-                                                                                        wsapi.ws_get_result_description(
-                                                                                            rc)))
-            else:
-                logger.debug("WaveShaper %s profile loaded" % wss_id)
-                time.sleep(self.time_sleep)
-                self.close()
-                logger.debug("WaveShaper %s configuration finished" % wss_id)

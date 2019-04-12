@@ -9,8 +9,6 @@ logger.addHandler(logging.NullHandler())
 
 headers = {"Content-Type": "application/json"}
 
-# TODO check data returned from dacOscConfiguration and wSSConfiguration
-
 
 class RestApi:
     """
@@ -129,7 +127,7 @@ class RestApi:
         WaveShaper configuration.
         Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port of a WaveShaper.
 
-        :param params: id to identify the WaveShaper and operations to be configured on the WaveShaper
+        :param params: operations to be configured on the WaveShaper
         :type params: dict
         :return: successful operation and error otherwise
         :rtype: dict
@@ -166,7 +164,7 @@ class RestApi:
             logging.error(e)
             raise e
 
-        return json.dumps(data, indent=4, sort_keys=True)
+        return data
 
     def getWSSOperationsById(self, wss_id):
         """
@@ -189,7 +187,7 @@ class RestApi:
             logging.error(e)
             raise e
 
-        return json.dumps(data, indent=4, sort_keys=True)
+        return data
 
     def deleteWSSOperationsById(self, wss_id):
         """
@@ -203,7 +201,6 @@ class RestApi:
         """
         logging.debug('RestApi.deleteWSSOperationsById')
         url = "http://" + self.ip + ':' + str(self.port_wss) + "/api/wss/" + str(wss_id)
-        print(url)
         try:
             response = requests.delete(url, headers=headers)
             data = response.json()

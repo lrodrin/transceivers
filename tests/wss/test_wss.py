@@ -1,4 +1,5 @@
 import logging
+import time
 from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
@@ -38,7 +39,9 @@ if __name__ == '__main__':
     m = 1
     print(n, m)
     wss = WSS(wss_id, n, m)
+    wss1_time = time.time()
     wss.configuration(wss1)
+    print("--- wss_1 %s seconds ---" % (time.time() - wss1_time))
 
     # WSS2
     wss_id = 2
@@ -46,4 +49,7 @@ if __name__ == '__main__':
     m = 1
     print(n, m)
     wss = WSS(wss_id, n, m)
+    wss2_time = time.time()
     wss.configuration(wss2)
+    print("--- wss_2 %s seconds ---" % (time.time() - wss2_time))
+    print("--- total %s seconds ---" % (time.time() - wss1_time + wss2_time))
