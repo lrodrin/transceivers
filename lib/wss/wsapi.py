@@ -2,7 +2,7 @@ from ctypes import *
 
 wsapi = None
 
-folder = "C:/Users/CTTC/Desktop/agent-bvt/config/"
+folder = "C:/Users/CTTC/Desktop/ac-bvt/config/"
 dllnames = ["wstestapi.dll", folder + "wsapi.dll", "libwstestapi.so", "libwsapi.so"]
 
 if wsapi is None:

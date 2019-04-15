@@ -22,13 +22,13 @@ def startup(*margs):
     """
     Define BVT-Agent.
 
-    :param margs: id of bvt-agent
+    :param margs: id of bvt-ac
     :type margs: int
-    :return: AgentCore specified for bvt-agent defined
+    :return: AgentCore specified for bvt-ac defined
     :rtype: AgentCore
     """
     parser = argparse.ArgumentParser("OPENCONFIG Server Startup")
-    parser.add_argument('-id', type=int, help='BVT-agent id')
+    parser.add_argument('-id', type=int, help='BVT-ac id')
 
     args = parser.parse_args(*margs)
     agent = AgentCore(args.id)
@@ -70,7 +70,7 @@ def hello_world():
                 logger.error(e)
                 return jsonify('ERROR: %s' % e, 405)
         else:
-            return jsonify('The parameters sended by the agent are not correct.', 405)
+            return jsonify('The parameters sended by the ac are not correct.', 405)
 
 
 def define_logger():

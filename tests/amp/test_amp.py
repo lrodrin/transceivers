@@ -15,8 +15,8 @@ if __name__ == '__main__':
     mode_oa1 = "APC"
     mode_oa2 = "APC"
     power_oa1 = 0
-    power_oa2 = 0
+    power_oa2 = 1.8
     start_time = time.time()
     # Amplifier.configuration(ip_oa1, addr, mode_oa1, power_oa1)
-    # Amplifier.configuration(ip_oa2, addr, mode_oa2, power_oa2)
+    Amplifier.configuration(ip_oa2, addr, mode_oa2, power_oa2)
     print("--- %s seconds ---" % (time.time() - start_time))

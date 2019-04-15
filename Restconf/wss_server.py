@@ -150,7 +150,7 @@ def wss_deleteOperationsByID(wss_id):
     """
     WaveShaper operations by ID
     ---
-    get:
+    delete:
     description: Delete operations configured on a WaveShaper specified by id
     produces:
     - application/json

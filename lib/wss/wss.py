@@ -21,7 +21,7 @@ class WSS:
     :var float step: Frequency step
     :var float speed_of_light: Speed of light in m/s
     :var int time_sleep: Time needed to load the WaveShaper profile before returning the bandwidth and port attenuation
-    :var str folder: Folder that contains the configuration files
+    :var str b_folder: Folder that contains the configuration conf_files
     :var str configfile_1: Configuration file for the WaveShaper 1
     :var str configfile_2: Configuration file for the WaveShaper 2
     """
@@ -30,7 +30,7 @@ class WSS:
     step = 0.001
     speed_of_light = 299792.458
     time_sleep = 5
-    folder = "C:/Users/CTTC/Desktop/agent-bvt/config/"
+    folder = "C:/Users/CTTC/Desktop/ac-bvt/config/"
     configfile_1 = "SN042561.wsconfig"
     configfile_2 = "SN200162.wsconfig"
 

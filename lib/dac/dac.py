@@ -32,7 +32,7 @@ class DAC:
     :ivar int Qt: Quantization steps
     :ivar int bps: Number of bits per symbol
 
-    :var str folder: Folder that stores all the configuration files
+    :var str b_folder: Folder that stores all the configuration conf_files
     :var str clock_ref_file: File to save the clock_ref for the DAC
     :var str clock_file: File to save the clock value for the DAC
     :var str temp_file: File to save the OFDM signal that will be uploaded to LEIA DAC
@@ -53,7 +53,7 @@ class DAC:
     Qt = 255
     bps = 2
 
-    folder = "C:/Users/cttc/Desktop/agent-bvt/config/"
+    folder = "C:/Users/cttc/Desktop/ac-bvt/config/"
     clock_ref_file = folder + "CLK_ref.txt"
     clock_file = folder + "CLK.txt"
     temp_file = folder + "TEMP.txt"

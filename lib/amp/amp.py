@@ -34,7 +34,7 @@ class Amplifier:
     buffer_size = 100
     read_eoi = "++read eoi\n"
     time_sleep_mode = 1
-    time_sleep_enable = 7
+    time_sleep_enable = 5
 
     def __init__(self, ip, addr):
         """
@@ -75,13 +75,13 @@ class Amplifier:
 
         # Initialization
         try:
-            self.sock.send(bytes(self.controller_mode))
-            addr_GPIB = bytes("++addr " + self.addr + "\n")
+            self.sock.send(bytes(self.controller_mode, encoding='utf8'))
+            addr_GPIB = bytes("++addr " + self.addr + "\n", encoding='utf8')
             self.sock.send(addr_GPIB)
-            self.sock.send(bytes(self.read_after_write))
-            self.sock.send(bytes(self.read_timeout))
-            self.sock.send(bytes(self.eos_3))
-            self.sock.send(bytes(self.eoi_1))
+            self.sock.send(bytes(self.read_after_write, encoding='utf8'))
+            self.sock.send(bytes(self.read_timeout, encoding='utf8'))
+            self.sock.send(bytes(self.eos_3, encoding='utf8'))
+            self.sock.send(bytes(self.eoi_1, encoding='utf8'))
 
         except socket.error as error:
             logger.error("Default parameters of the Amplifier not initialized, {}".format(error))
@@ -94,8 +94,8 @@ class Amplifier:
         :rtype: str
         """
         try:
-            self.sock.send(bytes("*IDN?\n"))
-            self.sock.send(bytes(self.read_eoi))
+            self.sock.send(bytes("*IDN?\n", encoding='utf8'))
+            self.sock.send(bytes(self.read_eoi, encoding='utf8'))
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
@@ -111,14 +111,14 @@ class Amplifier:
         logger.debug("Set status %s" % stat)
         if stat:
             try:
-                self.sock.send(bytes("POW:ON\n"))
+                self.sock.send(bytes("POW:ON\n", encoding='utf8'))
                 time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
                 logger.error("Can't enable the Amplifier, {}".format(error))
         else:
             try:
-                self.sock.send(bytes("POW:OFF\n"))
+                self.sock.send(bytes("POW:OFF\n", encoding='utf8'))
                 time.sleep(self.time_sleep_enable)
 
             except socket.error as error:
@@ -141,27 +141,28 @@ class Amplifier:
         try:
             logger.debug("Set mode %s" % mod)
             if mod == "AGC":
-                self.sock.send(bytes("mode:AGC\n"))
+                self.sock.send(bytes("MODE:AGC\n", encoding='utf8'))
                 cmd = "SEL:GM:%.2f\n" % param
-                self.sock.send(bytes(cmd + "\n"))
+                time.sleep(self.time_sleep_mode)
+                self.sock.send(bytes(cmd + "\n", encoding='utf8'))
                 logger.debug("Set gain %s" % param)
 
             elif mod == "APC":
-                self.sock.send(bytes("mode:APC\n"))
+                self.sock.send(bytes("MODE:APC\n", encoding='utf8'))
                 cmd = "SEL:PM:%.2f\n" % param
-                self.sock.send(bytes(cmd + "\n"))
+                time.sleep(self.time_sleep_mode)
+                self.sock.send(bytes(cmd + "\n", encoding='utf8'))
                 logger.debug("Set power %s" % param)
 
             elif mod == "ACC":
-                self.sock.send(bytes("mode:ACC\n"))
+                self.sock.send(bytes("MODE:ACC\n", encoding='utf8'))
                 cmd = "SEL:IL1:%.2f\n" % param
-                self.sock.send(bytes(cmd + "\n"))
+                time.sleep(self.time_sleep_mode)
+                self.sock.send(bytes(cmd + "\n", encoding='utf8'))
                 logger.debug("Set current %s" % param)
 
-            time.sleep(self.time_sleep_mode)
-
         except socket.error as error:
-            logger.error("Mode not configured, {}".format(error))
+            logger.error("Mode and power not configured, {}".format(error))
 
     def status(self):
         """
@@ -179,21 +180,21 @@ class Amplifier:
 
         # Check mode
         try:
-            self.sock.send(bytes("MODE\n"))
-            self.sock.send(bytes(self.read_eoi))
+            self.sock.send(bytes("MODE\n", encoding='utf8'))
+            self.sock.send(bytes(self.read_eoi, encoding='utf8'))
             s = self.sock.recv(self.buffer_size)
-            mod = s.split(bytes(" "))[1]  # mode
-            power = float(s.split(bytes(" "))[2])  # power
+            mod = s.split(bytes(" ", encoding='utf8'))[1]  # mode
+            power = float(s.split(bytes(" ", encoding='utf8'))[2])  # power
 
         except socket.error as error:
-            logger.error("Checking mode, {}".format(error))
+            logger.error("Checking mode and power, {}".format(error))
 
         # Check status
         try:
-            self.sock.send(bytes("POW?\n"))
-            self.sock.send(bytes(self.read_eoi))
+            self.sock.send(bytes("POW\n", encoding='utf8'))
+            self.sock.send(bytes(self.read_eoi, encoding='utf8'))
             s = self.sock.recv(self.buffer_size)
-            if s.find(bytes("OFF")) == -1:
+            if s.find(bytes("OFF", encoding='utf8')) == -1:
                 stat = True
 
         except socket.error as error:
@@ -220,8 +221,8 @@ class Amplifier:
         :rtype: str
         """
         try:
-            self.sock.send(bytes("SYST:ERR?\n"))
-            self.sock.send(bytes(self.read_eoi))
+            self.sock.send(bytes("SYST:ERR?\n", encoding='utf8'))
+            self.sock.send(bytes(self.read_eoi, encoding='utf8'))
             return self.sock.recv(self.buffer_size)
 
         except socket.error as error:
@@ -253,7 +254,8 @@ class Amplifier:
             manlight.enable(True)
             result = manlight.status()
             logger.debug(
-                "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1], result[2]))
+                "Amplifier parameters - status: {}, mode: {}, power: {}".format(result[0], result[1].decode('utf-8'),
+                                                                                result[2]))
 
             manlight.close()
             logger.debug("Amplifier configuration finished")

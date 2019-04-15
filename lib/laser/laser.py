@@ -74,7 +74,7 @@ class Laser:
         # Initialization
         try:
             self.sock.send(bytes(self.mode, encoding='utf8'))
-            addr_GPIB = "++addr " + self.addr + "\n"
+            addr_GPIB = bytes("++addr " + self.addr + "\n", encoding='utf8')
             self.sock.send(bytes(addr_GPIB, encoding='utf8'))
             self.sock.send(bytes(self.read_after_write, encoding='utf8'))
             self.sock.send(bytes(self.read_timeout, encoding='utf8'))

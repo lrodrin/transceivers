@@ -55,10 +55,10 @@ class AgentCore:
         self.power_laser = float(power_laser)
 
         # OA parameters
-        self.ip_amplifier = str(ip_amplifier)
-        self.addr_amplifier = str(addr_amplifier)
-        self.mode_amplifier = str(mode_amplifier)
-        self.power_amplifier = float(power_amplifier)
+        self.ip_amplifier = ip_amplifier
+        self.addr_amplifier = addr_amplifier
+        self.mode_amplifier = mode_amplifier
+        self.power_amplifier = power_amplifier
 
         # WSS parameters
         self.wss_operations = wss_operations
@@ -115,7 +115,7 @@ class AgentCore:
             return result
 
         except Exception as e:
-            logger.error("DAC setup not finished, error: %s" % e)
+            logger.error("DAC/OSC setup not finished, error: %s" % e)
             raise e
 
     def amplifier_setup(self):
@@ -132,7 +132,7 @@ class AgentCore:
 
     def wss_setup(self):
         """
-        WSS setup.
+        WaveShaper setup.
         Sets the configuration file, central wavelength, bandwidth and attenuation/phase per port of a WaveShaper.
         """
         try:
@@ -145,7 +145,7 @@ class AgentCore:
 
     def setup(self, freq, bn, En, eq):
         """
-        Laser and DAC/OSC configuration by setting frequency, constellation and equalization.
+        Laser and DAC/OSC setup by setting frequency, constellation and equalization.
 
             - Laser setup.
             - DAC/OSC setup.

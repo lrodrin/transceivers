@@ -14,9 +14,9 @@ if __name__ == '__main__':
     channel_tls2 = 3
     addr = '11'
     lambda0 = 1550.12
-    power_tls1 = 14.5
-    power_tls2 = 14.5
+    power_tls1 = 6.03
+    power_tls2 = 6.03
     start_time = time.time()
-    # Laser.configuration(ip, addr, channel_tls1, lambda0, power_tls1)
+    Laser.configuration(ip, addr, channel_tls1, lambda0, power_tls1)
     # Laser.configuration(ip, addr, channel_tls2, lambda0, power_tls2)
     print("--- %s seconds ---" % (time.time() - start_time))

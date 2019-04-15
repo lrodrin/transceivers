@@ -26,7 +26,7 @@ with app.app_context():
     parser.add_argument('-a', metavar="AGENT", help='BVT Agent Configuration file')
     args = parser.parse_args()
     app.iniconfig.read(args.a)
-    agent = AgentCore(
+    ac = AgentCore(
         app.iniconfig.get('laser', 'ip'),
         app.iniconfig.get('laser', 'addr'),
         app.iniconfig.get('laser', 'channel'),
@@ -73,7 +73,7 @@ def local_channel_assignment():
             c = params['client']
             och = params['och']
             try:
-                msg = agent.logical_channel_assignment(c, och)
+                msg = ac.logical_channel_assignment(c, och)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 
@@ -117,7 +117,7 @@ def optical_channel():
             power = params['power']
             mode = params['mode']
             try:
-                result = agent.optical_channel(och, freq, power, mode)
+                result = ac.optical_channel(och, freq, power, mode)
                 logger.debug("Optical channel {} configured with average BER = {}".format(och, result[1]))
                 return jsonify(msg, 200)
 
@@ -128,7 +128,40 @@ def optical_channel():
             return jsonify("The parameters sent are not correct", 400)
 
 
-# TODO remove_optical_channel
+@app.route('/api/vi/openconfig/optical_channel<och>', methods=['DELETE'])
+def remove_optical_channel(och):
+    """
+    Optical Channel configuration
+    ---
+    delete:
+    description: Remove configuration of an Optical Channel specified by id
+    produces:
+    - application/json
+    parameters:
+    - name: och
+      in: path
+      type: integer
+      description: id of Optical Channel
+      required: true
+    responses:
+        200:
+            description: Successful operation
+        400:
+            description: Invalid ID supplied
+        404:
+            description: Association not found
+    """
+    if request.method == 'DELETE':
+        try:
+            ac.remove_optical_channel()
+            msg = "Optical Channel deleted"
+            logger.debug(msg)
+            return jsonify(msg, 200)
+
+        except Exception as e:
+            msg = "Optical Channel not deleted. Error: %s" % e
+            logger.error(msg)
+            return jsonify(msg, 404)
 
 
 def define_logger():

@@ -11,11 +11,11 @@ DOCPATH = BASEPATH + "/docs/"
 
 def listdirs(folder):
     """
-    List directories inside a folder specified by folder
+    List directories inside a b_folder specified by b_folder
 
-    :param folder: path folder
+    :param folder: path b_folder
     :type folder: str
-    :return: list of directories from folder
+    :return: list of directories from b_folder
     :rtype: list
     """
     return [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))]
