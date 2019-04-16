@@ -94,7 +94,7 @@ class Laser:
         try:
             self.sock.send(bytes("*IDN?\n", encoding='utf8'))
             self.sock.send(bytes(self.read_eoi, encoding='utf8'))
-            return self.sock.recv(self.buffer_size)
+            return self.sock.recv(self.buffer_size).decode('utf-8')
 
         except socket.error as error:
             logger.error("Laser tests, {}".format(error))
@@ -234,9 +234,9 @@ class Laser:
         :rtype: str
         """
         try:
-            self.sock.send(bytes("SYST:ERR?\n", encoding='utf8'))
-            self.sock.send(bytes(self.read_eoi, encoding='utf8'))
-            return self.sock.recv(self.buffer_size)
+            self.sock.send(bytes("SYST:ERR?\n", encoding='utf-8'))
+            self.sock.send(bytes(self.read_eoi, encoding='utf-8'))
+            return self.sock.recv(self.buffer_size).decode('utf-8')
 
         except socket.error as error:
             logger.error("System error, {}".format(error))
