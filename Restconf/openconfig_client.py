@@ -18,10 +18,15 @@ if __name__ == '__main__':
     print(request.json())
 
     # optical channel configuration
-    # request = requests.post('http://%s:5000/api/vi/openconfig/optical_channel' % ip, headers=headers,
-    #                         data=json.dumps(params_occ))
-    # print(request.json())
+    request = requests.post('http://%s:5000/api/vi/openconfig/optical_channel' % ip, headers=headers,
+                            data=json.dumps(params_occ))
+    print(request.json())
+
+    # remove local channel assignment
+    request = requests.delete('http://%s:5000/api/vi/openconfig/local_channel_assignment/1' % ip, headers=headers)
+    print(request.json())
 
     # remove optical channel configuration
-    # request = requests.delete('http://%s:5000/api/vi/openconfig/optical_channel' % ip, headers=headers)
-    # print(request.json())
+    request = requests.delete('http://%s:5000/api/vi/openconfig/optical_channel/1' % ip, headers=headers)
+    print(request.json())
+

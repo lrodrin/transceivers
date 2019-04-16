@@ -1,5 +1,3 @@
-import argparse
-import ast
 import logging
 from logging.handlers import RotatingFileHandler
 from os import sys, path
@@ -11,8 +9,6 @@ from flask_ini import FlaskIni
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
-from agent_core import AgentCore
-
 app = Flask(__name__)
 app.iniconfig = FlaskIni()
 Swagger(app)
@@ -20,26 +16,6 @@ Swagger(app)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
-
-with app.app_context():
-    parser = argparse.ArgumentParser("OPENCONFIG Server")
-    parser.add_argument('-a', metavar="AGENT", help='BVT Agent Configuration file')
-    args = parser.parse_args()
-    app.iniconfig.read(args.a)
-    ac = AgentCore(
-        app.iniconfig.get('laser', 'ip'),
-        app.iniconfig.get('laser', 'addr'),
-        app.iniconfig.get('laser', 'channel'),
-        app.iniconfig.get('laser', 'power'),
-        app.iniconfig.get('oa', 'ip'),
-        app.iniconfig.get('oa', 'addr'),
-        app.iniconfig.get('oa', 'mode'),
-        app.iniconfig.get('oa', 'power'),
-        ast.literal_eval(app.iniconfig.get('dac_osc', 'logical_associations')),
-        ast.literal_eval(app.iniconfig.get('wss', 'operations')),
-        app.iniconfig.get('rest_api', 'ip')
-    )
-    logging.debug("AGENT CORE linked with configuration {}".format(args.a))
 
 
 @app.route('/api/vi/openconfig/local_channel_assignment', methods=['POST'])
@@ -71,13 +47,13 @@ def local_channel_assignment():
             c = params['client']
             och = params['och']
             try:
-                msg = ac.logical_channel_assignment(c, och)
+                msg = "Client {} assigned to the Optical Channel {}".format(c, och)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 
             except Exception as e:
                 logger.error(
-                    "Local channel assignation between Client {} and Optical Channel {} failed. Error: {}".format(
+                    "Local channel assignation between client {} and optical channel {} failed. Error: {}".format(
                         c, och, e))
                 raise e
         else:
@@ -151,8 +127,9 @@ def optical_channel():
             power = params['power']
             mode = params['mode']
             try:
-                result = ac.optical_channel(och, freq, power, mode)
-                logger.debug("Optical Channel {} configured with average BER = {}".format(och, result[1]))
+                msg = "Optical Channel {} configured with frequency = {}, power = {} and mode = {}".format(och, freq,
+                                                                                                           power, mode)
+                logger.debug(msg)
                 return jsonify(msg, 200)
 
             except Exception as e:
@@ -162,7 +139,7 @@ def optical_channel():
             return jsonify("The parameters sent are not correct", 400)
 
 
-@app.route('/api/vi/openconfig/optical_channel<och>', methods=['DELETE'])
+@app.route('/api/vi/openconfig/optical_channel/<och>', methods=['DELETE'])
 def remove_optical_channel(och):
     """
     Optical Channel configuration
@@ -187,7 +164,6 @@ def remove_optical_channel(och):
     """
     if request.method == 'DELETE':
         try:
-            ac.remove_optical_channel()
             msg = "Optical Channel och%s configuration removed" % och
             logger.debug(msg)
             return jsonify(msg, 200)
