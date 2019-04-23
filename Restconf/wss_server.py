@@ -1,8 +1,9 @@
 import collections
 import logging
+import json, ast
+
 from logging.handlers import RotatingFileHandler
 from os import sys, path
-
 from flasgger import Swagger
 from flask import Flask, request
 from flask.json import jsonify
@@ -46,29 +47,34 @@ def wss_configuration():
             description: Invalid input operations
     """
     if request.method == 'POST':
-        params = request.json
-        wss_id = str(params['wss_id'])
-        ops = params['operations']
+        params = request.get_json(force=True) 
+        wss_id = params['wss_id']
+        # ops = params['operations']
+        ops = ast.literal_eval(json.dumps(params['operations']))
+        print(wss_id, ops)
         if len(ops) != 0:
-            logger.debug("WaveShaper %s configuration started" % wss_id)
+            logger.debug("WaveShaper %s configuration started" % str(wss_id))
             try:
+                print("HELLO")
                 n, m = n_max(ops, 'port_in')
+                print(n, m)
                 wss = WSS(wss_id, n, m)
+                print("HELLO")
                 wss.configuration(ops)
                 
                 # Adding new operation
-                if wss_id not in operations.keys():
-                    operations[wss_id] = ops
+                if str(wss_id) not in operations.keys():
+                    operations[str(wss_id)] = ops
                 else:
-                    operations[wss_id] += ops
+                    operations[str(wss_id)] += ops
 
-                msg = "WaveShaper %s was successfully configured" % wss_id
+                msg = "WaveShaper %s was successfully configured" % str(wss_id)
                 logger.debug(msg)
                 return jsonify(msg, 200)
 
             except Exception as e:
-                logger.error("WaveShaper {} wasn't successfully configured. Error: {}".format(wss_id, e))
-                raise e
+                logger.error("WaveShaper {} wasn't successfully configured. Error: {}".format(str(wss_id), e))
+                return jsonify("MIERDER", 400)
         else:
             return jsonify("The parameters sent are not correct", 400)
 

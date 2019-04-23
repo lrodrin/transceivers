@@ -3,10 +3,9 @@
 import logging
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 
-from lib.wss import wsapi
+import wsapi
 
 logger = logging.getLogger("WSS")
 logger.addHandler(logging.NullHandler())
@@ -21,7 +20,7 @@ class WSS:
     :var float step: Frequency step
     :var float speed_of_light: Speed of light in m/s
     :var int time_sleep: Time needed to load the WaveShaper profile before returning the bandwidth and port attenuation
-    :var str b_folder: Folder that contains the configuration conf_files
+    :var str folder: Folder that contains the configuration files
     :var str configfile_1: Configuration file for the WaveShaper 1
     :var str configfile_2: Configuration file for the WaveShaper 2
     """
@@ -30,7 +29,7 @@ class WSS:
     step = 0.001
     speed_of_light = 299792.458
     time_sleep = 5
-    folder = "C:/Users/CTTC/Desktop/ac-bvt/config/"
+    folder = "C:/Users/CTTC/Desktop/agent-bvt/config/"
     configfile_1 = "SN042561.wsconfig"
     configfile_2 = "SN200162.wsconfig"
 
@@ -123,21 +122,7 @@ class WSS:
                 if i == 0:
                     profiletext += "%.3f 60.0 0.0 0\n" % frequency
 
-            # TODO DELETE
-            profiletext_out = profiletext.split("\n")
-            profile_wss = np.array(np.zeros(len(profiletext_out) * 4))
-            profile_wss = profile_wss.reshape((len(profiletext_out), 4))
-            for index in range(0, len(profiletext_out) - 1):
-                profile_wss[index] = profiletext_out[index].split("\t")
-
-            profile_wss = profile_wss[0:len(profile_wss) - 1, :]
-
-            plt.figure()
-            plt.plot(profile_wss[:, 0], profile_wss[:, 1])
-            plt.show()
-            # TODO DELETE
-
-            wsapi.ws_load_profile(self.id, profiletext)
+            wsapi.ws_load_profile(wss_id, profiletext)
             logger.debug("WaveShaper %s profile loaded" % wss_id)
 
         except Exception as error:
