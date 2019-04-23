@@ -3,13 +3,10 @@
 import logging
 from os import sys, path
 
-import numpy as np
-
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from lib.laser.laser import Laser
 from lib.amp.amp import Amplifier
-from lib.dac.dac import DAC
 from rest_api import RestApi
 
 logger = logging.getLogger("AGENT_CORE")
@@ -92,9 +89,10 @@ class AgentCore:
     def dac_setup(self, bn, En, eq):
         """
         DAC/OSC setup.
+        Performs DSP to modulate/demodulate an OFDM signal.
 
-            - Add bits per symbol, power per symbol and equalization parameters to logical associations.
-            - Generate waveform and load to DAC channel.
+            - DAC setup creates an OFDM signal and uploads it to Leia DAC.
+            - OSC setup adquires the transmitted OFDM signal and perform DSP to retrieve the original datastream.
 
         :param bn: bits per symbol
         :type bn: int array of 512 positions
@@ -174,14 +172,28 @@ class AgentCore:
             logger.error("Configuration of a DRoF failed, error: %s" % e)
             raise e
 
+    def disable_laser(self):
+        """
+        Disable Laser.
+        """
+        yenista = Laser(self.ip_laser, self.addr_laser)
+        yenista.enable(self.channel_laser, False)
+        logger.debug("Laser {} on channel {} disabled".format(self.ip_laser, self.channel_laser))
+
+    def disable_amplifier(self):
+        """
+        Disable Amplifier.
+        """
+        manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
+        manlight.enable(False)
+        logger.debug("Amplifier %s disabled" % self.ip_amplifier)
+
     def disconnect(self):
         """
         Disable Laser and remove the logical associations between DAC and OSC.
         """
         try:
-            yenista = Laser(self.ip_laser, self.addr_laser)
-            yenista.enable(self.channel_laser, False)
-            logger.debug("Laser {} on channel {} disabled".format(self.ip_laser, self.channel_laser))
+            self.disable_laser()
 
             # remove the logical associations
             for i in range(len(self.logical_associations)):
@@ -191,84 +203,6 @@ class AgentCore:
                 self.api.deleteDACOSCOperationsById(assoc_id)
                 logger.debug(
                     "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
-
-        except Exception as e:
-            logger.error(e)
-            raise e
-
-    def optical_channel(self, och, freq, power, mode):
-        """
-        Configuration of an Optical Channel by setting frequency, power and mode.
-
-            - WSS setup.
-            - Amplifier setup.
-            - Laser setup.
-            - DAC/OSC setup.
-
-        :param och: id to identify the Optical Channel
-        :type och: str
-        :param freq: frequency of the Optical Channel expressed in MHz. Possible values: from 191.494 THz (1565.544 nm)
-        to 195.256 THz (1527.55899 nm)
-        :type freq: float
-        :param power: power of the Optical Channel expressed in dBm. Possible values: -3.04dBm to 5.5dBm
-        :type power: float
-        :param mode: operational mode of the Optical Channel. SD-FEC or HD-FEC
-        :type mode: str
-        """
-        try:
-            # WSS setup
-            # result = self.wss_setup()
-            # logger.debug("WSS setup finished with operations:\n{}".format(result))
-
-            # OA setup
-            self.amplifier_setup()
-
-            # Laser and DAC/OSC setup
-            self.power_laser += power
-            bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
-            En = np.array(np.ones(DAC.Ncarriers)).tolist()
-            eq = "MMSE"
-
-            result = self.setup(freq, bn, En, eq)
-            return result
-
-        except Exception as e:
-            logger.error("Configuration of Optical Channel {} failed, error: {}".format(och, e))
-            raise e
-
-    @staticmethod
-    def logical_channel_assignment(client, och):
-        """
-        Client assignation to an Optical Channel.
-
-        :param client: id to identify the client
-        :type client: str
-        :param och: id to identify the Optical Channel
-        :type och: str
-        :return: the client and the optical channel assignation
-        :rtype: str
-        """
-        return "Client {} assigned to the Optical Channel {}".format(client, och)
-
-    def remove_optical_channel(self):
-        """
-        Disable Laser and Amplifier.
-        Remove the logical associations between DAC and OSC.
-        Remove the operations configured on WaveShaper.
-        """
-        try:
-            # disable Laser and remove the logical associations between DAC and OSC
-            self.disconnect()
-
-            # disable Amplifier
-            manlight = Amplifier(self.ip_amplifier, self.addr_amplifier)
-            manlight.enable(False)
-            logger.debug("Amplifier %s disabled" % self.ip_amplifier)
-
-            # remove the operations
-            # wss_id = self.wss_operations['wss_id']
-            #             # self.api.deleteWSSOperationsById(wss_id)
-            #             # logger.debug("Operations on WaveShaper %s removed" % wss_id)
 
         except Exception as e:
             logger.error(e)
