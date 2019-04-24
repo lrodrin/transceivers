@@ -1,10 +1,10 @@
 import ast
 import logging
 import os
-import numpy as np
-
-from six.moves import configparser
 from os import sys, path
+
+import numpy as np
+from six.moves import configparser
 
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 
@@ -92,6 +92,5 @@ if __name__ == '__main__':
     # print(ac.dac_setup(bn, En, eq))
     # ac.disconnect()
 
-    print(ac.logical_channel_assignment(client, och))
-    # print(ac.optical_channel("och1", freq, power, mode))
-    # ac.remove_optical_channel()
+    ac.amplifier_setup()
+    print(ac.wss_setup())

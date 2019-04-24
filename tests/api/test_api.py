@@ -10,12 +10,12 @@ from rest_api import RestApi
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
-    wss1 = {'wss_id': 1, 'operations': [
-        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
+    wss1 = {'wss_id': 1,
+            'operations': [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 50.0}]}
 
-    wss2 = {'wss_id': 2, 'operations': [
-        {'port_in': 2, 'port_out': 1, 'lambda0': 1550.88, 'att': 0.0, 'phase': 0.0, 'bw': 50.0},
-        {'port_in': 3, 'port_out': 1, 'lambda0': 1550.3, 'att': 0.0, 'phase': 0.0, 'bw': 50.0}]}
+    wss2 = {'wss_id': 2,
+            'operations': [{'port_in': 2, 'port_out': 1, 'lambda0': 1550.12, 'att': 0.0, 'phase': 0.0, 'bw': 100.0},
+                           {'port_in': 3, 'port_out': 1, 'lambda0': 1552.0, 'att': 0.0, 'phase': 0.0, 'bw': 100.0}]}
 
     bn1 = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
     bn2 = np.array(np.ones(DAC.Ncarriers), dtype=int).tolist()
