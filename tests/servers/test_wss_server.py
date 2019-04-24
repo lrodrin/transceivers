@@ -13,16 +13,16 @@ if __name__ == '__main__':
     # configure
     # request = requests.post('http://10.1.1.10:5001/api/wss', headers=headers, data=json.dumps(wss1))
     # print(request.json())
-    request = requests.post('http://10.1.1.10:5001/api/wss', json=wss2)
-    print(request)
+    request = requests.post('http://10.1.1.10:5001/api/wss', headers=headers, data=json.dumps(wss2))
+    print(request.json())
 
     # get
-    # request = requests.get('http://10.1.1.10:5001/api/wss', headers=headers)
-    # print(request.json())
+    request = requests.get('http://10.1.1.10:5001/api/wss', headers=headers)
+    print(request.json())
     # request = requests.get('http://10.1.1.10:5001/api/wss/1', headers=headers)
     # print(request.json())
-    # request = requests.get('http://10.1.1.10:5001/api/wss/2', headers=headers)
-    # print(request.json())
+    request = requests.get('http://10.1.1.10:5001/api/wss/2', headers=headers)
+    print(request.json())
 
     # delete
     # request = requests.delete('http://10.1.1.10:5001/api/wss/1', headers=headers)

@@ -1,9 +1,10 @@
+import ast
 import collections
+import json
 import logging
-import json, ast
-
 from logging.handlers import RotatingFileHandler
 from os import sys, path
+
 from flasgger import Swagger
 from flask import Flask, request
 from flask.json import jsonify
@@ -47,21 +48,17 @@ def wss_configuration():
             description: Invalid input operations
     """
     if request.method == 'POST':
-        params = request.get_json(force=True) 
+        params = request.json
         wss_id = params['wss_id']
-        # ops = params['operations']
         ops = ast.literal_eval(json.dumps(params['operations']))
-        print(wss_id, ops)
         if len(ops) != 0:
             logger.debug("WaveShaper %s configuration started" % str(wss_id))
             try:
-                print("HELLO")
-                n, m = n_max(ops, 'port_in')
-                print(n, m)
+                n = n_max(ops, 'port_in')
+                m = n_max(ops, 'port_out')
                 wss = WSS(wss_id, n, m)
-                print("HELLO")
                 wss.configuration(ops)
-                
+
                 # Adding new operation
                 if str(wss_id) not in operations.keys():
                     operations[str(wss_id)] = ops
@@ -74,7 +71,7 @@ def wss_configuration():
 
             except Exception as e:
                 logger.error("WaveShaper {} wasn't successfully configured. Error: {}".format(str(wss_id), e))
-                return jsonify("MIERDER", 400)
+                raise e
         else:
             return jsonify("The parameters sent are not correct", 400)
 
@@ -98,13 +95,12 @@ def wss_operations():
             description: Successful operation
             schema:
                 type: dict
-                example: {'wss_id': 1, 'operations': [
-        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
+                example: {'1': [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
         404:
             description: Operations not found
     """
     if request.method == 'GET':
-        if len(operations) != 0:    # If exists operations
+        if len(operations) != 0:  # If exists operations
             return jsonify(operations)
         else:
             return jsonify("Not exists operations", 404)
@@ -129,9 +125,8 @@ def wss_getOperationsByID(wss_id):
         200:
             description: Successful operation
             schema:
-                type: dict
-                example: {'wss_id': 1, 'operations': [
-        {'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]}
+                type: list
+                example: ['1': [{'port_in': 1, 'port_out': 1, 'lambda0': 1550.52, 'att': 0.0, 'phase': 0.0, 'bw': 112.5}]]
         400:
             description: Invalid ID supplied
         404:
@@ -142,7 +137,7 @@ def wss_getOperationsByID(wss_id):
     msg_not_exists = "Not exists operations"
 
     if request.method == 'GET':
-        if len(operations) != 0:    # If exists operations
+        if len(operations) != 0:  # If exists operations
             if operations[wss_id]:  # If exists operations for wss_id
                 return jsonify(wss_id, operations[wss_id])
             else:
@@ -180,7 +175,7 @@ def wss_deleteOperationsByID(wss_id):
     msg_not_exists = "Not exists operations"
 
     if request.method == 'DELETE':
-        if len(operations) != 0:    # If exists operations
+        if len(operations) != 0:  # If exists operations
             if operations[wss_id]:  # If exists operations for wss_id
                 del operations[wss_id]
                 return jsonify("Operations deleted for WaveShaper %s" % wss_id, 200)
@@ -192,13 +187,13 @@ def wss_deleteOperationsByID(wss_id):
 
 def n_max(ops, key_func):
     """
-    Return the maximum element of input ports in operations.
+    Return the maximum element of ops according to key_func.
 
     :param ops: operations to configure the WaveShaper
     :type ops: list
     :param key_func: comparison key
     :type key_func: str
-    :return: maximum element of input ports
+    :return: maximum element
     :rtype: int
     """
     maximum = 0
