@@ -1,5 +1,4 @@
 import argparse
-import ast
 import logging
 from logging.handlers import RotatingFileHandler
 from os import sys, path
@@ -31,14 +30,15 @@ with app.app_context():
     ac = AgentCore(
         app.iniconfig.get('laser', 'ip'),
         app.iniconfig.get('laser', 'addr'),
-        app.iniconfig.get('laser', 'channel'),
-        app.iniconfig.get('laser', 'power'),
+        None,
+        None,
+        app.iniconfig.get('laser', 'LdB'),
         app.iniconfig.get('oa', 'ip'),
         app.iniconfig.get('oa', 'addr'),
         app.iniconfig.get('oa', 'mode'),
         app.iniconfig.get('oa', 'power'),
-        ast.literal_eval(app.iniconfig.get('dac_osc', 'logical_associations')),
-        ast.literal_eval(app.iniconfig.get('wss', 'operations')),
+        None,
+        None,
         app.iniconfig.get('rest_api', 'ip')
     )
     logging.debug("AGENT CORE linked with configuration {}".format(args.a))
@@ -59,7 +59,7 @@ def logical_channel_assignment():
     - name: params
       in: body
       description: Client and the Optical Channel to be assigned
-      example: {'name': 'c1', 'och': 'channel-101', 'status': 'enabled', 'type': 'client'}
+      example: {'name': 'c1', 'och': 'channel-2', 'status': 'enabled', 'type': 'client'}
       required: true
     responses:
         200:
@@ -75,6 +75,15 @@ def logical_channel_assignment():
             status = params['status']
             type = params['type']
             try:
+                cl_id = int(name.split('c')[1])
+                och_id = int(och.split('-')[1])
+                if name == "c1" and och_id == 101:
+                    ac.channel_laser = 2
+                    ac.logical_associations.append({'id': cl_id, 'dac_out': 1, 'osc_in': 1})
+                else:
+                    ac.channel_laser = 3
+                    ac.logical_associations.append({'id': cl_id, 'dac_out': 2, 'osc_in': 2})
+
                 msg = "Client {} assigned to the Optical Channel {}".format(name, och)
                 logger.debug(msg)
                 return jsonify(msg, 200)
@@ -94,13 +103,13 @@ def remove_logical_channel_assignment(client):
     Client assignation to an Optical Channel
     ---
     delete:
-    description: Remove logical assignation between Client specified by client and an Optical Channel.
+    description: Remove logical assignations for the Client specified by client
     produces:
     - application/json
     parameters:
     - name: client
       in: path
-      description: id to identify the Client assigned to an Optical Channel to be deleted
+      description: id to identify the Client assigned into logical assignations to be deleted
       required: true
     responses:
         200:
@@ -111,16 +120,20 @@ def remove_logical_channel_assignment(client):
             description: Assignation not found
     """
     if request.method == 'DELETE':
-        och = "channel-101"  # TODO delete
         try:
-            msg = "Client {} assigned to the Optical Channel {} removed".format(client, och)
+            for i in range(len(ac.logical_associations)):
+                assoc_id = ac.logical_associations[i]['id']
+                if assoc_id == int(client.split('c')[1]):
+                    ac.api.deleteDACOSCOperationsById(assoc_id)
+
+            msg = "Logical assignations assigned to the Client %s removed" % client
             logger.debug(msg)
             return jsonify(msg, 200)
 
         except Exception as e:
-            msg = "Client c{} assigned to the Optical Channel {} not removed. Error: {}".format(client, och, e)
+            msg = "Logical assignations assigned to the Client %s not removed. Error: {}".format(client, e)
             logger.error(msg)
-            return jsonify(msg, 404)
+            raise e
 
 
 @app.route('/api/v1/openconfig/optical_channel', methods=['POST'])
@@ -138,7 +151,7 @@ def optical_channel():
     - name: params
       in: body
       description: parameters of the Optical Channel to be configured
-      example: {'frequency': '192300000', 'mode': '111', 'name': 'channel-101', 'power': '10.0', 'status': 'enabled',
+      example: {'frequency': '192300000', 'mode': '111', 'name': 'channel-1', 'power': '10.0', 'status': 'enabled',
       'type': 'optical_channel'}
       required: true
     responses:
@@ -150,15 +163,16 @@ def optical_channel():
     if request.method == 'POST':
         params = request.json
         if len(params) != 0:
-            freq = float(params['frequency'])
+            freq = params['frequency']
             mode = params['mode']
             name = params['name']
-            power = float(params['power'])
+            power = params['power']
             status = params['status']
             type = params['type']
             try:
                 result = configuration(name, freq, power, mode)
-                logger.debug("Optical Channel {} configured with average BER = {}".format(name, result))
+                msg = "Optical Channel {} configured with average BER = {}".format(name, result)
+                logger.debug(msg)
                 return jsonify(msg, 200)
 
             except Exception as e:
@@ -169,12 +183,12 @@ def optical_channel():
 
 
 @app.route('/api/v1/openconfig/optical_channel/<och>', methods=['DELETE'])
-def remove_optical_channel(och):
+def disconnect(och):
     """
     Optical Channel configuration
     ---
     delete:
-    description: Remove the configuration of an Optical Channel specified by och
+    description: Disable Laser and Amplifier
     produces:
     - application/json
     parameters:
@@ -193,6 +207,12 @@ def remove_optical_channel(och):
     """
     if request.method == 'DELETE':
         try:
+            # Disable Amplifier
+            ac.disable_amplifier()
+
+            # Disable Laser
+            ac.disable_laser()
+
             msg = "Optical Channel och%s configuration removed" % och
             logger.debug(msg)
             return jsonify(msg, 200)
@@ -200,7 +220,7 @@ def remove_optical_channel(och):
         except Exception as e:
             msg = "Optical Channel och{} configuration not removed. Error: {}".format(och, e)
             logger.error(msg)
-            return jsonify(msg, 404)
+            raise e
 
 
 def configuration(och, freq, power, mode):
@@ -225,13 +245,18 @@ def configuration(och, freq, power, mode):
         # OA setup
         ac.amplifier_setup()
 
-        # Laser and DAC/OSC setup
-        ac.power_laser += power
+        # Laser setup
+        och_id = int(och.split('-')[1])
+        if och_id == 101 or och_id == 102:
+            power_laser = power + ac.losses_laser
+            ac.laser_setup(freq, power_laser)
+
+        # DAC/OSC setup
         bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
         En = np.array(np.ones(DAC.Ncarriers)).tolist()
         eq = "MMSE"
 
-        result = ac.setup(freq, bn, En, eq)
+        result = ac.dac_setup(bn, En, eq)
         return result[1]
 
     except Exception as e:
@@ -258,4 +283,4 @@ def define_logger():
 
 if __name__ == '__main__':
     define_logger()
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)
+    app.run(host='0.0.0.0', port=5001, debug=True, threaded=False)

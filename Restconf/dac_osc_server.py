@@ -47,7 +47,7 @@ def dac_osc_configuration():
         200:
             description: Successful configuration
             schema:
-                type: list
+                type: array
                 example: [SNR, BER]
         400:
             description: Invalid input logical_assoc
@@ -164,13 +164,13 @@ def dac_osc_associations():
     parameters:
     - name: associations
       in: query
-      type: list
+      type: array
       description: logical associations configured between DAC and OSC
     responses:
         200:
             description: Successful operation
             schema:
-                type: list
+                type: array
                 example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
               {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
         404:
@@ -202,7 +202,7 @@ def dac_osc_getAssociationByID(assoc_id):
         200:
             description: Successful operation
             schema:
-                type: list
+                type: array
                 example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
               {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
         400:

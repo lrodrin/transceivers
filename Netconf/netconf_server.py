@@ -335,6 +335,7 @@ def init_agent(filename):
             None,
             None,
             None,
+            None,
             ast.literal_eval(config.get('dac_osc', 'logical_associations')),
             config.get('rest_api', 'ip')
         )

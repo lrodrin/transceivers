@@ -17,6 +17,9 @@ __copyright__ = "Copyright 2018, CTTC"
 # print(sys.executable)
 # print(os.getcwd())
 
-s = "POWEROFF"
-if s.find(s, "OFF") == -1:
-       print("YES")
+och = 'channel-112'
+s, n = och.split('-')
+print(och.split('-')[1])
+
+client = "c23"
+print(client.split('c')[1])

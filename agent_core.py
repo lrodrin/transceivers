@@ -18,8 +18,8 @@ class AgentCore:
     This is the class for the Agent Core module.
     """
 
-    def __init__(self, ip_laser, addr_laser, channel_laser, power_laser, ip_amplifier, addr_amplifier, mode_amplifier,
-                 power_amplifier, wss_operations, logical_associations, ip_rest_server):
+    def __init__(self, ip_laser, addr_laser, channel_laser, power_laser, losses_laser, ip_amplifier, addr_amplifier,
+                 mode_amplifier, power_amplifier, wss_operations, logical_associations, ip_rest_server):
         """
         The constructor for the Agent Core class.
 
@@ -30,6 +30,8 @@ class AgentCore:
         :type channel_laser: int
         :param power_laser: power of the Laser in dBm
         :type power_laser: float
+        :param losses_laser: losses of the Laser in dBm
+        :type losses_laser: float
         :param ip_amplifier: IP address of GPIB-ETHERNET of the Amplifier
         :type ip_amplifier: str
         :param addr_amplifier: GPIB address of the Amplifier
@@ -46,28 +48,32 @@ class AgentCore:
         :type ip_rest_server: str
         """
         # Laser parameters
-        self.ip_laser = str(ip_laser)
+        self.ip_laser = ip_laser
         self.addr_laser = str(addr_laser)
-        self.channel_laser = int(channel_laser)
-        self.power_laser = float(power_laser)
+        self.channel_laser = channel_laser
+        self.power_laser = power_laser
+        self.losses_laser = float(losses_laser)
 
         # OA parameters
         self.ip_amplifier = ip_amplifier
-        self.addr_amplifier = addr_amplifier
+        self.addr_amplifier = str(addr_amplifier)
         self.mode_amplifier = mode_amplifier
-        self.power_amplifier = power_amplifier
+        self.power_amplifier = float(power_amplifier)
 
         # WSS parameters
         self.wss_operations = wss_operations
 
         # DAC/OSC parameters
-        self.logical_associations = list(logical_associations)
+        if logical_associations is not None:
+            self.logical_associations = list(logical_associations)
+        else:
+            self.logical_associations = list()
 
         # REST API
         self.ip_rest_server = ip_rest_server
         self.api = RestApi(self.ip_rest_server)
 
-    def laser_setup(self, freq):
+    def laser_setup(self, freq, power):
         """
         Laser setup.
 
@@ -76,11 +82,13 @@ class AgentCore:
             - Set the power of the Laser.
 
         :param freq: frequency
-        :param freq: float
+        :type freq: float
+        :param power: power
+        :type power: float
         """
         try:
             lambda0 = (299792.458 / (freq * 1e6)) * 1e9
-            Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, self.power_laser)
+            Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, power)
 
         except Exception as e:
             logger.error("Laser setup not finished, error: %s" % e)
@@ -148,7 +156,7 @@ class AgentCore:
             - Laser setup.
             - DAC/OSC setup.
 
-        :param freq: frequency
+        :param freq: frequency of Laser
         :param freq: float
         :param bn: bits per symbol
         :type bn: int array of 512 positions
@@ -161,7 +169,7 @@ class AgentCore:
         """
         try:
             # Laser setup
-            self.laser_setup(freq)
+            self.laser_setup(freq, self.power_laser)
 
             # DAC/OSC setup
             result = self.dac_setup(bn, En, eq)

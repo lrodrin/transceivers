@@ -74,10 +74,10 @@ if __name__ == '__main__':
     #         f = m_folder
     #
     #     ac = createAgent(f, file)
-    #     print(ac.ip_amplifier, ac.power_amplifier, ac.channel_laser, ac.power_laser)
+    #     print(ac.ip_amplifier, ac.power_amplifier, ac.channel_laser, ac.losses_laser)
 
     ac = createAgent(m_folder, "metro_bvt1.cfg")
-    print(ac.ip_amplifier, ac.power_amplifier, ac.channel_laser, ac.power_laser)
+    print(ac.ip_amplifier, ac.power_amplifier, ac.channel_laser, ac.losses_laser)
 
     freq = 193.4e6
     bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
