@@ -52,13 +52,13 @@ class AgentCore:
         self.addr_laser = str(addr_laser)
         self.channel_laser = channel_laser
         self.power_laser = power_laser
-        self.losses_laser = float(losses_laser)
+        self.losses_laser = losses_laser
 
         # OA parameters
         self.ip_amplifier = ip_amplifier
         self.addr_amplifier = str(addr_amplifier)
         self.mode_amplifier = mode_amplifier
-        self.power_amplifier = float(power_amplifier)
+        self.power_amplifier = power_amplifier
 
         # WSS parameters
         self.wss_operations = wss_operations
@@ -215,3 +215,6 @@ class AgentCore:
         except Exception as e:
             logger.error(e)
             raise e
+
+    def remove_logical_associations(self):
+        pass

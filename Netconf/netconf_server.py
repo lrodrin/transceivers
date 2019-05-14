@@ -39,7 +39,7 @@ class NETCONFServer(object):
         :type password: str
         :param port: port number to bind the NETCONF server
         :type port: int
-        :param agent: Agent Core
+        :param agent: Agent Core module
         :type agent: AgentCore
         """
         self.ac = agent
@@ -69,31 +69,31 @@ class NETCONFServer(object):
 
     def load_startup_configuration(self, filename):
         """
-        Load the startup configuration into the NETCONF Server datastore.
+        Load startup configuration datastore specified by filename.
 
-        :param filename: name of the XML configuration file to be loaded
+        :param filename: configuration file to be loaded
         :type filename: str
         """
-        logging.debug("STARTUP CONFIG")
+        logging.debug("STARTUP CONFIGURATION")
         try:
             XML = open(filename, 'r').read()
             tree = etree.XML(XML)
             data = pybindIETFXMLDecoder.decode(etree.tostring(tree), bindingConfiguration,
                                                "blueSPACE-DRoF-configuration")
-            self.configuration = data  # save to startup configuration
+            self.configuration = data  # save startup configuration
             logging.info(pybindJSON.dumps(self.configuration))
-            logging.debug("STARTUP CONFIG {} loaded".format(filename))
+            logging.debug("STARTUP CONFIGURATION {} loaded".format(filename))
 
         except Exception as e:
-            logging.error("STARTUP CONFIG {} not loaded, error: {}".format(filename, e))
+            logging.error("STARTUP CONFIGURATION {} not loaded, error: {}".format(filename, e))
             raise e
 
     def nc_append_capabilities(self, capabilities):  # pylint: disable=W0613
         """
-        Add capabilities to the NETCONF Server.
+        Add capabilities.
 
-        :param capabilities:
-        :type capabilities:
+        :param capabilities: NETCONF server capabilities
+        :type capabilities: list
         """
         logging.debug("CAPABILITIES")
         try:
@@ -109,7 +109,6 @@ class NETCONFServer(object):
 
     def rpc_get(self, session, rpc, filter_or_none):  # pylint: disable=W0613
         """
-        NETCONF Get operation.
         Retrieve all or part of specified configuration.
 
         :param session: the server session with the client
@@ -123,36 +122,35 @@ class NETCONFServer(object):
         """
         logging.debug("GET")
         try:
-            # extract bn, En and eq from running configuration using pyangbind format
+            # extract bn, En and eq from running configuration datastore using pyangbind format
             eq = str(self.configuration.DRoF_configuration.equalization)
             bn, En = self.extract_bn_and_En(self.configuration)
 
             # DAC/OSC setup
             result = self.ac.dac_setup(bn, En, eq)
 
-            # modify SNR and BER to running configuration
+            # modify SNR and BER in running configuration datastore
             SNR = result[0]
             BER = result[1]
             self.modify_SNR_and_BER(BER, SNR)
             logging.info(pybindJSON.dumps(self.configuration))
 
-            # get new SNR and BER from running configuration
+            # get new SNR and BER from running configuration datastore
             data = etree.XML(pybindIETFXMLEncoder.serialise(self.configuration))
             monitor = data.findall(".//xmlns:monitor",
                                    namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
             ber = data.find(".//xmlns:BER",
                             namespaces={'xmlns': "urn:blueSPACE-DRoF-configuration"})
 
-            # create NETCONF message with new SNR and BER needed to reply
+            # create NETCONF rpc-reply message with the new SNR and BER from running configuration datastore
             data_reply = util.elm("data")
             top = util.subelm(data_reply, "{urn:blueSPACE-DRoF-configuration}DRoF-configuration")
             for value in monitor:
                 m = util.subelm(top, 'monitor')
                 m.append(util.leaf_elm('subcarrier-id', str(value[0].text)))
                 m.append(util.leaf_elm('SNR', str(value[1].text)))
-
             top.append(util.leaf_elm('BER', str(ber.text)))
-            logging.debug("Created NETCONF message with SNR and BER needed to reply")
+
             return util.filter_results(rpc, data_reply, filter_or_none)
 
         except Exception as e:
@@ -161,7 +159,7 @@ class NETCONFServer(object):
 
     def modify_SNR_and_BER(self, BER, SNR):
         """
-        Modify SNR and BER from running configuration.
+        Modify SNR and BER of running configuration.
 
         :param BER: bit error rate
         :type BER: float
@@ -169,27 +167,25 @@ class NETCONFServer(object):
         :type SNR: list
         """
         for i, value in enumerate(self.configuration.DRoF_configuration.monitor.iteritems(), start=1):
-            if np.math.isnan(SNR[i - 1]):
+            if np.math.isnan(SNR[i - 1]):  # if NAN element
                 value[1]._set_SNR(np.format_float_positional(1e-9))
             else:
                 value[1]._set_SNR(SNR[i - 1])
-
         self.configuration.DRoF_configuration._set_BER(BER)
 
-    def rpc_edit_config(self, unused_session, rpc, target, method, newconf):  # pylint disable=W0613
+    def rpc_edit_config(self, session, rpc, target, method, newconf):  # pylint disable=W0613
         """
-        NETCONF edit-config operation.
-        Loads all or part of the specified newconf to the NETCONF running configuration.
+        Create, merge or delete all or part of the specified newconf to the running configuration datastore.
 
-        :param unused_session: the server session with the client
-        :type unused_session: NetconfServerSession
+        :param session: the server session with the client
+        :type session: NetconfServerSession
         :param rpc: the topmost element in the received message
         :type rpc: lxml.Element
-        param target: the target of the config, defaults to "running"
+        :param target: the target of the config, defaults to "running"
         :type target: str
         :param method: "merge" (netconf default), "create" or "delete".
         :type method: str
-        :param newconf: the new configuration
+        :param newconf: new configuration
         :type newconf: lxml.Element
         :return: "nc:data" type containing the requested configuration
         :rtype: lxml.Element
@@ -200,24 +196,28 @@ class NETCONFServer(object):
         logging.debug("EDIT CONFIG")
         try:
             if 'capability' in newconf[0].tag:
+                # TODO to be implemented
                 pass
 
             elif 'configuration' in newconf[0].tag:
                 new_xml = pybindIETFXMLDecoder.decode(etree.tostring(newconf), bindingConfiguration,
                                                       "blueSPACE-DRoF-configuration")
                 if "create" in method.text:
-                    # extract NCF, bn, En and eq from newconf using pyangbind format
+                    # extract NCF, bn, En and eq from newconf
                     NCF = float(new_xml.DRoF_configuration.nominal_central_frequency)
                     eq = str(new_xml.DRoF_configuration.equalization)
                     bn, En = self.extract_bn_and_En(new_xml)
 
-                    # Laser and DAC/OSC setup
-                    result = self.ac.setup(NCF, bn, En, eq)
+                    # Laser setup
+                    self.ac.laser_setup(NCF, self.ac.power_laser)
+
+                    # DAC/OSC setup
+                    result = self.ac.dac_setup(bn, En, eq)
 
                     # save newconf as running configuration
                     self.configuration = new_xml
 
-                    # add SNR and BER to running configuration
+                    # add SNR and BER to running configuration datastore
                     SNR = result[0]
                     BER = result[1]
                     for i in range(1, len(SNR) + 1):
@@ -226,27 +226,27 @@ class NETCONFServer(object):
                             m._set_SNR(np.format_float_positional(1e-9))
                         else:
                             m._set_SNR(SNR[i - 1])
-
                     self.configuration.DRoF_configuration._set_BER(BER)
+
                     logging.info(pybindJSON.dumps(self.configuration))
-                    logging.debug("CONFIGURATION created")
+                    logging.debug("NEW CONFIGURATION created")
 
                 elif "merge" in method.text:
-                    # extract bn and En from newconf using pyangbind format
+                    # extract bn and En from newconf
                     bn, En = self.extract_bn_and_En(new_xml)
 
-                    # extract eq from running configuration
+                    # extract eq from running configuration datastore
                     eq = str(self.configuration.DRoF_configuration.equalization)
 
                     # DAC/OSC setup
                     result = self.ac.dac_setup(bn, En, eq)
 
-                    # modify SNR and BER to running configuration
+                    # modify SNR and BER in running configuration datastore
                     SNR = result[0]
                     BER = result[1]
                     self.modify_SNR_and_BER(BER, SNR)
 
-                    # merge newconf with running configuration # TODO optimize
+                    # merge newconf with running configuration datastore
                     for i, x in enumerate(new_xml.DRoF_configuration.constellation.iteritems(), start=1):
                         for j, y in enumerate(self.configuration.DRoF_configuration.constellation.iteritems(), start=1):
                             if i == j:
@@ -254,14 +254,16 @@ class NETCONFServer(object):
                                 y[1].powerxsymbol = x[1].powerxsymbol
 
                     logging.info(pybindJSON.dumps(self.configuration))
-                    logging.debug("CONFIGURATION merged")
+                    logging.debug("NEW CONFIGURATION merged")
 
                 elif "delete" in method.text:
                     # disable Laser and remove logical associations between DAC and OSC
-                    self.ac.disconnect()
+                    self.ac.disable_laser()
+                    self.ac.remove_logical_associations()
 
-                    # remove logical associations between DAC and OSC
+                    # remove the running configuration
                     self.configuration = bindingConfiguration.blueSPACE_DRoF_configuration()
+
                     logging.info(pybindJSON.dumps(self.configuration))
                     logging.debug("CONFIGURATION deleted")
 
@@ -274,10 +276,12 @@ class NETCONFServer(object):
     @staticmethod
     def extract_bn_and_En(configuration):
         """
-        Extract bn and En from all or a part of an XML configuration.
+        Extract bn and En from specified configuration.
 
-        :param configuration: XML configuration
+        :param configuration: configuration
         :type configuration: bindingConfiguration.blueSPACE_DRoF_configuration()
+        :return: bn, En
+        :rtype: list, list
         """
         bn = list()
         En = list()
@@ -293,9 +297,9 @@ def main(*margs):
     parser.add_argument("-u", default="root", metavar="USERNAME", help='NETCONF Server username')
     parser.add_argument("-pwd", default="netlabN.", metavar="PASSWORD", help='NETCONF Server password')
     parser.add_argument('-p', type=int, default=830, metavar="PORT", help='NETCONF Server connection port')
-    parser.add_argument('-c', default="datasets/blueSPACE_DRoF_configuration_startup_0.xml", metavar="CONFIGURATION",
-                        help='DRoF Configuration file')
-    parser.add_argument('-a', metavar="AGENT", help='BVT Agent Configuration file')
+    parser.add_argument('-c', default="datasets/blueSPACE_DRoF_configuration_startup_0.xml", metavar="STARTUP",
+                        help='DRoF Startup Configuration file')
+    parser.add_argument('-a', metavar="AGENT CORE", help='BVT Agent Core Configuration file')
 
     args = parser.parse_args(*margs)
     a = init_agent(args.a)
@@ -315,11 +319,11 @@ def main(*margs):
 
 def init_agent(filename):
     """
-    Create an Agent with specific configuration file.
+    Configure Agent Core with configuration file specified by filename.
 
-    :param filename: name of configuration file to configure the Agent
+    :param filename: name of the configuration file needed to configure the Agent Core
     :type filename: str
-    :return: Agent configured
+    :return: Agent Core configured
     :rtype: AgentCore
     """
     try:
@@ -339,11 +343,11 @@ def init_agent(filename):
             ast.literal_eval(config.get('dac_osc', 'logical_associations')),
             config.get('rest_api', 'ip')
         )
-        logging.debug("AGENT CORE linked with configuration {}".format(filename))
+        logging.debug("AGENT CORE created with configuration file {}".format(filename))
         return agent
 
     except Exception as e:
-        logging.error("AGENT CORE not linked, error: {}".format(e))
+        logging.error("AGENT CORE not created with configuration file {}, error: {}".format(filename, e))
         raise e
 
 
