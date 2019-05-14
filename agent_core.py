@@ -26,11 +26,12 @@ class AgentCore:
         :param ip_laser: IP address of GPIB-ETHERNET of the Laser
         :type ip_laser: str
         :param addr_laser: GPIB address of the Laser
+        :type addr_laser: str
         :param channel_laser: channel of the Laser
         :type channel_laser: int
         :param power_laser: power of the Laser in dBm
         :type power_laser: float
-        :param losses_laser: losses of the Laser in dBm
+        :param losses_laser: power losses of the Laser in dBm
         :type losses_laser: float
         :param ip_amplifier: IP address of GPIB-ETHERNET of the Amplifier
         :type ip_amplifier: str
@@ -40,9 +41,9 @@ class AgentCore:
         :type mode_amplifier: str
         :param power_amplifier: power of the Amplifier in dBm
         :type power_amplifier: float
-        :param wss_operations: id of WaveShaper and list of operations to be configured on the WaveShaper
+        :param wss_operations: operations to be configured on the WaveShaper
         :type wss_operations: dict
-        :param logical_associations: a transmission between DAC and OSC
+        :param logical_associations: transmission between DAC and OSC
         :type logical_associations: list
         :param ip_rest_server: IP address of GPIB-ETHERNET of the DAC/OSC REST Server
         :type ip_rest_server: str
@@ -91,7 +92,7 @@ class AgentCore:
             Laser.configuration(self.ip_laser, self.addr_laser, self.channel_laser, lambda0, power)
 
         except Exception as e:
-            logger.error("Laser setup not finished, error: %s" % e)
+            logger.error("Laser setup failed, error: %s" % e)
             raise e
 
     def dac_setup(self, bn, En, eq):
@@ -112,6 +113,7 @@ class AgentCore:
         :rtype: list
         """
         try:
+            # add bn, En and eq to logical associations between DAC and OSC
             for i in range(len(self.logical_associations)):
                 self.logical_associations[i]['bn'] = bn
                 self.logical_associations[i]['En'] = En
@@ -121,19 +123,21 @@ class AgentCore:
             return result
 
         except Exception as e:
-            logger.error("DAC/OSC setup not finished, error: %s" % e)
+            logger.error("DAC/OSC setup failed, error: %s" % e)
             raise e
 
     def amplifier_setup(self):
         """
         Amplifier setup.
-        Set mode and power of the Amplifier.
+
+            - Set mode of the Amplifier.
+            - Set power of the Amplifier.
         """
         try:
             Amplifier.configuration(self.ip_amplifier, self.addr_amplifier, self.mode_amplifier, self.power_amplifier)
 
         except Exception as e:
-            logger.error("Amplifier setup not finished, error: %s" % e)
+            logger.error("Amplifier setup failed, error: %s" % e)
             raise e
 
     def wss_setup(self):
@@ -146,38 +150,7 @@ class AgentCore:
             return result
 
         except Exception as e:
-            logger.error("WSS setup not finished, error: %s" % e)
-            raise e
-
-    def setup(self, freq, bn, En, eq):
-        """
-        Laser and DAC/OSC setup by setting frequency, constellation and equalization.
-
-            - Laser setup.
-            - DAC/OSC setup.
-
-        :param freq: frequency of Laser
-        :param freq: float
-        :param bn: bits per symbol
-        :type bn: int array of 512 positions
-        :param En: power per symbol
-        :type En: float array of 512 positions
-        :param eq: equalization
-        :type eq: str
-        :return: estimated SNR per subcarrier and BER
-        :rtype: list
-        """
-        try:
-            # Laser setup
-            self.laser_setup(freq, self.power_laser)
-
-            # DAC/OSC setup
-            result = self.dac_setup(bn, En, eq)
-            logger.debug("DAC setup finished with SNR = {} and average BER = {}".format(result[0], result[1]))
-            return result
-
-        except Exception as e:
-            logger.error("Configuration of a DRoF failed, error: %s" % e)
+            logger.error("WSS setup failed, error: %s" % e)
             raise e
 
     def disable_laser(self):
@@ -196,25 +169,19 @@ class AgentCore:
         manlight.enable(False)
         logger.debug("Amplifier %s disabled" % self.ip_amplifier)
 
-    def disconnect(self):
+    def remove_logical_associations(self):
         """
-        Disable Laser and remove the logical associations between DAC and OSC.
+        Remove logical associations between DAC and OSC.
         """
         try:
-            self.disable_laser()
-
-            # remove the logical associations
             for i in range(len(self.logical_associations)):
                 assoc_id = self.logical_associations[i]['id']
                 dac_out = self.logical_associations[i]['dac_out']
                 osc_in = self.logical_associations[i]['osc_in']
                 self.api.deleteDACOSCOperationsById(assoc_id)
                 logger.debug(
-                    "Logical association {} on DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
+                    "Logical associations {} between DAC {} and OSC {} removed".format(assoc_id, dac_out, osc_in))
 
         except Exception as e:
             logger.error(e)
             raise e
-
-    def remove_logical_associations(self):
-        pass
