@@ -305,7 +305,7 @@ def main(*margs):
 
     args = parser.parse_args(*margs)
     configure_logger()
-    a = init_agent(args.a)
+    a = configure_agent(args.a)
     s = NETCONFServer(args.u, args.pwd, args.p, a)
     s.load_startup_configuration(args.c)
 
@@ -320,7 +320,7 @@ def main(*margs):
     s.close()
 
 
-def init_agent(filename):
+def configure_agent(filename):
     """
     Configure Agent Core with configuration file specified by filename.
 

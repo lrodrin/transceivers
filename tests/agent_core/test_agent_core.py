@@ -73,8 +73,8 @@ if __name__ == '__main__':
     #     else:
     #         f = m_folder
     #
-    #     ac = createAgent(f, file)
-    #     print(ac.ip_amplifier, ac.power_amplifier, ac.channel_laser, ac.losses_laser)
+    #     agent = createAgent(f, file)
+    #     print(agent.ip_amplifier, agent.power_amplifier, agent.channel_laser, agent.losses_laser)
 
     ac = createAgent(m_folder, "metro_bvt1.cfg")
     print(ac.ip_amplifier, ac.power_amplifier, ac.channel_laser, ac.losses_laser)
@@ -88,9 +88,9 @@ if __name__ == '__main__':
     client = "c1"
     och = "och1"
 
-    # ac.laser_setup(freq)
-    # print(ac.dac_setup(bn, En, eq))
-    # ac.disconnect()
+    # agent.laser_setup(freq)
+    # print(agent.dac_setup(bn, En, eq))
+    # agent.disconnect()
 
     ac.amplifier_setup()
     print(ac.wss_setup())

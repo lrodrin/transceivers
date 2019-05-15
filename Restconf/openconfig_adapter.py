@@ -18,16 +18,15 @@ app = Flask(__name__)
 app.iniconfig = FlaskIni()
 Swagger(app)
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
 
 with app.app_context():
-    parser = argparse.ArgumentParser("OPENCONFIG Server")
-    parser.add_argument('-a', metavar="AGENT", help='BVT Agent Configuration file')
+    parser = argparse.ArgumentParser("OPENCONFIG Adapter Server")
+    parser.add_argument('-a', metavar="AGENT CORE", help='BVT Agent Core Configuration file')
     args = parser.parse_args()
     app.iniconfig.read(args.a)
-    ac = AgentCore(
+    agent = AgentCore(
         app.iniconfig.get('laser', 'ip'),
         app.iniconfig.get('laser', 'addr'),
         None,
@@ -41,7 +40,7 @@ with app.app_context():
         None,
         app.iniconfig.get('rest_api', 'ip')
     )
-    logging.debug("AGENT CORE linked with configuration {}".format(args.a))
+    logging.debug("AGENT CORE created with configuration file {}".format(args.a))
 
 
 @app.route('/api/v1/openconfig/logical_channel_assignment', methods=['POST'])
@@ -56,16 +55,16 @@ def logical_channel_assignment():
     produces:
     - application/json
     parameters:
-    - name: params
+    - name: body
       in: body
       description: Client and the Optical Channel to be assigned
-      example: {'name': 'c1', 'och': 'channel-2', 'status': 'enabled', 'type': 'client'}
+      example: {'name': 'c1', 'och': 'channel-101', 'status': 'enabled', 'type': 'client'}
       required: true
     responses:
         200:
             description: Successful assignation
         400:
-            description: Invalid input logical assignation
+            description: Invalid parameters supplied
     """
     if request.method == 'POST':
         params = request.json
@@ -75,14 +74,14 @@ def logical_channel_assignment():
             status = params['status']
             type = params['type']
             try:
-                cl_id = int(name.split('c')[1])
-                och_id = int(och.split('-')[1])
+                cl_id = int(name.split('c')[1])  # client id numerical part
+                och_id = int(och.split('-')[1])  # optical channel id numerical part
                 if name == "c1" and och_id == 101:
-                    ac.channel_laser = 2
-                    ac.logical_associations.append({'id': cl_id, 'dac_out': 1, 'osc_in': 1})
+                    agent.channel_laser = 2
+                    agent.logical_associations.append({'id': cl_id, 'dac_out': 1, 'osc_in': 1})
                 else:
-                    ac.channel_laser = 3
-                    ac.logical_associations.append({'id': cl_id, 'dac_out': 2, 'osc_in': 2})
+                    agent.channel_laser = 3
+                    agent.logical_associations.append({'id': cl_id, 'dac_out': 2, 'osc_in': 2})
 
                 msg = "Client {} assigned to the Optical Channel {}".format(name, och)
                 logger.debug(msg)
@@ -94,7 +93,7 @@ def logical_channel_assignment():
                         name, och, e))
                 raise e
         else:
-            return jsonify("The parameters sent are not correct", 400)
+            return jsonify("Invalid parameters supplied", 400)
 
 
 @app.route('/api/v1/openconfig/logical_channel_assignment/<client>', methods=['DELETE'])
@@ -103,35 +102,34 @@ def remove_logical_channel_assignment(client):
     Client assignation to an Optical Channel
     ---
     delete:
-    description: Remove logical assignations for the Client specified by client
+    description: Remove logical assignations between the Client specified by client and Optical Channels assigned.
     produces:
     - application/json
     parameters:
     - name: client
       in: path
-      description: id to identify the Client assigned into logical assignations to be deleted
+      description: Client ID
       required: true
     responses:
         200:
             description: Successful operation
         400:
-            description: Invalid Client ID supplied
-        404:
-            description: Assignation not found
+            description: Internal Error
     """
     if request.method == 'DELETE':
         try:
-            for i in range(len(ac.logical_associations)):
-                assoc_id = ac.logical_associations[i]['id']
-                if assoc_id == int(client.split('c')[1]):
-                    ac.api.deleteDACOSCOperationsById(assoc_id)
+            for i in range(len(agent.logical_associations)):
+                assoc_id = agent.logical_associations[i]['id']
+                cl_id = int(client.split('c')[1])  # client id numerical part
+                if assoc_id == cl_id:   # if client was assigned
+                    agent.api.deleteDACOSCOperationsById(assoc_id)
 
-            msg = "Logical assignations assigned to the Client %s removed" % client
+            msg = "Logical assignations assigned on the Client %s removed." % client
             logger.debug(msg)
             return jsonify(msg, 200)
 
         except Exception as e:
-            msg = "Logical assignations assigned to the Client %s not removed. Error: {}".format(client, e)
+            msg = "Logical assignations assigned on the Client %s not removed. Error: {}".format(client, e)
             logger.error(msg)
             raise e
 
@@ -208,10 +206,10 @@ def disconnect(och):
     if request.method == 'DELETE':
         try:
             # Disable Amplifier
-            ac.disable_amplifier()
+            agent.disable_amplifier()
 
             # Disable Laser
-            ac.disable_laser()
+            agent.disable_laser()
 
             msg = "Optical Channel och%s configuration removed" % och
             logger.debug(msg)
@@ -243,20 +241,20 @@ def configuration(och, freq, power, mode):
     """
     try:
         # OA setup
-        ac.amplifier_setup()
+        agent.amplifier_setup()
 
         # Laser setup
         och_id = int(och.split('-')[1])
         if och_id == 101 or och_id == 102:
-            power_laser = power + ac.losses_laser
-            ac.laser_setup(freq, power_laser)
+            power_laser = power + agent.losses_laser
+            agent.laser_setup(freq, power_laser)
 
         # DAC/OSC setup
         bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
         En = np.array(np.ones(DAC.Ncarriers)).tolist()
         eq = "MMSE"
 
-        result = ac.dac_setup(bn, En, eq)
+        result = agent.dac_setup(bn, En, eq)
         return result[1]
 
     except Exception as e:

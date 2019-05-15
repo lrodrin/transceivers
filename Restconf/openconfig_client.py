@@ -1,20 +1,17 @@
 import json
-import logging
-
 import requests
-
-logging.basicConfig(level=logging.DEBUG)
 
 
 def local_channel_assigment(host, params):
     """
-    Creates a logical assignation between a Client and an Optical Channel
+    Creates a logical assignation between a Client and an Optical Channel.
 
-    :param host: ip REST Agent Adapter
+    :param host: ip REST OPENCONFIG Adapter server
     :type host: str
-    :param params:
+    :param params: client and the optical channel to be assigned
     :type params: dict
-    :return:
+    :return: successful assignation if not exists internal errors
+    :rtype:
     """
     request = requests.post('http://%s:5001/api/v1/openconfig/logical_channel_assignment' % host, headers=headers,
                             data=json.dumps(params))

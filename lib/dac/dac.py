@@ -53,7 +53,7 @@ class DAC:
     Qt = 255
     bps = 2
 
-    folder = "C:/Users/cttc/Desktop/ac-bvt/config/"
+    folder = "C:/Users/cttc/Desktop/agent-bvt/config/"
     clock_ref_file = folder + "CLK_ref.txt"
     clock_file = folder + "CLK.txt"
     temp_file = folder + "TEMP.txt"
