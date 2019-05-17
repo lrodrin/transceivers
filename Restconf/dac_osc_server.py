@@ -15,11 +15,11 @@ from lib.osc.osc import OSC
 app = Flask(__name__)
 Swagger(app)
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)  # import logging from DAC and OSC
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
 
-logical_associations = collections.OrderedDict()
+logical_associations = collections.OrderedDict()  # logical associations between DAC and OSC database
 
 
 @app.route('/api/dac_osc', methods=['POST'])
@@ -37,59 +37,56 @@ def dac_osc_configuration():
     produces:
     - application/json
     parameters:
-    - name: logical_assoc
+    - name: body
       in: body
       description: logical association to be configured between DAC and OSC
-      example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
-              {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
+      schema:
+        type: array
+        example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn, 'En': En, 'eq': eq}]
       required: true
     responses:
         200:
             description: Successful configuration
             schema:
                 type: array
-                example: [SNR, BER]
+                example: [[], 0.0004997929791905]
         400:
-            description: Invalid input logical_assoc
+            description: Internal Error
     """
     if request.method == 'POST':
         logic_assoc = request.json
-        if len(logic_assoc) != 0:
-            logger.debug("DAC and OSC configuration started")
-            wanted_keys = ('dac_out', 'osc_in', 'bn', 'En', 'eq')
-            for index in range(len(logic_assoc)):  # for each logic association between DAC and OSC
-                assoc_id = str(logic_assoc[index]['id'])
-                dac_out = logic_assoc[index]['dac_out']
-                osc_in = logic_assoc[index]['osc_in']
-                bn = logic_assoc[index]['bn']
-                En = logic_assoc[index]['En']
-                eq = logic_assoc[index]['eq']
+        logger.debug("DAC and OSC configuration started")
+        wanted_keys = ('dac_out', 'osc_in', 'bn', 'En', 'eq')
+        for index in range(len(logic_assoc)):  # for each logic association between DAC and OSC
+            assoc_id = str(logic_assoc[index]['id'])
+            dac_out = logic_assoc[index]['dac_out']
+            osc_in = logic_assoc[index]['osc_in']
+            bn = logic_assoc[index]['bn']
+            En = logic_assoc[index]['En']
+            eq = logic_assoc[index]['eq']
 
-                try:
-                    dac_configuration(dac_out, bn, En)
-                    [SNR, BER] = osc_configuration(dac_out, osc_in, bn, En, eq)
+            try:
+                dac_configuration(dac_out, bn, En)  # DAC configuration
+                [SNR, BER] = osc_configuration(dac_out, osc_in, bn, En, eq)  # OSC configuration
 
-                    # Adding new logical association
-                    filtered_assoc = dict(
-                        zip(wanted_keys,
-                            [logic_assoc[index][k] for k in wanted_keys]))  # logic_assoc - logic_assoc['id']
-                    if assoc_id not in logical_associations.keys():
-                        logical_associations[assoc_id] = filtered_assoc
+                # Adding new logical association to database
+                filtered_assoc = dict(
+                    zip(wanted_keys,
+                        [logic_assoc[index][k] for k in wanted_keys]))  # logic_assoc - logic_assoc['id']
+                if assoc_id not in logical_associations.keys():
+                    logical_associations[assoc_id] = filtered_assoc
 
-                    logger.debug(
-                        "DAC and OSC logical association with id: %s was successfully configured" % assoc_id)
+                logger.debug(
+                    "DAC and OSC logical association with id: %s was successfully added" % assoc_id)
 
-                except Exception as e:
-                    logger.error(
-                        "DAC and OSC logical association with id: {} wasn't successfully configured. Error: {}".format(
-                            assoc_id, e))
-                    raise e
+            except Exception as e:
+                logger.error(
+                    "DAC and OSC logical association with id: {} wasn't successfully added. Error: {}".format(
+                        assoc_id, e))
+                raise e
 
-                logger.debug("DAC and OSC was successfully configured")
-                return jsonify([SNR, BER])
-        
-        else:
-            return jsonify("The parameters sent are not correct", 400)
+            logger.debug("DAC and OSC was successfully configured")
+            return jsonify([SNR, BER])
 
 
 def dac_configuration(dac_out, bn, En):
@@ -158,29 +155,27 @@ def dac_osc_associations():
     DAC and OSC logical associations
     ---
     get:
-    description: Get multiple logical associations configured between DAC and OSC
+    description: Get logical associations configured between DAC and OSC
     produces:
     - application/json
     parameters:
-    - name: associations
+    - name: logical associations
       in: query
-      type: array
-      description: logical associations configured between DAC and OSC
+      description: logical association configured between DAC and OSC
     responses:
         200:
             description: Successful operation
             schema:
                 type: array
-                example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
-              {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
-        404:
-            description: Associations not found
+                example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn, 'En': En, 'eq': eq}]
+        400:
+            description: Internal Error
     """
     if request.method == 'GET':
-        if len(logical_associations) != 0:  # If exists associations
+        if len(logical_associations) != 0:  # If exists logical associations
             return jsonify(logical_associations)
         else:
-            return jsonify("Not exists operations", 404)
+            return jsonify("Not exists logical association between DAC and OSC.", 400)
 
 
 @app.route('/api/dac_osc/<assoc_id>', methods=['GET'])
@@ -196,32 +191,24 @@ def dac_osc_getAssociationByID(assoc_id):
     - name: assoc_id
       in: path
       type: integer
-      description: id of logical association configured between DAC and OSC
+      description: id that identifies a logical association
       required: true
     responses:
         200:
             description: Successful operation
             schema:
                 type: array
-                example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn1, 'En': En1, 'eq': eq1},
-              {'id': 2, 'dac_out': 2, 'osc_in': 1, 'bn': bn2, 'En': En2, 'eq': eq2}]
+                example: [{'id': 1, 'dac_out': 1, 'osc_in': 2, 'bn': bn, 'En': En, 'eq': eq}]
         400:
             description: Invalid ID supplied
-        404:
-            description: Association not found
     """
     assoc_id = str(assoc_id)
-    msg_not_exists_associations = "Not exists logical association between DAC and OSC with id %s." % assoc_id
-    msg_not_exists = "Not exists logical associations"
-
     if request.method == 'GET':
         if len(logical_associations) != 0:  # If exists association
             if logical_associations[assoc_id]:  # If exists association for assoc_id
                 return jsonify(assoc_id, logical_associations[assoc_id])
             else:
-                return jsonify(msg_not_exists_associations, 400)
-        else:
-            return jsonify(msg_not_exists, 404)
+                return jsonify("Not exists logical association between DAC and OSC with id %s." % assoc_id, 400)
 
 
 @app.route('/api/dac_osc/<assoc_id>', methods=['DELETE'])
@@ -230,39 +217,32 @@ def dac_osc_deleteAssociationByID(assoc_id):
     DAC and OSC logical association by ID
     ---
     delete:
-    description: Delete logical association configured between DAC and OSC specified by id
+    description: Remove logical association configured between DAC and OSC specified by id
     produces:
     - application/json
     parameters:
     - name: assoc_id
       in: path
       type: integer
-      description: id of logical association configured between DAC and OSC
+      description: iid that identifies a logical association
       required: true
     responses:
         200:
             description: Successful operation
         400:
             description: Invalid ID supplied
-        404:
-            description: Association not found
     """
     assoc_id = str(assoc_id)
-    msg_not_exists_associations = "Not exists logical association between DAC and OSC with id %s." % assoc_id
-    msg_not_exists = "Not exists logical associations"
-
     if request.method == 'DELETE':
         if len(logical_associations) != 0:  # If exists association
             if logical_associations[assoc_id]:  # If exists association for assoc_id
                 del logical_associations[assoc_id]
                 return jsonify("Logical association %s deleted" % assoc_id, 200)
             else:
-                return jsonify(msg_not_exists_associations, 400)
-        else:
-            return jsonify(msg_not_exists, 404)
+                return jsonify("Not exists logical association between DAC and OSC with id %s." % assoc_id, 400)
 
 
-def define_logger():
+def configure_logger():
     """
     Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
     """
@@ -279,5 +259,5 @@ def define_logger():
 
 
 if __name__ == '__main__':
-    define_logger()
+    configure_logger()
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)
