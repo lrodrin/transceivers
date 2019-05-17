@@ -18,6 +18,7 @@ app = Flask(__name__)
 app.iniconfig = FlaskIni()
 Swagger(app)
 
+logging.basicConfig(level=logging.DEBUG)    # import logging from Agent Core
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.DEBUG)
 
