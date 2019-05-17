@@ -10,7 +10,7 @@ def local_channel_assigment(host, params):
     :type host: str
     :param params: client and the optical channel to be assigned
     :type params: dict
-    :return: successful assignation if not exists internal errors
+    :return: successful assignation message if not exists internal errors
     :rtype:
     """
     request = requests.post('http://%s:5001/api/v1/openconfig/logical_channel_assignment' % host, headers=headers,
@@ -20,28 +20,30 @@ def local_channel_assigment(host, params):
 
 def optical_channel_configuration(host, params):
     """
-    Creates a configuration of an Optical Channel by setting frequency, power and mode
+    Configure an Optical Channel by setting frequency, power and mode.
 
-    :param host: ip REST Agent Adapter
+    :param host: ip REST OPENCONFIG Adapter server
     :type host: str
-    :param params:
+    :param params: parameters of the Optical Channel to be configured
     :type params: dict
-    :return:
+    :return: successful configuration message if not exists internal errors and average BER
+    :rtype:
     """
     request = requests.post('http://%s:5001/api/v1/openconfig/optical_channel' % host, headers=headers,
                             data=json.dumps(params))
     return request.json()
 
 
-def disconnect(host, och):
+def remove_optical_channel(host, och):
     """
-    Disable Laser and Amplifier
+    Disable Laser and Amplifier.
 
-    :param host: ip REST Agent Adapter
+    :param host: ip REST OPENCONFIG Adapter server
     :type host: str
-    :param och: id that identify the Optical Channel configuration to be removed
+    :param och: Optical Channel ID
     :type: int
-    :return:
+    :return: removed configuration message if not exists internal errors
+    :rtype:
     """
     request = requests.delete('http://%s:5001/api/v1/openconfig/optical_channel/%s' % (host, och), headers=headers)
     return request.json()
@@ -49,17 +51,17 @@ def disconnect(host, och):
 
 def remove_logical_channel_assigment(host, client):
     """
-    Remove logical assignations for the Client specified by client
+    Remove logical assignations between specified client and Optical Channel assigned.
 
-    :param host: ip REST Agent Adapter
+    :param host: ip REST OPENCONFIG Adapter server
     :type host: str
-    :param client: id to identify the Client assigned into logical assignations to be deleted
+    :param client: Client ID
     :type: int
-    :return:
+    :return: removed logical channel assignations message if not exists internal errors
+    :rtype:
     """
-    request = requests.delete(
-        'http://%s:5001/api/v1/openconfig/logical_channel_assignment/%s' % (host, client),
-        headers=headers)
+    request = requests.delete('http://%s:5001/api/v1/openconfig/logical_channel_assignment/%s' % (host, client),
+                              headers=headers)
     print(request.json())
 
 
@@ -80,10 +82,10 @@ if __name__ == '__main__':
     print(local_channel_assigment(host_2, params_lca_host_2))
     print(optical_channel_configuration(host_2, params_occ))
 
-    # disconnect and remove local channel assignment c1 - och1
-    print(disconnect(host_1, params_lca_host_1['och']))
+    # remove optical_channel configuration and remove local channel assignment c1 - och1
+    print(remove_optical_channel(host_1, params_lca_host_1['och']))
     print(remove_logical_channel_assigment(host_1, params_lca_host_1['name']))
 
-    # disconnect and remove local channel assignment c3 - och1
-    print(disconnect(host_2, params_lca_host_2['och']))
+    # remove optical_channel configuration and remove local channel assignment c3 - och1
+    print(remove_optical_channel(host_2, params_lca_host_2['och']))
     print(remove_logical_channel_assigment(host_2, params_lca_host_2['name']))

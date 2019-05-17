@@ -102,7 +102,7 @@ def remove_logical_channel_assignment(client):
     Client assignation to an Optical Channel
     ---
     delete:
-    description: Remove logical assignations between the Client specified by client and Optical Channels assigned.
+    description: Remove logical assignations between specified client and Optical Channel assigned.
     produces:
     - application/json
     parameters:
@@ -121,7 +121,7 @@ def remove_logical_channel_assignment(client):
             for i in range(len(agent.logical_associations)):
                 assoc_id = agent.logical_associations[i]['id']
                 cl_id = int(client.split('c')[1])  # client id numerical part
-                if assoc_id == cl_id:   # if client was assigned
+                if assoc_id == cl_id:  # if client was assigned
                     agent.api.deleteDACOSCOperationsById(assoc_id)
 
             msg = "Logical assignations assigned on the Client %s removed." % client
@@ -140,7 +140,7 @@ def optical_channel():
     Optical Channel configuration
     ---
     post:
-    description: Creates a configuration of an Optical Channel by setting frequency, power and mode.
+    description: Configure an Optical Channel by setting frequency, power and mode.
     consumes:
     - application/json
     produces:
@@ -149,14 +149,14 @@ def optical_channel():
     - name: params
       in: body
       description: parameters of the Optical Channel to be configured
-      example: {'frequency': '192300000', 'mode': '111', 'name': 'channel-1', 'power': '10.0', 'status': 'enabled',
+      example: {'frequency': '193400000', 'mode': '111', 'name': 'channel-101', 'power': '-1.3', 'status': 'enabled',
       'type': 'optical_channel'}
       required: true
     responses:
         200:
-            description: Successful configuration
+            description: Successful operation
         400:
-            description: Invalid input parameters for an optical channel
+            description: Invalid parameters supplied
     """
     if request.method == 'POST':
         params = request.json
@@ -181,27 +181,25 @@ def optical_channel():
 
 
 @app.route('/api/v1/openconfig/optical_channel/<och>', methods=['DELETE'])
-def disconnect(och):
+def remove_optical_channel(och):
     """
     Optical Channel configuration
     ---
     delete:
-    description: Disable Laser and Amplifier
+    description: Disable Laser and Amplifier.
     produces:
     - application/json
     parameters:
     - name: och
       in: path
       type: integer
-      description: id that identify the Optical Channel configuration to be removed
+      description: Optical Channel ID
       required: true
     responses:
         200:
             description: Successful operation
         400:
-            description: Invalid Optical Channel ID supplied
-        404:
-            description: Optical Channel not found
+            description: Internal Error
     """
     if request.method == 'DELETE':
         try:
@@ -244,25 +242,25 @@ def configuration(och, freq, power, mode):
         agent.amplifier_setup()
 
         # Laser setup
-        och_id = int(och.split('-')[1])
-        if och_id == 101 or och_id == 102:
-            power_laser = power + agent.losses_laser
+        och_id = int(och.split('-')[1])  # optical channel id numerical part
+        if och_id == 101 or och_id == 102:  # if optical channel is 1 or 2
+            power_laser = power + agent.losses_laser  # power = power optical channel + losses due to MZM + driver
             agent.laser_setup(freq, power_laser)
 
         # DAC/OSC setup
+        # bn, En and eq are constant parameters
         bn = np.array(np.ones(DAC.Ncarriers) * DAC.bps, dtype=int).tolist()
         En = np.array(np.ones(DAC.Ncarriers)).tolist()
         eq = "MMSE"
-
         result = agent.dac_setup(bn, En, eq)
-        return result[1]
+        return result[1]  # average BER
 
     except Exception as e:
         logger.error("Configuration of Optical Channel {} failed, Error: {}".format(och, e))
         raise e
 
 
-def define_logger():
+def configure_logger():
     """
     Create, formatter and add Handlers (RotatingFileHandler and StreamHandler) to the logger.
     """
@@ -280,5 +278,5 @@ def define_logger():
 
 
 if __name__ == '__main__':
-    define_logger()
+    configure_logger()
     app.run(host='0.0.0.0', port=5001, debug=True, threaded=False)

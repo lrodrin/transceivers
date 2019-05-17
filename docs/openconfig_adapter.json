@@ -1,0 +1,133 @@
+{
+  "definitions": {}, 
+  "info": {
+    "description": "powered by Flasgger", 
+    "termsOfService": "/tos", 
+    "title": "A swagger API", 
+    "version": "0.0.1"
+  }, 
+  "paths": {
+    "/api/v1/openconfig/logical_channel_assignment": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ], 
+        "description": "Creates a logical assignation between a Client and an Optical Channel.", 
+        "parameters": [
+          {
+            "description": "Client and the Optical Channel to be assigned", 
+            "example": {
+              "name": "c1", 
+              "och": "channel-101", 
+              "status": "enabled", 
+              "type": "client"
+            }, 
+            "in": "body", 
+            "name": "body", 
+            "required": true
+          }
+        ], 
+        "produces": [
+          "application/json"
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful assignation"
+          }, 
+          "400": {
+            "description": "Invalid parameters supplied"
+          }
+        }, 
+        "summary": "Client assignation to an Optical Channel"
+      }
+    }, 
+    "/api/v1/openconfig/logical_channel_assignment/{client}": {
+      "delete": {
+        "description": "Remove logical assignations between specified client and Optical Channel assigned.", 
+        "parameters": [
+          {
+            "description": "Client ID", 
+            "in": "path", 
+            "name": "client", 
+            "required": true
+          }
+        ], 
+        "produces": [
+          "application/json"
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }, 
+          "400": {
+            "description": "Internal Error"
+          }
+        }, 
+        "summary": "Client assignation to an Optical Channel"
+      }
+    }, 
+    "/api/v1/openconfig/optical_channel": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ], 
+        "description": "Configure an Optical Channel by setting frequency, power and mode.", 
+        "parameters": [
+          {
+            "description": "parameters of the Optical Channel to be configured", 
+            "example": {
+              "frequency": "193400000", 
+              "mode": "111", 
+              "name": "channel-101", 
+              "power": "-1.3", 
+              "status": "enabled", 
+              "type": "optical_channel"
+            }, 
+            "in": "body", 
+            "name": "params", 
+            "required": true
+          }
+        ], 
+        "produces": [
+          "application/json"
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }, 
+          "400": {
+            "description": "Invalid parameters supplied"
+          }
+        }, 
+        "summary": "Optical Channel configuration"
+      }
+    }, 
+    "/api/v1/openconfig/optical_channel/{och}": {
+      "delete": {
+        "description": "Disable Laser and Amplifier.", 
+        "parameters": [
+          {
+            "description": "Optical Channel ID", 
+            "in": "path", 
+            "name": "och", 
+            "required": true, 
+            "type": "integer"
+          }
+        ], 
+        "produces": [
+          "application/json"
+        ], 
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }, 
+          "400": {
+            "description": "Internal Error"
+          }
+        }, 
+        "summary": "Optical Channel configuration"
+      }
+    }
+  }, 
+  "swagger": "2.0"
+}
